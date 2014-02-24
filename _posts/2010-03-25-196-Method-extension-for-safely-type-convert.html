@@ -1,0 +1,361 @@
+---
+layout: post
+title: "Method extension for safely type convert"
+date: 2010-03-25 19:58:00
+categories: en
+tags: [.NET, C#, Parse, Convert, Extension Methods]
+permalink: en/blog/show/196
+---
+<p>Recently I read good Russian post with many interesting <a href="http://nesteruk.wordpress.com/2010/03/22/extension-method-patterns/">extensions methods</a> after then I remembered that I too have one good extension method “Safely type convert”. Idea of this method I got at last job.</p>
+
+<p>We often write code like this:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">int</span> intValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span> || !<span style="color: #0000ff">int</span>.TryParse(obj.ToString(), <span style="color: #0000ff">out</span> intValue))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    intValue = 0;</pre>
+<!--CRLF--></div>
+</div>
+
+<p></p>
+
+<p>This is method how to safely parse object to int. Of course will be good if we will create some unify method for safely casting.</p>
+
+<p>I found that better way is to create extension methods and use them then follows:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">int</span> i;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">i = <span style="color: #006080">&quot;1&quot;</span>.To&lt;<span style="color: #0000ff">int</span>&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// i == 1</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">i = <span style="color: #006080">&quot;1a&quot;</span>.To&lt;<span style="color: #0000ff">int</span>&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// i == 0 (default value of int)</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">i = <span style="color: #006080">&quot;1a&quot;</span>.To(10);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// i == 10 (set as default value 10)</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">i = <span style="color: #006080">&quot;1&quot;</span>.To(10);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// i == 1</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #008000">// ********** Nullable sample **************</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">int</span>? j;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">j = <span style="color: #006080">&quot;1&quot;</span>.To&lt;<span style="color: #0000ff">int</span>?&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// j == 1</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">j = <span style="color: #006080">&quot;1a&quot;</span>.To&lt;<span style="color: #0000ff">int</span>?&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// j == null</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">j = <span style="color: #006080">&quot;1a&quot;</span>.To&lt;<span style="color: #0000ff">int</span>?&gt;(10);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// j == 10</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">j = <span style="color: #006080">&quot;1&quot;</span>.To&lt;<span style="color: #0000ff">int</span>?&gt;(10);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// j == 1</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Realization of this approach:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">class</span> Parser</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// Try cast &lt;paramref name=&quot;obj&quot;/&gt; value to type &lt;typeparamref name=&quot;T&quot;/&gt;,</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// if can't will return default(&lt;typeparamref name=&quot;T&quot;/&gt;)</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;typeparam name=&quot;T&quot;&gt;&lt;/typeparam&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;param name=&quot;obj&quot;&gt;&lt;/param&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;returns&gt;&lt;/returns&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> T To&lt;T&gt;(<span style="color: #0000ff">this</span> <span style="color: #0000ff">object</span> obj)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">return</span> To(obj, <span style="color: #0000ff">default</span>(T));</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// Try cast &lt;paramref name=&quot;obj&quot;/&gt; value to type &lt;typeparamref name=&quot;T&quot;/&gt;,</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// if can't will return &lt;paramref name=&quot;defaultValue&quot;/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;typeparam name=&quot;T&quot;&gt;&lt;/typeparam&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;param name=&quot;obj&quot;&gt;&lt;/param&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;param name=&quot;defaultValue&quot;&gt;&lt;/param&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;returns&gt;&lt;/returns&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> T To&lt;T&gt;(<span style="color: #0000ff">this</span> <span style="color: #0000ff">object</span> obj, T defaultValue)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">return</span> defaultValue;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (obj <span style="color: #0000ff">is</span> T)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">return</span> (T) obj;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Type type = <span style="color: #0000ff">typeof</span> (T);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">// Place convert to reference types here</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">string</span>))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">return</span> (T)(<span style="color: #0000ff">object</span>)obj.ToString();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Type underlyingType = Nullable.GetUnderlyingType(type);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (underlyingType != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">return</span> To(obj, defaultValue, underlyingType);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">return</span> To(obj, defaultValue, type);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> T To&lt;T&gt;(<span style="color: #0000ff">object</span> obj, T defaultValue, Type type)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">// Place convert to sructures types here</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">int</span>))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">int</span> intValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (<span style="color: #0000ff">int</span>.TryParse(obj.ToString(), <span style="color: #0000ff">out</span> intValue))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">return</span> (T)(<span style="color: #0000ff">object</span>)intValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">return</span> defaultValue;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">long</span>))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">long</span> intValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (<span style="color: #0000ff">long</span>.TryParse(obj.ToString(), <span style="color: #0000ff">out</span> intValue))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">return</span> (T)(<span style="color: #0000ff">object</span>)intValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">return</span> defaultValue;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">bool</span>))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">bool</span> bValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (<span style="color: #0000ff">bool</span>.TryParse(obj.ToString(), <span style="color: #0000ff">out</span> bValue))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">return</span> (T)(<span style="color: #0000ff">object</span>)bValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">return</span> defaultValue;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (type.IsEnum)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (Enum.IsDefined(type, obj))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">return</span> (T)Enum.Parse(type, obj.ToString());</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">return</span> defaultValue;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;Couldn't parse to Type {0}&quot;</span>, <span style="color: #0000ff">typeof</span>(T)));</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+
+<p>This realization isn’t full – this is small method part, I use it at my site engine. It can work with int, long, bool, string, enums (with Nullable type of this types too). I think that you can add types very easy for this method (don’t forget about culture). </p>
+
+<p>Obviously this approach you can use just inside of developers group, because It is not obviously why this method can’t cast any type A to type B.</p>
+
+<p><a href="http://www.dotnetkicks.com/kick/?url=http%3a%2f%2foutcoldman.ru%2fen%2fblog%2fshow%2f196"><img src="http://www.dotnetkicks.com/Services/Images/KickItImageGenerator.ashx?url=http%3a%2f%2foutcoldman.ru%2fen%2fblog%2fshow%2f196" border="0" alt="kick it on DotNetKicks.com" /></a>
+<a rev="vote-for" href="http://dotnetshoutout.com/outcoldman-Method-extension-for-safely-type-convert"><img alt="Shout it" src="http://dotnetshoutout.com/image.axd?url=http%3A%2F%2Foutcoldman.ru%2Fen%2Fblog%2Fshow%2F196" style="border:0px"/></a>
+</p>

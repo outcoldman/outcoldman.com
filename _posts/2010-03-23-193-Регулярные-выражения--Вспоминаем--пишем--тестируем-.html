@@ -1,0 +1,209 @@
+---
+layout: post
+title: "Регулярные выражения. Вспоминаем, пишем, тестируем."
+date: 2010-03-23 20:14:00
+categories: ru
+tags: [.NET, C#, Twitter, TDD, Regex, Regular Expressions, nUnit]
+permalink: ru/blog/show/193
+---
+<p>Признаюсь, я фанат регулярных выражений. Всегда, когда я вижу задачу, которую можно решить при помощи RegEx, я загораюсь и бегу писать тест под новенькое Regex условие. Раньше даже специально держал установленный SharpDeveloper, так как там была удобная тулза для проверки RegEx выражений, сейчас же я немного поумнел и для каждого RegEx пишу просто отдельный тест и в нем же и тестирую. Вообще, нужно стараться находить те задачи, которые предназначены для решения их через регулярные выражения. Мне сложно помнить синтаксис регулярных выражений, точнее приходится их писать не так уж и часто, потому из головы постоянно вылетает: какой символ отвечает за начало строки и т.п. Для освежения я постоянно пользуюсь очень легкой статьей <a href="http://www.rsdn.ru/article/alg/regular.xml">Регулярные выражения на RSDN</a>.</p>
+
+<h1>Несколько примеров </h1>
+
+<h2>Определение, что текст русский</h2>
+
+<p>На своем сайте я отображаю свои сообщения из твиттера, но раз я разделил весь контент на русский и английский, я решил так же поделить сообщения из твиттера. Сделать решил просто: если есть русская буква, то сообщение русское, если нет, то английское, итого Regex получился такой:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; max-height: 300px; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> RegexIsRussian = <span style="color: #006080">@&quot;[А-Яа-я]+&quot;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Можно, конечно, данную задачу решить проходом по всей строке и просмотром вхождения кода символа в русский диапазон. Тут же проверка очень простая – хотя бы один русский символ. Использовать этот Regex теперь очень просто в коде:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; max-height: 300px; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">Regex.IsMatch(text, RegexIsRussian)</pre>
+<!--CRLF--></div>
+</div>
+
+<p><a href="http://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex.aspx">Regex</a> – класс из пространства имен System.Text.RegularExpressions.</p>
+
+<h2>Нахождение и замена ссылки</h2>
+
+<p>Предыдущий пример очень прост, давайте попробуем посмотреть пример посложнее, в строке необходимо найти http ссылку. Делать это в лоб, простым разборов строки, уже будет занятие неблагодарное, а в regex пишется достаточно красиво:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; max-height: 300px; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> RegexUrl = <span style="color: #006080">@&quot;(https?://(www.)?([\w\-]+)(\.([\w\-]+))+([\w\\\/\.?&amp;%=\-+]*))&quot;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>И опять же, мы теперь можем искать ссылки при помощи конструкции Regex.IsMatch, но можно и поинтереснее. Ссылки я искал не просто так, а для того чтобы их заменять в обычном тексте на anchor – html ссылки, потому, при помощи такого выражения и следующей конструкции, сделать это очень просто</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; max-height: 300px; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">Regex.Replace(text, RegexUrl, <span style="color: #006080">&quot;&lt;a href='$1'&gt;$1&lt;/a&gt;&quot;</span>);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Вместо $1 будут подставляться найденные ссылки (то что в первых скобках).</p>
+
+<p>Таким же способом мы можем заменить пользователей и хештеги на ссылки:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; max-height: 300px; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> RegexTwitterUser = <span style="color: #006080">@&quot;(@([A-Za-z0-9_]+))&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">Regex.Replace(text, RegexTwitterUser, <span style="color: #006080">&quot;&lt;a href='http://twitter.com/$2'&gt;$1&lt;/a&gt;&quot;</span>)</pre>
+<!--CRLF--></div>
+</div>
+
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; max-height: 300px; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> RegexTwitterTag = <span style="color: #006080">@&quot;(#([A-Za-z0-9_]+))&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">Regex.Replace(text, RegexTwitterTag, <span style="color: #006080">&quot;&lt;a href='http://twitter.com/#search?q=%23$2'&gt;$1&lt;/a&gt;&quot;</span>);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Во втором примере мы уже используем как $1 так и $2, где $2 – это то что во вторых скобках, а точнее имя пользователя без #.</p>
+
+<p>Вообще, примеров еще может быть огромное количество, особенно часто Regex всплывают в валидации, при помощи них и встроенных средств ASP.NET или других технологий можно запросто написать валидатор на какое либо вводимое поле – будь то email, телефон, индекс, дата или еще что-нибудь. Благо готовых решений таких стандартных Regex для валидаторов огромное количество, главное не лениться искать в поисковиках.</p>
+
+<h1>Тестирование Regex</h1>
+
+<p>Я тестирую Regex при помощи комбинаторных тестов (тестов с параметрами, значения которых подставляются при помощи источников данных). Так в nunit (сейчас использую его для своего сайта, так как MbUnit c Gallio и R#5 не смог подружить в VS2010), например, чтобы тестировать замену ссылок я написал такой тест:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span>[][] Urls</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    get</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> <span style="color: #0000ff">new</span>[]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                   {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                       <span style="color: #0000ff">new</span>[] {<span style="color: #006080">&quot;Hello http://google.com bye&quot;</span>, <span style="color: #006080">&quot;Hello &lt;a href='http://google.com'&gt;http://google.com&lt;/a&gt; bye&quot;</span>},</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                       <span style="color: #0000ff">new</span>[]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                           {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                               <span style="color: #006080">&quot;Hello http://mail.google.com bye&quot;</span>,</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                               <span style="color: #006080">&quot;Hello &lt;a href='http://mail.google.com'&gt;http://mail.google.com&lt;/a&gt; bye&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                           },</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                       <span style="color: #0000ff">new</span>[]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                           {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                               <span style="color: #006080">&quot;Hello http://google.com/test/test.aspx&quot;</span>,</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                               <span style="color: #006080">&quot;Hello &lt;a href='http://google.com/test/test.aspx'&gt;http://google.com/test/test.aspx&lt;/a&gt;&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                           },</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                       <span style="color: #0000ff">new</span>[]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                           {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                               <span style="color: #006080">&quot;Hello http://g0ogle.com/test/test.aspx?q=7&amp;b=0&quot;</span>,</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                               <span style="color: #006080">&quot;Hello &lt;a href='http://g0ogle.com/test/test.aspx?q=7&amp;b=0'&gt;http://g0ogle.com/test/test.aspx?q=7&amp;b=0&lt;/a&gt;&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                           }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                   };</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> twitter_text_to_html_convert([ValueSource(<span style="color: #006080">&quot;Urls&quot;</span>)] <span style="color: #0000ff">string</span>[] url)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">string</span> replace = HtmlParser.ReplaceHref(url[0]);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(url[1], replace);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p></p>
+
+<p>Как вы видите тест на самом деле очень маленький – это всего лишь метод twitter_text_to_html_convert. А вот источник Urls я постоянно добавляю. Метод twitter_text_to_html_convert выполнится столько раз, сколько данных в источнике.</p>
+
+<p>Недавно я узнал что, оказывается, у меня не учитывалось что в url может быть тире, потому я дописал свой regex и просто добавил еще одну пару в Urls:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">new</span>[]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #006080">&quot;Hello http://ninja-assassin-movie.warnerbros.com&quot;</span>,</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">&quot;Hello &lt;a href='http://ninja-assassin-movie.warnerbros.com'&gt;http://ninja-assassin-movie.warnerbros.com&lt;/a&gt;&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    },</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Так я был уверен, что моя добавленная работа в regex не порушило то что было, и новый regex так же отрабатывает url с новым условием. </p>
+
+<h4>P.S. На свой сайт положил тулзу для быстрой проверки regex в вебе <a href="/ru/tools/regex">http://outcoldman.com/ru/tools/regex</a></h4>
+
+<p><a rev="vote-for" href="http://progg.ru/outcoldman-%D0%A0%D0%B5%D0%B3%D1%83%D0%BB%D1%8F%D1%80%D0%BD%D1%8B%D0%B5-%D0%B2%D1%8B%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F-%D0%92%D1%81%D0%BF%D0%BE%D0%BC%D0%B8%D0%BD%D0%B0%D0%B5%D0%BC-%D0%BF%D0%B8%D1%88%D0%B5%D0%BC-%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D1%83%D0%B5%D0%BC"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.ru%2Fru%2Fblog%2Fshow%2F193" style="border:0px"/></a></p>

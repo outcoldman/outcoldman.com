@@ -1,0 +1,408 @@
+---
+layout: post
+title: "Обновляем приложение с MVC 2 до MVC 3"
+date: 2011-02-07 07:01:00
+categories: ru
+tags: [ASP.NET, MVC, Razor, ASP.NET MVC 3, ASP.NET MVC 2, ASPX]
+permalink: ru/blog/show/272
+---
+<p>Уже год мой сайт (блог) живет на самописном движке, который я сделал при помощи ASP.NET MVC 2. Конечно же я мог пользоваться бесплатными площадками для блогов, но мне пока интересно развиваться по многим направлениям. И если моя основная специальность сейчас Silverlight/WPF, то я все равно стараюсь не забыть про старый добрый веб, без него никуда в нынешнее время. Ну и нужно быть на гребне волны, потому я и решил что пора бы проапгрейдить свой сайт с MVC2 до MVC3. Зачем? А просто, чтобы было. Чтобы в будущем, когда захочется что-то допилить или доделать, а у меня уже была последняя версия, и я мог использовать последние фичи технологии. </p>    <h2>Обновляем проект с MVC2 до MVC3</h2>  <p>Первое задание, которое нужно выполнить для обновления на новую версию – это обновить сам проект и библиотеки. Если еще сама платформа не скачена, тогда идем на официальный сайт ASP.NET MVC и качаем третью версию отсюда <a href="http://www.asp.net/mvc/mvc3">http://www.asp.net/mvc/mvc3</a>. Дальше нам нужно просто поменять references с библиотек версии 2.0 на версию 3.0. Делается это очень просто, качаем <a href="http://aspnet.codeplex.com/releases/view/59008">ASP.NET MVC 3 Application Upgrader</a> (все бы производители фреймворков так заботились о разработчиках), запускаем, указываем путь до sln файла проекта и ждем результата. Эта тулза так же положит последние версии файлов jQuery фреймворка вам на сайт, но так как я использую Google jQuery CDN (чего и вам советую), то я просто вынес эти файлы из своего проекта и просто поменял ссылку на версию jQuery файла с <a href="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">1.4.2</a> на <a href="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js">1.4.4</a>. Еще эта библиотека заменила references во всех моих проектах этого солюшена с MVC 2.0 на MVC 3.0 (и добавила ссылки на две дополнительные библиотеки), как и должна была, а так же обновила web.config файл, а именно добавила в appSettings пару параметров, предназначения которых я пока не знаю:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;ClientValidationEnabled&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;UnobtrusiveJavaScriptEnabled&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Потом разберемся, что это значит. </p>
+
+<p>В web.config прописала ссылки на библиотеки (желтым - новое):</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">compilation</span> <span style="color: #ff0000">debug</span><span style="color: #0000ff">=&quot;true&quot;</span> <span style="color: #ff0000">targetFramework</span><span style="color: #0000ff">=&quot;4.0&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">assemblies</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">assembly</span><span style="color: #0000ff">=&quot;System.Web.Mvc, Version=<font style="background-color: #ffff00">3.0.0.0</font>, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">assembly</span><span style="color: #0000ff">=&quot;System.Web.Abstractions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">assembly</span><span style="color: #0000ff">=&quot;System.Web.Routing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <font style="background-color: #ffff00"><span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">assembly</span><span style="color: #0000ff">=&quot;System.Web.Helpers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <font style="background-color: #ffff00"><span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">assembly</span><span style="color: #0000ff">=&quot;System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">assemblies</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">compilation</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Добавила пару namespace (чтобы на страницах можно было использовать без подключения этих namespace):</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">pages</span> <span style="color: #ff0000">controlRenderingCompatibilityVersion</span><span style="color: #0000ff">=&quot;3.5&quot;</span> <span style="color: #ff0000">clientIDMode</span><span style="color: #0000ff">=&quot;AutoID&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">   <span style="color: #0000ff">&lt;</span><span style="color: #800000">namespaces</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">       <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Mvc&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">       <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Mvc.Ajax&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">       <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Mvc.Html&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">       <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Routing&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">       <font style="background-color: #ffff00"><span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Helpers&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">       <font style="background-color: #ffff00"><span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.WebPages&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">   <span style="color: #0000ff">&lt;/</span><span style="color: #800000">namespaces</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">pages</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Ну и конечно, прописала asssemblyBinding для того, чтобы не было конфликтов версий (в случае, если используются какие-то библиотеки, которые были скомпилированы с версией MVC 2.0):</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">runtime</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">assemblyBinding</span> <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;urn:schemas-microsoft-com:asm.v1&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">dependentAssembly</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">           <span style="color: #0000ff">&lt;</span><span style="color: #800000">assemblyIdentity</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;System.Web.Mvc&quot;</span> <span style="color: #ff0000">publicKeyToken</span><span style="color: #0000ff">=&quot;31bf3856ad364e35&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">bindingRedirect</span> <span style="color: #ff0000">oldVersion</span><span style="color: #0000ff">=&quot;1.0.0.0-2.0.0.0&quot;</span> <span style="color: #ff0000">newVersion</span><span style="color: #0000ff">=&quot;3.0.0.0&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">dependentAssembly</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">assemblyBinding</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">runtime</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Так же был подправлен файл web.config, который находится в папке Views (добавился обработчик Razor, ну и поменяли версию библиотек со второй на третью). </p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <font style="background-color: #ffff00"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configSections</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">sectionGroup</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;system.web.webPages.razor&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;System.Web.WebPages.Razor.Configuration.RazorWebSectionGroup, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">section</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;host&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;System.Web.WebPages.Razor.Configuration.HostSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;</span> <span style="color: #ff0000">requirePermission</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">section</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;pages&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;System.Web.WebPages.Razor.Configuration.RazorPagesSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;</span> <span style="color: #ff0000">requirePermission</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">sectionGroup</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">  <span style="color: #0000ff">&lt;/</span><span style="color: #800000">configSections</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">system.web</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">httpHandlers</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">path</span><span style="color: #0000ff">=&quot;*&quot;</span> <span style="color: #ff0000">verb</span><span style="color: #0000ff">=&quot;*&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;System.Web.HttpNotFoundHandler&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">httpHandlers</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">pages</span> <span style="color: #ff0000">validateRequest</span><span style="color: #0000ff">=&quot;false&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #ff0000">pageParserFilterType</span><span style="color: #0000ff">=&quot;System.Web.Mvc.ViewTypeParserFilter, System.Web.Mvc, Version=<font style="background-color: #ffff00">3</font>.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #ff0000">pageBaseType</span><span style="color: #0000ff">=&quot;System.Web.Mvc.ViewPage, System.Web.Mvc, Version=<font style="background-color: #ffff00">3</font>.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #ff0000">userControlBaseType</span><span style="color: #0000ff">=&quot;System.Web.Mvc.ViewUserControl, System.Web.Mvc, Version=<font style="background-color: #ffff00">3</font>.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">controls</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">assembly</span><span style="color: #0000ff">=&quot;System.Web.Mvc, Version=<font style="background-color: #ffff00">3</font>.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot;</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Mvc&quot;</span> <span style="color: #ff0000">tagPrefix</span><span style="color: #0000ff">=&quot;mvc&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">controls</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">pages</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">&lt;/</span><span style="color: #800000">system.web</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">system.webServer</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">validation</span> <span style="color: #ff0000">validateIntegratedModeConfiguration</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">handlers</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">remove</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;BlockViewHandler&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;BlockViewHandler&quot;</span> <span style="color: #ff0000">path</span><span style="color: #0000ff">=&quot;*&quot;</span> <span style="color: #ff0000">verb</span><span style="color: #0000ff">=&quot;*&quot;</span> <span style="color: #ff0000">preCondition</span><span style="color: #0000ff">=&quot;integratedMode&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;System.Web.HttpNotFoundHandler&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">handlers</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  <span style="color: #0000ff">&lt;/</span><span style="color: #800000">system.webServer</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">system.web.webPages.razor</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">host</span> <span style="color: #ff0000">factoryType</span><span style="color: #0000ff">=&quot;System.Web.Mvc.MvcWebRazorHostFactory, System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">pages</span> <span style="color: #ff0000">pageBaseType</span><span style="color: #0000ff">=&quot;System.Web.Mvc.WebViewPage&quot;</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">namespaces</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Mvc&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Mvc.Ajax&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Mvc.Html&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">namespace</span><span style="color: #0000ff">=&quot;System.Web.Routing&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">namespaces</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">pages</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">  <span style="color: #0000ff">&lt;/</span><span style="color: #800000">system.web.webPages.razor</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">&#160;</font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">appSettings</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><font style="background-color: #ffff00">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;webpages:Enabled&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><font style="background-color: #ffff00">  <span style="color: #0000ff">&lt;/</span><span style="color: #800000">appSettings</span><span style="color: #0000ff">&gt;</span></font></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Можем скомпилировать наше приложение и запустить. У меня так все заработало с первого раза. Если не компилируется или не запускается, то читаем документацию по MVC 3 об изменениях. </p>
+
+<h2>Выкладываем на хостинг</h2>
+
+<p>Очевидно, что сейчас мало хостеров поддерживают ASP.NET MVC 3, потому нужно вместе со своим веб-приложением так же поместить в bin директорию библиотеки MVC 3. Как оказалось выложить просто 3 новых библиотеки System.Web.Mvc, System.Web.Helpers и System.Web.WebPages в bin папку к хостеру не достаточно. Эти библиотеки тянут за собой еще список других. Я не стал разбираться с тем, чтобы понять какой именно список библиотек мне нужен, а просто скопировал в bin к хостеру все из папки:</p>
+
+<blockquote>
+  <p>c:\Program Files (x86)\Microsoft ASP.NET\ASP.NET Web Pages\v1.0\Assemblies\</p>
+</blockquote>
+
+<p>Предполагаю, что список необходимых библиотек такой:</p>
+
+<ul>
+  <li>Microsoft.Web.Infrastructure.dll</li>
+
+  <li>System.Web.Helpers.dll</li>
+
+  <li>System.Web.Razor.dll</li>
+
+  <li>System.Web.WebPages.dll</li>
+
+  <li>System.Web.WebPages.Deployment.dll</li>
+
+  <li>System.Web.WebPages.Razor.dll</li>
+</ul>
+
+<h2>Проблема с MembershipProvider</h2>
+
+<p>При запуске приложения у хостера получил ошибку (у меня используется свой MembershipProvider, какой именно - расскажу потом)</p>
+
+<blockquote>
+  <p>This method cannot be called during the application's pre-start initialization stage.</p>
+</blockquote>
+
+<p>Лечится очень просто, идем на статью <a href="http://www.asp.net/learn/whitepapers/mvc3-release-notes">ASP.NET MVC 3 Release Notes</a>, находим <a href="http://www.asp.net/learn/whitepapers/mvc3-release-notes#0.1__Toc274034230">Known Issues</a>, добавляем:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">appSettings</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;enableSimpleMembership&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;autoFormsAuthentication&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;false&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">appSettings</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Проблема решена.</p>
+
+<h2>Обновление представлений с ASPX на Razor</h2>
+
+<p>Ну раз переходим на новый фреймворк, то нужно бы использовать новый View Engine под названием Razor, так как с виду он действительно немного удобнее чем ASPX. Когда я обновлял свое приложение, я пытался найти какую-нибудь утилиту для конвертации, нашел я только проект <a title="http://aspx2razor.codeplex.com/" href="http://aspx2razor.codeplex.com/">http://aspx2razor.codeplex.com/</a>, у которого до сих пор нет готовой сборки. Я попытался собрать это творение, но там какие-то непонятные reference на библиотеку Antlr3.Runtime.dll, я ее ни разу вроде не использовал, за минуту я не нашел, где мне ее скачать можно, тогда и написал в твиттере:</p>
+
+<blockquote>
+  <p>Выкладывайте в SVN все библиотеки, которые вы скачивали, даже из toolkit! Не все их ставят, и версии бывают разные!</p>
+</blockquote>
+
+<p>Ну действительно, если уж публикуете код, то делайте его так, чтобы любой 5 летний ребенок мог просто запустить VS и скомпилировать проект, а не вот так вот:</p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; margin-left: auto; border-top: 0px; margin-right: auto; border-right: 0px; padding-top: 0px" title="reference" border="0" alt="reference" src="/Library/2011/01/29/reference_01460050.png" width="729" height="45" /></p>
+
+<p>В общем, я просто забил и не стал дальше мучиться с этим проектом, не думаю, что там выйдет что-то хорошее.</p>
+
+<p>Переводил я проект с версии 2.0 на 3.0 уже как пару недель назад, и вот недавно свершилось чудо, Telerik <a href="http://blogs.telerik.com/blogs/posts/11-01-19/webforms_to_razor_view_converter_tool.aspx">опубликовал</a> код своей библиотеки, которая умеет переводить ASPX страницы в Razor. Для этого идем скачивать исходный код библиотеки с <a href="https://github.com/telerik/razor-converter">GitHub</a>, компилируем и запускаем проект <strong>aspx2razor</strong> (консольное приложение). Я его, правда, немного подпилил, чтобы была возможность сразу запустить эту тулзу по всем папкам, и сложить их так же по отдельным папкам, как они и были в исходнике, для этого я поправил строки с 64 по 77 файла Program.cs:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">foreach</span> (var file <span style="color: #0000ff">in</span> Directory.GetFiles(inputDirectory, inputFilter, SearchOption.AllDirectories))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Console.Write(<span style="color: #006080">&quot;Converting {0}... &quot;</span>, Path.GetFileName(file));</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    var webFormsPageSource = File.ReadAllText(file, Encoding.UTF8);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var webFormsDocument = Parser.Parse(webFormsPageSource);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    var razorDom = Converter.Convert(webFormsDocument);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var razorPage = Renderer.Render(razorDom);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">string</span> directoryName = Path.GetDirectoryName(file).Substring(inputDirectory.Length + 1);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">string</span> outDirectory = Path.Combine(outputDirectory, directoryName);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (!Directory.Exists(outDirectory))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Directory.CreateDirectory(outDirectory);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var outputFile = Path.Combine(outDirectory, Path.GetFileNameWithoutExtension(file) + <span style="color: #006080">&quot;.cshtml&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    File.WriteAllText(outputFile, razorPage, Encoding.UTF8);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Console.WriteLine(<span style="color: #006080">&quot;done&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Код не будет работать, если будут не абсолютные директории и еще может в паре случаях, но вот на таком примере работает отлично:</p>
+
+<blockquote>
+  <p>aspx2razor.exe c:\Projects\PersonalWeb\PersonalWeb\Views\*.aspx c:\Projects\PersonalWeb\Razor\Views\</p>
+</blockquote>
+
+<p>Он нашел все файлы с расширением aspx и сделал cshtml файлы, причем все разложил так же по папкам, как и было первоначально. Конвертация Master страниц не поддерживается, потому пока не обновил свой блог на Razor (<a href="/ru/blog/show/272#comment_1250">в итоге обновил</a>), с этим отдельно буду разбираться, как там Master страницы при помощи его описываются. </p>
+
+<h2>Если существуют еще проблемы и решения</h2>
+
+<p>Если существуют еще проблемы или решения, с которыми вы не можете разобраться при обновлении, то можете попробовать спросить меня, постараюсь помочь. А если знаете еще какие-то стандартные проблемы или решения, которые стоит предпринять при обновлении, то поделитесь, пожалуйста, советом-комментарием. </p>

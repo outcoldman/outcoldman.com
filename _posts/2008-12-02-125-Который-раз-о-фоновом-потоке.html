@@ -1,0 +1,133 @@
+---
+layout: post
+title: "Который раз о фоновом потоке"
+date: 2008-12-02 10:06:00
+categories: ru
+tags: [WinForms, .NET, C#, BackrgoundWorker]
+permalink: ru/blog/show/125
+---
+<p>
+Очень часто люди выдумывают уже сделанное, а невнимательность заставляет писать намного больше кода, чем это необходимо. Рассказ про прекрасный компонент BackgroundWorker. 
+</p>
+
+<p>Навеяло написание данной статьи не раз увиденные мной статьи о том как сделать фоновый процесс на вашей форме, как, например, эти:</p>
+ 
+<p><a href="http://blogs.gotdotnet.ru/personal/filippovma/CategoryView.aspx?category=.NET+GUI" rel="nofollow" >http://blogs.gotdotnet.ru/personal/filippovma/CategoryView.aspx?category=.NET+GUI</a> </p>
+ 
+<p>И статьи, описанные с заголовком "Простая и безопасная реализации многопоточности в Windows Forms". Я не хочу сказать, что в них что-то не верно, просто есть методы, наверное, попроще. А те статьи обязательно нужно прочитать, чтобы понимать вообще о реализации многопоточности и с какими ошибками можно столкнуться при ее осуществлении, кто писал - тот знает ;). </p>
+ 
+<p>Существует такой компонент, как <strong>BackgroundWorker</strong>, он существует в WinForms начиная с .NET Framework 2.0.</p>
+ 
+<p>Он позволяет вызывать некоторую операцию в отдельном потоке, например это бывает необходимо при долгих вычислениях, или множественных и продолжительных запросах к базе данных, ну и вообще еще может быть много назначений.</p>
+ 
+<p>Начнем с самого начала. </p>
+ 
+<p>Объявляем сам объект и инициализируем его свойства:</p>
+ <div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">this</span>.backgroundWorker.WorkerReportsProgress = <span style="color: #0000ff;">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">this</span>.backgroundWorker.WorkerSupportsCancellation = <span style="color: #0000ff;">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">this</span>.backgroundWorker.DoWork += <span style="color: #0000ff;">new</span> System.ComponentModel.DoWorkEventHandler(<span style="color: #0000ff;">this</span>.backgroundWorker_DoWork);</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">this</span>.backgroundWorker.RunWorkerCompleted += <span style="color: #0000ff;">new</span> System.ComponentModel.RunWorkerCompletedEventHandler(<span style="color: #0000ff;">this</span>.backgroundWorker_RunWorkerCompleted);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">this</span>.backgroundWorker.ProgressChanged += <span style="color: #0000ff;">new</span> System.ComponentModel.ProgressChangedEventHandler(<span style="color: #0000ff;">this</span>.backgroundWorker_ProgressChanged);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>DoWork - это что у нас будет делать фоновый поток, для примера просто будем вызывать Sleep у текущего (фонового) потока:</p>
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">void</span> backgroundWorker_DoWork(<span style="color: #0000ff;">object</span> sender, DoWorkEventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">       <span style="color: #0000ff;">for</span> (<span style="color: #0000ff;">int</span> i = 1; i &amp;lt;= 100; i++)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">       {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (backgroundWorker.CancellationPending)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">return</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Thread.Sleep(1000);</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            backgroundWorker.ReportProgress(i);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">       }</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
+<!--CRLF--></div>
+</div>
+<p>Хочу обратить внимание, на то что я в цикле так же проверяю "backgroundWorker.CancellationPending" - это необходимо для того если этому процессу сказано остановиться. Далее в каждом цикле я вызываю метод у этого самого backgroundWorker под названием ReportProgress, которому я передаю процент выполняения потока (так же можно передавать и любой другой объект - к примеру, для отображения progressBar в своем диапазоне от 1 до 10000, для этого можно передать второй параметр).</p>
+ 
+<p>Следующее, если хотим следить за тем что у нас происходит с потоком (прослеживать тот же процент выполнения), то для этого мы прикрепили метод к событию ProgressChanged:</p>
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">void</span> backgroundWorker_ProgressChanged(<span style="color: #0000ff;">object</span> sender, ProgressChangedEventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        progressBar.Value = e.ProgressPercentage;</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
+<!--CRLF--></div>
+</div>
+<p>В котором мы просто выставляем значение прогресс бару процента выполнения потока.</p>
+ 
+<p>Ну а по окончании потока цепляем метод на событие RunWorkerCompleted, который, к примеру, просто сообщит что-то прекрасное:</p>
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">void</span> backgroundWorker_RunWorkerCompleted(<span style="color: #0000ff;">object</span> sender, RunWorkerCompletedEventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">       MessageBox.Show(<span style="color: #0000ff;">this</span>, <span style="color: #006080;">&quot;Hello word!!!&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
+<!--CRLF--></div>
+</div>
+<p>Раз упоминул про то, что поток можно остановить, ведь не просто так мы проверяли backgroundWorker.CancellationPending, то покажу как в нашем случае это делается, навесим на обычную кнопку метод на событие OnClick:</p>
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> buttonCancel_Click(<span style="color: #0000ff;">object</span> sender, EventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">       backgroundWorker.CancelAsync();</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
+<!--CRLF--></div>
+</div>
+<p>Ну а для того, чтобы запустить поток необходимо просто вызвать метод:</p>
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">backgroundWorker.RunWorkerAsyn​c();</pre>
+<!--CRLF--></div>
+</div> 
+<p>Этот пример намного проще описанного в MSDN. Там есть пример с показом того, как можно передавать некоторые результаты между всеми методами, участниками фонового потока, а моя статья направлена просто на обращения внимания на компонент BackgroundWorker. </p>
+

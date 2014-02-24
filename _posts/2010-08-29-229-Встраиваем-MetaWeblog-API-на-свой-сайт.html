@@ -1,0 +1,316 @@
+---
+layout: post
+title: "Встраиваем MetaWeblog API на свой сайт"
+date: 2010-08-29 19:02:00
+categories: ru
+tags: [ASP.NET, .NET, WCF, Windows Live, MVC, outcoldman.ru, SOA, MetaWeblog, Windows Live Writer, XML-RPC]
+permalink: ru/blog/show/229
+---
+<p>Пару недель назад мне попалась на глаза небольшая статья <a href="http://www.thejoyofcode.com/Feels_like_a_new_day_ndash_implementing_the_MetaWeblog_API.aspx">Feels like a new day – implementing the MetaWeblog API</a>. В тот же момент у меня и <a href="http://twitter.com/outcoldman/status/22017671055">родилась</a> мысль, что нужно сделать поддержку MetaWeblog API, а следовательно и Windows Live Writer, у себя на сайте. В прошедшие выходные нашел немного свободного времени и начал исследование ссылок, которые были в статье. Обе ссылки, в которых были примеры реализации, основывались на <a href="http://xml-rpc.net/">XML-RPC.NET</a>, мне же хотелось все реализовать на WCF сервисах. В пару кликов нашел статью <a href="http://vasters.com/clemensv/PermaLink,guid,679ca50b-c907-4831-81c4-369ef7b85839.aspx">XML-RPC with WCF (Updated)</a>, в которой был небольшой пример реализации на WCF сервисах и реализована библиотека, в которой был XML-RPC Behavior с самодельным сериализатором, поддерживающим XML-RPC. В общем, материал был найден и я приступил к реализации.</p>    <p>Как это часто бывает: библиотека, что я нашел была хорошая, но не идеальная, пример работал, но не на 100%. Начал разбираться по пунктам. Ознакомился так же со спецификацией на MetaWeblog API, который предоставляет Windows Live Writer: <a href="http://msdn.microsoft.com/en-us/library/bb259697.aspx">MetaWeblog API Reference</a>. Сразу вспомнились основные принципы разработки SOA, если один раз уже выложил плохую реализацию (или какую-нибудь), то мучайся и поддерживай ее до конца, так же и тут встречаются такие вот параметры:</p>  <p><a href="/Library/2010/08/29/syntax_sample_0F27AA7D.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="syntax_sample" border="0" alt="syntax_sample" src="/Library/2010/08/29/syntax_sample_0F27AA7D.png" width="434" height="410" /></a></p>  <p>Дальше я начал описывать все структуры, которые используются в этом API, только сделал я их классами (не понял, почему во всех примерах так все норовят использовать именно структуры). Так же я не стал уподобляется примерам и сделал хранение всех параметров через свойства с нормальными именами:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em">[DataContract]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> Post</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    [DataMember(Name = <span style="color: #006080">&quot;dateCreated&quot;</span>)]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> DateTime DateCreated { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    [DataMember(Name = <span style="color: #006080">&quot;date_created_gmt&quot;</span>)]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> DateTime DateCreatedGmt { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">// ....</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Кстати, обратите внимание на второе свойство DateCreatedGmt, его в примерах реализаций нет, его я обнаружил через <a href="http://www.fiddler2.com/fiddler2/">Fiddler</a>:</p>
+
+<p><a href="/Library/2010/08/29/fiddler2_31300643.png"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="fiddler2" border="0" alt="fiddler2" src="/Library/2010/08/29/fiddler2_31300643.png" width="829" height="499" /></a></p>
+
+<p>Нашел, я его, кстати, не случайно, а потому что библиотека, которую я взял падала при попытке распарсить запрос. Она просто не была заточена на то, что в запросе могут быть параметры, которые не ожидаются. Так же у меня она падала и после добавления этого параметра, так как она просто не понимала, что нужно делать с попадающимся текстом “\n&#160;&#160; ”, тут мне все таки пришлось добавить небольшой фикс в класс XmlRpcDataContractSerializationHelper (Ln 34):</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">while</span> (reader.NodeType != XmlNodeType.EndElement)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (reader.NodeType == XmlNodeType.Text)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        reader.ReadString();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">continue</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">//....</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Но тут проблемы не закончились, обратите внимание на формат передаваемой даты (и это iso8601!), конечно же сериализатор не смог ее распарсить, потому пришлось дописать еще немного кода в том же классе:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> XmlRpcDataContractSerializationHelper</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> DefaultDateTimeFormat = <span style="color: #006080">&quot;yyyyMMddTHH:mm:ss&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">//...</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">object</span> Deserialize(XmlDictionaryReader reader, Type targetType)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">//...            </span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #008000">// Ln 135</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">case</span> XmlRpcProtocol.DateTime:</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">string</span> dateTime = reader.ReadElementContentAsString();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                returnValue = Parser.ToDateTime(dateTime, DefaultDateTimeFormat);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">break</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">//...</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> Serialize(XmlDictionaryWriter writer, <span style="color: #0000ff">object</span> <span style="color: #0000ff">value</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #008000">// ...</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #008000">// Ln 260</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">else</span> <span style="color: #0000ff">if</span> (valueType == <span style="color: #0000ff">typeof</span> (DateTime))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                writer.WriteStartElement(XmlRpcProtocol.DateTime);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                writer.WriteValue(((DateTime)<span style="color: #0000ff">value</span>).ToString(DefaultDateTimeFormat));</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                writer.WriteEndElement();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #008000">// ...</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Правил я именно для случая с Windows Live Writer, если же хочется использовать эту библиотеку не только там, то лучше бы формат даты вынести в настраиваемые параметры. Используемый метод Parser.ToDateTime очень прост:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> DateTime ToDateTime(<span style="color: #0000ff">object</span> obj, <span style="color: #0000ff">string</span> format)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    IFormatProvider culture = <span style="color: #0000ff">new</span> CultureInfo(<span style="color: #006080">&quot;en-US&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">return</span> DateTime.ParseExact(obj.ToString(), format, culture);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>В плане реализации самого сервиса, то там все прозрачно, нужно лишь взять один из примеров и реализовать каждый отдельный метод. Мне очень повезло, что MetaWeblog API предоставляет возможность возвращаться ссылки на несколько блогов для пользователя, потому у хорошо вписалась концепция, что на моем сайте есть, вроде как, два блога: русский и английский. Эти данные возвращаются в методе сервиса <a href="http://msdn.microsoft.com/en-us/library/aa905665.aspx">blogger.getUsersBlogs</a>. Убедитесь только, что правильно указаны Url на блоги, так как в моем случае я долго не мог понять, почему у меня Windows Live Writer не мог загрузить тему с сайта, оказалось все просто, я указал ссылку <a href="http://outcoldman.com">http://outcoldman.com</a>, хотя должен был для каждого языка указать четкую ссылку на страницу, где записи будут видны, для русского языка – это, например, <a href="/ru/blog/index">http://outcoldman.com/ru/blog/index</a>. </p>
+
+<p>В примере к статье&#160; <a href="http://vasters.com/clemensv/PermaLink,guid,679ca50b-c907-4831-81c4-369ef7b85839.aspx">XML-RPC with WCF (Updated)</a> сервис выставляется наружу при помощи настройки в runtime, мне же нужно было правильно все настроить через web.config:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">system.serviceModel</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">bindings</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">webHttpBinding</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">binding</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;Custom&quot;</span> <span style="color: #ff0000">openTimeout</span><span style="color: #0000ff">=&quot;01:00:00&quot;</span> <span style="color: #ff0000">sendTimeout</span><span style="color: #0000ff">=&quot;01:00:00&quot;</span> <span style="color: #ff0000">receiveTimeout</span><span style="color: #0000ff">=&quot;01:00:00&quot;</span> <span style="color: #ff0000">maxBufferSize</span><span style="color: #0000ff">=&quot;2147483647&quot;</span> <span style="color: #ff0000">maxReceivedMessageSize</span><span style="color: #0000ff">=&quot;2147483647&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">readerQuotas</span> <span style="color: #ff0000">maxDepth</span><span style="color: #0000ff">=&quot;2147483647&quot;</span> <span style="color: #ff0000">maxStringContentLength</span><span style="color: #0000ff">=&quot;2147483647&quot;</span> <span style="color: #ff0000">maxArrayLength</span><span style="color: #0000ff">=&quot;2147483647&quot;</span> <span style="color: #ff0000">maxBytesPerRead</span><span style="color: #0000ff">=&quot;2147483647&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">binding</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">webHttpBinding</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">bindings</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">extensions</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">behaviorExtensions</span> <span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">add</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;xmlRpc&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;Microsoft.Samples.XmlRpc.XmlRpcEndpointBehaviorSection, Microsoft.Samples.XmlRpc&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">behaviorExtensions</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">extensions</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">services</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">service</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;PersonalWeb.Metablog.MetaWeblog&quot;</span>  <span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">endpoint</span> <span style="color: #ff0000">binding</span><span style="color: #0000ff">=&quot;webHttpBinding&quot;</span> <span style="color: #ff0000">bindingConfiguration</span><span style="color: #0000ff">=&quot;Custom&quot;</span> <span style="color: #ff0000">contract</span><span style="color: #0000ff">=&quot;PersonalWeb.Metablog.IMetaWeblog&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                      <span style="color: #ff0000">behaviorConfiguration</span><span style="color: #0000ff">=&quot;XmlRpcEndpoint&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">service</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">services</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">behaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">endpointBehaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">behavior</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;XmlRpcEndpoint&quot;</span>  <span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">xmlRpc</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">behavior</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">endpointBehaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">behaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">serviceHostingEnvironment</span> <span style="color: #ff0000">multipleSiteBindingsEnabled</span><span style="color: #0000ff">=&quot;true&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">system.serviceModel</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Конфигурацию для webHttpBinding пришлось делать после того, как осознал что картинки из Writer не передаются на сервер, тогда увеличил там все параметры сразу же, чтобы потом не натыкаться на другие проблемы. Последняя настройка serviceHostingEnvironment связана с тем, что уже после деплоя всего на рабочий сайт получил ошибку:</p>
+
+<p><em><font color="#d19049">This collection already contains an address with scheme http.&#160; There can be at most one address per scheme in this collection. If your service is being hosted in IIS you can fix the problem by setting 'system.serviceModel/serviceHostingEnvironment/multipleSiteBindingsEnabled' to true or specifying 'system.serviceModel/serviceHostingEnvironment/baseAddressPrefixFilters'. 
+      <br />Parameter name: item</font></em> </p>
+
+<p>Разбираться с ней особо не стал, просто погуглил и нашел самый простой вариант решения, который вы видели выше.</p>
+
+<p>Ну и не забываем сделать файлик на сайте MetaWeblogService.svc:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="background-color: #ffff00">&lt;%@ ServiceHost Language=&quot;C#&quot; Debug=&quot;true&quot; Service=&quot;PersonalWeb.Metablog.MetaWeblog&quot; %&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Перед тем как деплоить, решал еще несколько проблем. Первая – это не было возможности добавлять свои теги из Writer, опять нагуглил решение – вместо MetaWeblog API в качестве сервиса при настройке блога в Writer нужно указать Community Server и ту же ссылку на свою реализацию MetaWeblog API сервиса. Безумно простое решение, и самое главное оно работает. Вторая проблема – это нет поддержки “Разделителя записи”, чтобы была Abstraction и Body записи (так сказать, что под cut’ом). Эту проблему решил при помощи “&lt;hr /&gt;”, ее то вставить в блог можно, а на сервере уже нахожу это место и разрываю спокойно запись (вряд ли мне когда-нибудь реально понадобиться “&lt;hr /&gt;”). Еще была странная проблема с датами, возвращаю все в “правильном” формате, который ожидает Writer для существующих статей, и даты даже отображаются в списке предыдущих статей, но никак не хочет их Writer подставлять для редактируемой статьи. Решил просто забить на даты, и выставлять их на сервере при создании статьи. И последняя, самая неприятная для меня, проблема была со стилями сайта, мой сайт раньше не поддерживал IE6/7, а вот Writer рендерит вроде все на IE7 движке, из-за чего тема нормально в нем не отображалась, пришлось потратить небольшое количество времени для переверстки сайта. Вроде получилось, даже убрал специальный <a href="/ru/blog/show/190#comment_409">хак</a> для Opera. Да, если у вас разъедется разметка – то просто прорефрешьте страницу. <img style="border-bottom-style: none; border-right-style: none; border-top-style: none; border-left-style: none" class="wlEmoticon wlEmoticon-winkingsmile" alt="Подмигивающая рожица" src="/Library/2010/08/29/wlEmoticonwinkingsmile_2E3AA190.png" /></p>
+
+<p>Вроде, это все проблемы, с которыми я столкнулся при реализации, в итоге около 6 часов работы, больше, наверное, даже поиски всяких решений, ну и в итоге облегчил себе на будущее жизнь. </p>
+
+<p>P.S. Если вы прочли эту статью, значит у меня действительно все работает. <img style="border-bottom-style: none; border-right-style: none; border-top-style: none; border-left-style: none" class="wlEmoticon wlEmoticon-smile" alt="Улыбка" src="/Library/2010/08/29/wlEmoticonsmile_09A9140C.png" /></p>

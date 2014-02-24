@@ -1,0 +1,177 @@
+---
+layout: post
+title: "Entity Framework 4: Связь многие-ко-многим."
+date: 2010-11-15 14:00:00
+categories: ru
+tags: [.NET, Linq-To-SQL, Visual Studio 2010, Entity Framework, LINQ]
+permalink: ru/blog/show/254
+---
+<p>Недавно внедрил в проект Entity Framework 4. Надоело писать все на хранимых процедурах. Конечно, что-то можно и нужно делать на хранимых процедурах, но что-то быстрее и проще можно сделать с помощью ORM. Может встать вопрос, почему не nHibernate? Очень просто. nHibernate велик и всемогущ, но у него нет дизайнера. У нас очень простая бизнес логика, потому все прелести такого ORM нам не нужны. Честно, хватило бы и LINQ to SQL, но остановились на Entity Framework потому что: “а мало ли?”. Начал использовать я дизайнер, и первое с чем столкнулся – дизайнер, генерируя по базе, по связи многие-ко-многим (через таблицу связи) так и связывает сущности в дизайнере связью многие-ко-многим, а мне бы хотелось все-таки оставить промежуточный объект (вроде одно из отличий EF от LINQ to SQL, что есть поддержка связи многие-ко-многим, а мне не нравится). Полазил в интернете и единственное решение, которое нашел, было – добавить в промежуточную таблицу еще какое-нибудь поле, тогда все будет хорошо. Такое решение мне не подходило, и, конечно же, не хотелось мне лезть в XML файлы маппинга и править там все руками.</p>    <p>Давайте рассмотрим на примере. В базе данных у нас будут две таблицы <em>Firm</em> и <em>Item</em>, а так как у продукта (<em>Item</em>) может быть несколько фирм изготовителей (такое же тоже бывает, но редко), то связь сделаем через таблицу связи <em>FirmItem</em>:</p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/Library/2010/10/27/Capture_15DF33B4.png" width="715" height="113" /></p>  <p>А если эти таблицы импортировать в <strong>ADO.NET Entity Data Model</strong>, то там мы получим такие объекты:</p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture1" border="0" alt="Capture1" src="/Library/2010/10/27/Capture1_58DB0221.png" width="395" height="184" /></p>  <p>Как мы видим, оба класса имеют навигационные свойства с коллекциями. Честно, для меня сложнее в такой ситуации написать даже простой запрос, вроде, выбрать все <em>Item</em> по определенной фирме. Я могу придумать только такой вот код:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> Main(<span style="color: #0000ff">string</span>[] args)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">using</span>(ManyToManyTestEntities entities = <span style="color: #0000ff">new</span> ManyToManyTestEntities())</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        var items = entities.Items.Where(x =&gt; x.Firms.Any(f =&gt; f.FirmID == 1));</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">foreach</span> (var item <span style="color: #0000ff">in</span> items)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            Console.WriteLine(item.Name);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>И в этом случае только надеяться, что <strong>Entity Framework</strong> сделает из этого <em>inner join</em> конструкцию. Но, этого не случится, конструкция будет следующая:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">SELECT</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Extent1].[ItemID] <span style="color: #0000ff">AS</span> [ItemID], </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">[Extent1].[Name] <span style="color: #0000ff">AS</span> [Name]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">FROM</span> [dbo].[Item] <span style="color: #0000ff">AS</span> [Extent1]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">WHERE</span>  <span style="color: #0000ff">EXISTS</span> (<span style="color: #0000ff">SELECT</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    1 <span style="color: #0000ff">AS</span> [C1]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">FROM</span> [dbo].[FirmItem] <span style="color: #0000ff">AS</span> [Extent2]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">WHERE</span> ([Extent1].[ItemID] = [Extent2].[ItemID]) <span style="color: #0000ff">AND</span> (1 = [Extent2].[FirmID])</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">)</pre>
+<!--CRLF--></div>
+</div>
+
+<p>В памяти у меня всплывает, вроде, что я находил конструкции LINQ, которые приводили к <em>inner join</em>, но не могу вспомнить какие. В общем, для меня работа без промежуточного объекта в этой связи была не понятна и не очевидна, потому я решил найти способ, как сделать “по обычному” при помощи дизайнера (через XML маппинг-то легко). </p>
+
+<p>Для начала нужно убедиться, что открыто два окна в Visual Studio: <strong>Model Browser</strong> и <strong>Mapping Details</strong>. Очень странно, но у меня первое окно (<em>Model Browser</em>) не было изначально активно, и я просто потерялся, как же вообще можно что-то отредактировать. </p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture2" border="0" alt="Capture2" src="/Library/2010/10/27/Capture2_3F72FEE7.png" width="705" height="423" /></p>
+
+<p>Сначала убьем существующую связь между двумя объектами (просто Delete при выбранной этой связи, либо через контекстное меню). Вас предупредят о том, что <em>FirmItem</em> из описанной <strong>store model</strong> останется незамапленным никуда, предлагают удалить и его, жмем в окошке <em>No</em>. Теперь мы можем создать свой элемент&#160; с именем <em>FirmItem </em>(до этого бы дизайнер ругнулся, если связь не была бы удалена, так как уже присутствовал элемент с таким именем), для этого правой кнопкой мыши в дизайнере модели и “<em>Add –&gt; Entity…</em>”, где мы установим имя этому элементу, так же имя коллекции в нашей модели и укажем, что не нужно создавать никаких <em>key property</em>:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture3" border="0" alt="Capture3" src="/Library/2010/10/27/Capture3_7ED0B277.png" width="424" height="513" /></p>
+
+<p>Теперь добавим две связи через команду “<em>Add –&gt; Association…</em>” в контекстном меню (там же где добавление элемента). Я эти связи называю так же как и в базе данных. То есть, если в базе данных внешний ключ называется <em>FK_FirmItem_Item</em>, то и в модели так же называю связь (по такой же логике поступает и дизайнер <strong>Entity Framework</strong>). Для одной из связей я указал следующие поля (главное не перепутать, где <em>Many</em> а где <em>One</em>), и не забудьте указать то, чтобы добавили свойство в FirmItem для связи:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture4" border="0" alt="Capture4" src="/Library/2010/10/27/Capture4_7745430A.png" width="478" height="535" /></p>
+
+<p>Делаем тоже самое второй раз только для внешнего ключа <em>FK_FirmItem_Firm</em>, отличается только тем, что указать нужно таблицу Firm вместо Item и дать опять правильное имя для связи. Должно получиться так:</p>
+
+<p align="center"><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture5" border="0" alt="Capture5" src="/Library/2010/10/27/Capture5_3298A8C9.png" width="569" height="195" /></p>
+
+<p>Следующим шагом необходимо настроить элемент <em>FirmItem</em>. Сначала переименуем свойства и укажем, что эти свойства являются ключами для объекта. Для этого выбираем свойство и в контекстному меню ищем <em>Properties</em>, в окне <em>Properties</em> делаем изменения, например, для свойства FirmFirmID я поменял так:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture6" border="0" alt="Capture6" src="/Library/2010/10/27/Capture6_5651D063.png" width="291" height="285" /></p>
+
+<p>Для свойства ItemItemID делаем аналогично. Следующим шагом связываем наш элемент с таблицей. Для этого выбираем FirmItem элемент и идем в окно <em>Mapping Details</em>, там просто из выпадающего списка выбираем таблицу FirmItem, у нас должно автоматически замапиться правильно колонки таблицы и свойства элемента:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture7" border="0" alt="Capture7" src="/Library/2010/10/27/Capture7_0AF22C9F.png" width="674" height="480" /></p>
+
+<p>Все, можно пользоваться. Самое приятно, что при обновлении модели из базы данных – наши изменения не потеряются, так и останется промежуточный элемент. Теперь пример выбора всех элементов по идентификатору фирмы можно переписать так:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> Main(<span style="color: #0000ff">string</span>[] args)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">using</span>(ManyToManyTestEntities entities = <span style="color: #0000ff">new</span> ManyToManyTestEntities())</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        var items = from i <span style="color: #0000ff">in</span> entities.Items</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    join fi <span style="color: #0000ff">in</span> entities.FirmItems on i.ItemID equals fi.ItemID</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">where</span> fi.FirmID == 1</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    select i;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">foreach</span> (var item <span style="color: #0000ff">in</span> items)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            Console.WriteLine(item.Name);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>И получить нормальный inner join на выходе:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">SELECT</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Extent1].[ItemID] <span style="color: #0000ff">AS</span> [ItemID], </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">[Extent1].[Name] <span style="color: #0000ff">AS</span> [Name]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">FROM</span>  [dbo].[Item] <span style="color: #0000ff">AS</span> [Extent1]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">INNER</span> <span style="color: #0000ff">JOIN</span> [dbo].[FirmItem] <span style="color: #0000ff">AS</span> [Extent2] <span style="color: #0000ff">ON</span> [Extent1].[ItemID] = [Extent2].[ItemID]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">WHERE</span> 1 = [Extent2].[FirmID]</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Мне так в несколько раз проще. Не знаю, чего в дизайнер не добавили возможность выбора, как делать такую связь: через дополнительный элемент или нет.</p>

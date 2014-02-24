@@ -1,0 +1,185 @@
+---
+layout: post
+title: "Немного кода, небольшой рефакторинг"
+date: 2011-03-14 09:23:00
+categories: ru
+tags: [.NET, C#, Twitter, Sample, Refactoring]
+permalink: ru/blog/show/277
+---
+<p>Изучал тут как-то примеры книги <a href="http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0470531320.html">Professional Twitter Development: With Examples in .NET 3.5</a>, хотел разобраться как работает эта самая OAuth авторизация для твиттера. Раньше у меня на сайте было немного действий с твиттером, подгружались мой твитты, хранились, отображались, но потом твиттер что-то поменял в авторизации, вроде разрешил только OAuth, а в тот момент я что-то не шибко разобрался с этим OAuth, да и времени не было, хотя вроде еще тогда <a href="http://linqtotwitter.codeplex.com/">LinqToTwitter</a> ее поддерживал (а я использовал именно эту библиотеку). В общем-то, просто в тот момент подумал, что тема OAuth авторизации интересна, и нужно бы посмотреть как она реализована в деталях попозже. Вот и набрел я тут недавно на книгу <a href="http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0470531320.html">Professional Twitter Development: With Examples in .NET 3.5</a>, точнее только на ее примеры, решил поковыряться. Код там был не из простых, и я просто тупо стал рефакторить его, чтобы разобрать что и как работает. Вот, например, одно из превращений, которое я уже правда публиковал в твиттере давно (и может быть вы уже видели):</p>    <p>Было:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">   <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">string</span> NormalizeRequestParameters</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    (NameValueCollection parameters)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">var</span> sb = <span style="color: #0000ff">new</span> StringBuilder();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">var</span> list = <span style="color: #0000ff">new</span> List&lt;NameValuePair&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">foreach</span> (<span style="color: #0000ff">var</span> name <span style="color: #0000ff">in</span> parameters.AllKeys)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">var</span> <span style="color: #0000ff">value</span> = Uri.EscapeDataString(parameters[name]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">var</span> item = <span style="color: #0000ff">new</span> NameValuePair { Name = name, Value = <span style="color: #0000ff">value</span> };</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #008000">// Ensure duplicates are not included</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (list.Contains(item))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentException(</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #006080">&quot;Cannot add duplicate parameters&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        list.Add(item);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    list.Sort((left, right) =&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (left.Name.Equals(right.Name))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">return</span> left.Value.CompareTo(right.Value);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> left.Name.CompareTo(right.Name);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    });</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">foreach</span> (<span style="color: #0000ff">var</span> item <span style="color: #0000ff">in</span> list)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        sb.Append(item.Name + <span style="color: #006080">&quot;=&quot;</span> + item.Value);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (list.IndexOf(item) &lt; list.Count - 1)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            sb.Append(<span style="color: #006080">&quot;&amp;&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">return</span> sb.ToString();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Стало:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> NormalizeRequestParameters</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    (NameValueCollection collection)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    IEnumerable&lt;<span style="color: #0000ff">string</span>&gt; parameters = collection.AllKeys.OrderBy(x =&gt; x)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        .Select(x =&gt; <span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;{0}={1}&quot;</span>, x, Uri.EscapeDataString(collection[x])));</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">return</span> String.Join(<span style="color: #006080">&quot;&amp;&quot;</span>, parameters);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>На первый взгляд у меня опущено два момента: а) не бросается исключение б) сортировка другая, там <em>order by ключ, значение</em>, а у меня просто <em>order by ключ</em>. </p>
+
+<p>На самом деле тут просто логика самого класса NameValueCollection, если вы инициализируете его так:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">new</span> NameValueCollection { { <span style="color: #006080">&quot;test1&quot;</span>, <span style="color: #006080">&quot;value1&quot;</span> }, { <span style="color: #006080">&quot;test1&quot;</span>, <span style="color: #006080">&quot;value2&quot;</span> }};</pre>
+<!--CRLF--></div>
+</div>
+
+<p>то он превратится в</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">new</span> NameValueCollection { { <span style="color: #006080">&quot;test1&quot;</span>, <span style="color: #006080">&quot;value1&amp;value2&quot;</span> }};</pre>
+<!--CRLF--></div>
+</div>
+
+<p>А следовательно проверки и бросания исключения не нужны, да и в OrderBy нет смысла добавлять вторым параметром значение, так как там не может повториться ключ.</p>
+
+<p>В общем, я только хотел сказать, что C# 4 отличный язык, позволяет делать действительно очень читабельным наш код. И это не значит, что я хочу принизить книгу, думаю она отлична и полезна для тех, кто хочет разработать свой твиттер клиент, или проинтегрировать свое приложение с твиттером, а так все пишут плохой код, а кто считает что нет, тот пишет код еще хуже ;)</p>

@@ -1,0 +1,255 @@
+---
+layout: post
+title: "Небольшой пример использования Code Contract"
+date: 2010-09-14 19:57:00
+categories: ru
+tags: [.NET, C#, .NET 4.0, WPF, Code Contract, ReSharper, Code Contracts]
+permalink: ru/blog/show/241
+---
+<p>Признаюсь честно, что с темой Code Contract в .Net 4 я знаком давно, но вот реально ее использовать мне что-то не очень-то хотелось. Привык я к простым и обычным проверкам, вроде</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> (argument == <span style="color: #0000ff">null</span>) </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(“argument”)</pre>
+<!--CRLF--></div>
+</div>
+
+<p>А вот большого плюса от контрактов я не увидел. И вот недавно переставлял себе Windows из-за счастливого приобретения <a href="/ru/blog/show/219">Intel® X25-M</a>, и так получилось что случайно выбрал в фиче R# или Visual Studio 2010 при щелчке на классе левой кнопкой мышки при удержании Ctrl переход на метаданные, а не как обычно Object Explorer. И вот как-то перейдя на один из классов System.xxx попался мне исходный код (метаданные) одного из базовых классов .Net, там я заметил, что контракты распространенно используются в базовых классах фреймворка. Кстати, кто-нибудь знает как сделать так, чтобы при щелчке на классе с зажатым Ctrl все-таки переходить в Object Explorer?</p>
+
+
+
+<p>Решил я, что надо бы тоже начать с ними знакомство в более тесной манере, и начать их использовать повсеместно. И вот в <a href="/ru/blog/show/239">предыдущем посте</a> я и использовал их впервые. Если кто не знает, чтобы начать использовать контракты у себя в проекте, точнее чтобы они начали работать, лучше всего скачать <a href="http://visualstudiogallery.msdn.microsoft.com/en-us/85f0aa38-a8a8-4811-8b86-e7f0b8d8c71b">Code Contracts Editor Extensions</a> и при помощи этого плагина произвести настройку проекта (этот плагин добавить две дополнительные вкладки к настройках проектов).</p>
+
+<p>Итак, давайте рассмотрим пример. Пускай у нас есть такой вот класс:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">sealed</span> <span style="color: #0000ff">class</span> HotKey </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> IntPtr _handle;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(Window window)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        :<span style="color: #0000ff">this</span> (<span style="color: #0000ff">new</span> WindowInteropHelper(window))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> HotKey(WindowInteropHelper window)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        :<span style="color: #0000ff">this</span>(window.Handle)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(IntPtr windowHandle)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        _handle = windowHandle;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>То есть, идеально нам нужно получить Handle окна, и мы позволяем инициализировать наш класс, либо самим окном, либо WindowInteropHelper, либо уже готовым Handle. Но что будет, если пользователь, например, попытается создать новый объект типа HotKey передав туда null в качестве Window (используя первый конструктор)? Мы получим сообщение, вроде “<em>Value cannot be null. Parameter name: window”</em>, его нам бросит конструктор типа WindowInteropHelper. Нам просто повезло, что вроде можно будет разобраться, почему возникла ошибка. Но вот если передать null в качестве WindowInteropHelper, то есть во второй конструктор, мы получим уже непонятную ошибку “<em>Object reference not set to an instance of an object”</em>. Как нам этого избежать? Можно при помощи отдельного метода Initialize:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">sealed</span> <span style="color: #0000ff">class</span> HotKey</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> IntPtr _handle;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(Window window)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (window == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;window&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Initialize(<span style="color: #0000ff">new</span> WindowInteropHelper(window).Handle);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(WindowInteropHelper window)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (window == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;window&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Initialize(window.Handle);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(IntPtr windowHandle)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Initialize(windowHandle);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> Initialize(IntPtr windowHandle)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        _handle = windowHandle;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>А можно все-таки воспользоваться контрактами:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">sealed</span> <span style="color: #0000ff">class</span> HotKey </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> IntPtr _handle;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(Window window)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        : <span style="color: #0000ff">this</span> (<span style="color: #0000ff">new</span> WindowInteropHelper(window))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Contract.Requires(window != <span style="color: #0000ff">null</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(WindowInteropHelper window)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        : <span style="color: #0000ff">this</span>(window.Handle)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Contract.Requires(window != <span style="color: #0000ff">null</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(IntPtr windowHandle)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        _handle = windowHandle;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>И, вроде, выглядит все так, что, например, во втором конструкторе все равно произойдет ошибка NullReferenceException, если передать null, до того, как начнет выполнятся код конструктора. И даже R# нам практически об этом говорит (надо бы, наверное создать багу на JetBrains), что не стоит делать сравнение с null, так как до этого и так уже используете переменную, считая что она null быть не может:</p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="Untitled" border="0" alt="Untitled" src="/Library/2010/09/14/Untitled_5DC85F5B.png" width="336" height="163" /></p>
+
+<p>Но на самом деле, контракты проверяются до вызова метода, поэтому мы увидим при запуске приложения при инициализации null:</p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/Library/2010/09/14/Capture_1D2612EC.png" width="789" height="266" /></p>
+
+<p>В общем, дальше только с контрактами. </p>

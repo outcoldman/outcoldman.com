@@ -1,0 +1,49 @@
+---
+layout: post
+title: "Schedule a daily backup with SQL Server Express"
+date: 2010-08-14 12:59:00
+categories: en
+tags: [TSQL, SQL Server, ZIP, Backup, SQL Server Express]
+permalink: en/blog/show/214
+---
+<p>As you know MS SQL Server Express Edition hasn’t <a href="http://msdn.microsoft.com/en-us/library/ms189237.aspx">Agent Service</a>, which can be used to schedule daily backups or other periodic administrative tasks. But you can use for this standard Windows Schedule tool. </p>
+
+<p>SQL Server Express Edition has some limitation, but anyway it is very powerful tool for storing data. For most little or middle projects you can use it without any restrictions. But Express edition has a little problem, it hasn’t SQL Server Agent. But you can use SQLCMD command line tool and standard Scheduled Tasks for Windows instead of it. If you want to set automating administrative periodic task first of all you need to write a sql script. We want to solve problem: write a script which will do a daily backup. Of course you can use MS Management Studio for generating current script (as you know you can download Management Studio Express Edition too from Microsoft site): just click “Script Actions to…” instead of OK button at “Back Up Database” dialog box and you will get a script.</p>
+
+<p><img src="/library/images/01/0000008.jpg" border="0" /> </p> 
+
+<p>For daily backups I usually use this script:</p>
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">DECLARE</span> @pathName NVARCHAR(512) </pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">SET</span> @pathName = <span style="color: #006080;">'D:\Backup\db_backup_'</span> + <span style="color: #0000ff;">Convert</span>(<span style="color: #0000ff;">varchar</span>(8), GETDATE(), 112) + <span style="color: #006080;">'.bak'</span> </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">BACKUP</span> <span style="color: #0000ff;">DATABASE</span> [MyDataBase] <span style="color: #0000ff;">TO</span>  <span style="color: #0000ff;">DISK</span> = @pathName <span style="color: #0000ff;">WITH</span> NOFORMAT, NOINIT,  NAME = N<span style="color: #006080;">'db_backup'</span>, SKIP, NOREWIND, NOUNLOAD,  STATS = 10</pre>
+<!--CRLF--></div>
+</div>
+
+<p>This script makes a backup file with name <i>db_backup_YYYYDDMM.bak</i> where YYYYDDMM – it is current date. This format will give you an opportunity to have every day backup at separate files. Correct this script and try to run it, check that you will get a backup file (I set “d:\backup” folder for files, change it if you want). Next step – save this script to file schedule.sql and put it to “c:\scheduled tasks\” (you can choose any other names for script file and folders, just make sure that you will change it at all places where it will be used). At this folder create a file backup.bat with next contain: </p>
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">sqlcmd -S SEVERNAME -U UserName -P Password -i schedule.sql</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">7z a -tzip D:\Backup \db_backup_%date%.zip -i! D:\Backup\db_backup_*.bak</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">del d:\Backup\db_backup_*.bak</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Where: <i>SERVERNAME</i> – database instance name (server name), <i>UserName</i> – sql user, which has a privileges for making backups, <i>Password</i> – password of this user, schedule.sql – name of script with we created on previous step. Second and third lines of this bat script do an archive of this backup file and then delete backup file. I use 7z (<a href="http://www.7-zip.org/">http://www.7-zip.org/</a>) utility for this, if you want you can use any other archive tool, or maybe leave backup file unzipped (MS SQL Server 2008 and higher has an opportunity to backup database with compression, so you can just set it in sql script). If you will use 7z like me you need to set full path to 7z.exe tool or you can just copy 7z.exe and 7z.dll files from installed folder of 7z tool to folder where will be located this bat script. And make sure that if you used other folder names or file names at previous steps you will change these names at this bat script too. You can try to run this bat script and check that backup file will be created and zipped. </p>
+
+<p>Last step is to create schedule task. In each Windows versions it can be different way to create this task. This is how to create schedule task for Windows XP - <a href="http://support.microsoft.com/kb/308569">http://support.microsoft.com/kb/308569</a>, this is link how to for Windows 7 - <a href="http://windows.microsoft.com/en-US/windows7/schedule-a-task">http://windows.microsoft.com/en-US/windows7/schedule-a-task</a>. For other versions I think you can find a how-to at Windows helps or other blog posts. </p>
+
+<p>When you will create this Windows task you should check that user by whom these tasks will be launched has rights to create files at folders, where script will put backups, and this user has right to execute bat file. </p>
+
+<p>Like this you can run not only daily backup. You can execute some procedures, re-index tables or maybe some other administrative stuff – just place what you want at schedule.sql script. </p>

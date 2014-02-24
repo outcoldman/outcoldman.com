@@ -1,0 +1,104 @@
+---
+layout: post
+title: "Как правильно обновить ASP.NET приложение"
+date: 2009-03-27 10:06:00
+categories: ru
+tags: [ASP.NET, HTML]
+permalink: ru/blog/show/128
+---
+<p>Стандартное, обыкновенное обновление ASP.NET приложения. Необходимо накатить скрипты на базу, обновить само приложение, а при обновлении базы - старое приложение на нем работать адекватно не будет.  Но есть выход попроще, создать файл с именем App_Offline.htm в корень, к примеру с таким содержанием:  </p>
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;!</span><span style="color: #800000;">DOCTYPE</span> <span style="color: #ff0000;">html</span> <span style="color: #ff0000;">PUBLIC</span> <span style="color: #0000ff;">&quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot;</span> <span style="color: #0000ff;">&quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">html</span> <span style="color: #ff0000;">xmlns</span><span style="color: #0000ff;">=&quot;http://www.w3.org/1999/xhtml&quot;</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">head</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">meta</span> <span style="color: #ff0000;">content</span><span style="color: #0000ff;">=&quot;text/html; charset=utf-8&quot;</span> <span style="color: #ff0000;">http-equiv</span><span style="color: #0000ff;">=&quot;Content-Type&quot;</span> <span style="color: #0000ff;">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">title</span><span style="color: #0000ff;">&gt;</span>Сайт временно закрыт<span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">title</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">head</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">body</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">h2</span><span style="color: #0000ff;">&gt;</span>Сайт временно закрыт. Ведутся работы. <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">h2</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #008000;">&lt;!--    </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  Adding additional hidden content so that IE Friendly Errors don't prevent</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  this message from displaying (note: it will show a &quot;friendly&quot; 404</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  error if the content isn't of a certain size).</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt;   </span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">--&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">body</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">html</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>
+Комментарий добавлен для того, чтобы страничка весила более 512 байт, чтобы IE&nbsp;6 не понимал возврат сервера - как ошибку. </p>
+<p>
+Взято отсюда: <a href="http://weblogs.asp.net/scottgu/archive/2006/04/09/442332.aspx">App_Offline.htm and working around the &quot;IE Friendly Errors&quot; feature </a></p>

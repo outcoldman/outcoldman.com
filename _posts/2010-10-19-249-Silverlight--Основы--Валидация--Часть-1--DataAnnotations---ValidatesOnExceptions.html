@@ -1,0 +1,717 @@
+---
+layout: post
+title: "Silverlight. Основы. Валидация. Часть 1. DataAnnotations & ValidatesOnExceptions"
+date: 2010-10-19 19:44:00
+categories: ru
+tags: [Silverlight, XAML, Validation]
+permalink: ru/blog/show/249
+---
+<p>В Silverlight 4 есть несколько способов для валидации введённых данных, точнее несколько подходов для реализации валидации. Первый вариант, реализация валидации на <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations(VS.95).aspx">DataAnnotation</a>. Вариант, когда правила валидации описываются при помощи атрибутов. Два других подхода – это реализация одного из интерфейсов <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.idataerrorinfo(VS.95).aspx">IDataErrorInfo</a> или <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifydataerrorinfo(VS.95).aspx">INotifyDataErrorInfo</a>. Я хотел бы остановиться на каждом из подходов, поговорить о преимуществах и недостатках каждого из них. Цель данной статьи выявить лучшие практики для валидации для себя и для вас. Так получилось, что статья оказалась большой, потому реализую ее в два или три подхода. Эта часть только про DataAnnotation.</p>    <h2>Подготовка</h2>  <p>Итак, давайте перейдем к примеру. Я всю валидацию буду описывать при помощи одного простого окна изменения пароля. </p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/Library/2010/10/19/Capture_1F726807.png" width="587" height="84" /></p>  <p>В нем у меня два контрола <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.passwordbox(VS.95).aspx">PasswordBox</a>, одна кнопка, и <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.validationsummary(VS.95).aspx">ValidationSummary</a>. Для каждого примера у меня будет меняться только объект, который байдится к DataContext этого контрола. В реализации этого объекта и будет скрыта валидация введённых данных. Xaml-описание этого окна:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl</span> <span style="color: #ff0000">x:Class</span><span style="color: #0000ff">=&quot;SilverlightValidation.MainPage&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">xmlns:x</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns:d</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/expression/blend/2008&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">xmlns:mc</span><span style="color: #0000ff">=&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns:sdk</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">xmlns:DataAnnotations</span><span style="color: #0000ff">=&quot;clr-namespace:SilverlightValidation.DataAnnotations&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns:SilverlightValidation</span><span style="color: #0000ff">=&quot;clr-namespace:SilverlightValidation&quot;</span>    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">mc:Ignorable</span><span style="color: #0000ff">=&quot;d&quot;</span> <span style="color: #ff0000">d:DesignHeight</span><span style="color: #0000ff">=&quot;300&quot;</span> <span style="color: #ff0000">d:DesignWidth</span><span style="color: #0000ff">=&quot;400&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataAnnotations:BindingModel</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">Grid</span> <span style="color: #ff0000">x:Name</span><span style="color: #0000ff">=&quot;LayoutRoot&quot;</span> <span style="color: #ff0000">Background</span><span style="color: #0000ff">=&quot;White&quot;</span> <span style="color: #ff0000">Width</span><span style="color: #0000ff">=&quot;500&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Grid.ColumnDefinitions</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">ColumnDefinition</span> <span style="color: #ff0000">Width</span><span style="color: #0000ff">=&quot;Auto&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">ColumnDefinition</span> <span style="color: #ff0000">Width</span><span style="color: #0000ff">=&quot;*&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">Grid.ColumnDefinitions</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Grid.RowDefinitions</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">RowDefinition</span> <span style="color: #ff0000">Height</span><span style="color: #0000ff">=&quot;Auto&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">RowDefinition</span> <span style="color: #ff0000">Height</span><span style="color: #0000ff">=&quot;Auto&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">RowDefinition</span> <span style="color: #ff0000">Height</span><span style="color: #0000ff">=&quot;Auto&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">RowDefinition</span> <span style="color: #ff0000">Height</span><span style="color: #0000ff">=&quot;Auto&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">Grid.RowDefinitions</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBlock</span> <span style="color: #ff0000">HorizontalAlignment</span><span style="color: #0000ff">=&quot;Right&quot;</span><span style="color: #0000ff">&gt;</span>New Password:<span style="color: #0000ff">&lt;/</span><span style="color: #800000">TextBlock</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">PasswordBox</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;1&quot;</span> <span style="color: #ff0000">Password</span><span style="color: #0000ff">=&quot;{Binding Path=NewPassword, Mode=TwoWay, </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBlock</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Row</span><span style="color: #0000ff">=&quot;1&quot;</span> <span style="color: #ff0000">HorizontalAlignment</span><span style="color: #0000ff">=&quot;Right&quot;</span><span style="color: #0000ff">&gt;</span>New Password Confirmation:<span style="color: #0000ff">&lt;/</span><span style="color: #800000">TextBlock</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">PasswordBox</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Row</span><span style="color: #0000ff">=&quot;1&quot;</span>  <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;1&quot;</span> <span style="color: #ff0000">Password</span><span style="color: #0000ff">=&quot;{Binding Path=NewPasswordConfirmation, Mode=TwoWay, </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Button</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Row</span><span style="color: #0000ff">=&quot;2&quot;</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">ColumnSpan</span><span style="color: #0000ff">=&quot;2&quot;</span> <span style="color: #ff0000">HorizontalAlignment</span><span style="color: #0000ff">=&quot;Right&quot;</span>  <span style="color: #ff0000">Content</span><span style="color: #0000ff">=&quot;Change&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #ff0000">Command</span><span style="color: #0000ff">=&quot;{Binding Path=ChangePasswordCommand}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">sdk:ValidationSummary</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Row</span><span style="color: #0000ff">=&quot;3&quot;</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">ColumnSpan</span><span style="color: #0000ff">=&quot;2&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">Grid</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>В байдинге для PasswordBox у меня сразу же прописаны 4 свойства, связанных с валидацией. Пока скажу только про <a href="http://msdn.microsoft.com/en-us/library/system.windows.data.binding.notifyonvalidationerror(VS.95).aspx">NotifyOnValidationError</a>, он нужен для того, чтобы сообщить ValidationSummary о том, что нужно отобразить ошибки валидации.</p>
+
+<p>Если кто не знает – PasswordBox имеет только односторонний байдинг от контрола к объекту, сделано это из соображений безопасности. Сам процесс байдинга происходит только при смене фокуса (так правда и у обычного контрола TextBox). В WPF есть возможность изменить это поведение, сделать так, чтобы байдинг происходил на нажатие клавиши, в Silverlight это тоже можно реализовать при помощи <a href="http://msdn.microsoft.com/en-us/library/cc265152(VS.95).aspx">Attached Property</a>. Сделать это можно так:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">class</span> UpdateSourceTriggerHelper</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> DependencyProperty UpdateSourceTriggerProperty =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        DependencyProperty.RegisterAttached(<span style="color: #006080">&quot;UpdateSourceTrigger&quot;</span>, <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">bool</span>), <span style="color: #0000ff">typeof</span>(UpdateSourceTriggerHelper),</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                            <span style="color: #0000ff">new</span> PropertyMetadata(<span style="color: #0000ff">false</span>, OnUpdateSourceTriggerChanged));</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">bool</span> GetUpdateSourceTrigger(DependencyObject d)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> (<span style="color: #0000ff">bool</span>)d.GetValue(UpdateSourceTriggerProperty);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> SetUpdateSourceTrigger(DependencyObject d, <span style="color: #0000ff">bool</span> <span style="color: #0000ff">value</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        d.SetValue(UpdateSourceTriggerProperty, <span style="color: #0000ff">value</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> OnUpdateSourceTriggerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (e.NewValue <span style="color: #0000ff">is</span> <span style="color: #0000ff">bool</span> &amp;&amp; d <span style="color: #0000ff">is</span> PasswordBox)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            PasswordBox textBox = d <span style="color: #0000ff">as</span> PasswordBox;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            textBox.PasswordChanged -= PassportBoxPasswordChanged;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> ((<span style="color: #0000ff">bool</span>)e.NewValue)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                textBox.PasswordChanged += PassportBoxPasswordChanged;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> PassportBoxPasswordChanged(<span style="color: #0000ff">object</span> sender, RoutedEventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        var frameworkElement = sender <span style="color: #0000ff">as</span> PasswordBox;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (frameworkElement != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            BindingExpression bindingExpression = frameworkElement.GetBindingExpression(PasswordBox.PasswordProperty);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (bindingExpression != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                bindingExpression.UpdateSource();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Чтобы использовать нужно просто устанавливать это свойство для PasswordBox:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">PasswordBox</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;1&quot;</span> <span style="color: #ff0000">Password</span><span style="color: #0000ff">=&quot;{Binding Path=NewPassword, Mode=TwoWay, </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">SilverlightValidation:UpdateSourceTriggerHelper</span>.<span style="color: #ff0000">UpdateSourceTrigger</span><span style="color: #0000ff">=&quot;True&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Так как я не буду использовать никаких фреймворков в этих примерах, то мне потребуется так же самая обычная реализация DelegateCommand:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> DelegateCommand : ICommand</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">readonly</span> Action&lt;<span style="color: #0000ff">object</span>&gt; _execute;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">readonly</span> Func&lt;<span style="color: #0000ff">object</span>, <span style="color: #0000ff">bool</span>&gt; _canExecute;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> DelegateCommand(Action&lt;<span style="color: #0000ff">object</span>&gt; execute)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (execute == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;execute&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        _execute = execute;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> DelegateCommand(Action&lt;<span style="color: #0000ff">object</span>&gt; execute, Func&lt;<span style="color: #0000ff">object</span>, <span style="color: #0000ff">bool</span>&gt; canExecute)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        : <span style="color: #0000ff">this</span>(execute)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (canExecute == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;canExecute&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        _canExecute = canExecute;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">bool</span> CanExecute(<span style="color: #0000ff">object</span> parameter)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (_canExecute != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">return</span> _canExecute(parameter);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> <span style="color: #0000ff">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Execute(<span style="color: #0000ff">object</span> parameter)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        _execute(parameter);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> RaiseCanExecuteChanged()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        CanExecuteChanged(<span style="color: #0000ff">this</span>, EventArgs.Empty);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">event</span> EventHandler CanExecuteChanged = <span style="color: #0000ff">delegate</span> {};</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p><strong>Эта реализация не очень хороша, с ней возможно получить утечки памяти (<a href="http://compositewpf.codeplex.com/workitem/4065?ProjectName=compositewpf">Memory Leak caused by DelegateCommand.CanExecuteChanged Event</a>), лучше будет взять реализацию из Prism версии 2.1 или выше.</strong></p>
+
+<p>В мною описанном примере мне нужно реализовать несколько правил для валидации:</p>
+
+<ul>
+  <li>New Password должен быть введен; </li>
+
+  <li>New Password имеет ограниченную длину ввода, пускай 20 символов (печально, что многие разработчики совсем забывают, что за этим тоже нужно следить, а потом получают ошибки, вроде string truncated); </li>
+
+  <li>New Password Confirmation должен совпадать с New Password. </li>
+</ul>
+
+<h2>#1 DataAnnotations &amp; ValidatesOnExceptions</h2>
+
+<p>Этот вариант валидации появился еще до Silverlight 4, либо со второй, либо с третьей версии. Я с Silverlight знаком на хорошем уровне только с 3-ей версии, потому точно могу сказать только, что он был именно в этой версии. Единственный, наверное, плюс этого типа валидации то, что он есть во всех технологиях (или практически во всех?). По крайней мере, в ASP.NET он тоже есть. Основная идея в этом варианте – валидация на бросаниях исключений. Хотя не обязательно, можно реализовать и по-другому. По крайней мере, примеры, которые вы найдете, будут именно основываться на них, и вся инфраструктура будет заточена под них. В Silverlight 3 валидация на исключениях была единственным возможным вариантом (исключаем с нуля написания своего варианта). В байдинге за поддержку валидации на исключениях отвечает свойство <a href="http://msdn.microsoft.com/en-us/library/system.windows.data.binding.validatesonexceptions(VS.95).aspx">ValidatesOnExceptions</a>.</p>
+
+<p>Давайте приступим к реализации. Буду описывать BindingModel. Все примеры будут начинаться с одной и той же реализации с поддержкой интерфейса <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifypropertychanged(VS.95).aspx">INotifyPropertyChanged</a> и набором полей – два поля на пароль и одно свойство – это команда, которая байдиться на кнопку и которая должна производить смену пароля (инициализировать ее буду в конструкторе потом):</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> BindingModel : INotifyPropertyChanged</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">string</span> _newPassword;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">string</span> _newPasswordConfirmation;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> DelegateCommand ChangePasswordCommand { get; <span style="color: #0000ff">private</span> set; }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #cc6633">#region</span> INotifyPropertyChanged</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">event</span> PropertyChangedEventHandler PropertyChanged = <span style="color: #0000ff">delegate</span> { };</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> OnPropertyChanged(<span style="color: #0000ff">string</span> propertyName)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        PropertyChanged(<span style="color: #0000ff">this</span>, <span style="color: #0000ff">new</span> PropertyChangedEventArgs(propertyName));</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #cc6633">#endregion</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Для этого этого примера нам так же потребуются два вспомогательных метода:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">bool</span> IsValidObject()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ICollection&lt;ValidationResult&gt; results = <span style="color: #0000ff">new</span> Collection&lt;ValidationResult&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">return</span> Validator.TryValidateObject(<span style="color: #0000ff">this</span>, <span style="color: #0000ff">new</span> ValidationContext(<span style="color: #0000ff">this</span>, <span style="color: #0000ff">null</span>, <span style="color: #0000ff">null</span>), results, <span style="color: #0000ff">true</span>) &amp;&amp; results.Count == 0;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> ValidateProperty(<span style="color: #0000ff">string</span> propertyName, <span style="color: #0000ff">object</span> <span style="color: #0000ff">value</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Validator.ValidateProperty(<span style="color: #0000ff">value</span>, <span style="color: #0000ff">new</span> ValidationContext(<span style="color: #0000ff">this</span>, <span style="color: #0000ff">null</span>, <span style="color: #0000ff">null</span>) { MemberName = propertyName });</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Первый проверяет валидность всего объекта BindingModel, второй проверяет валидность определенного свойства. Оба метода используют класс <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validator(VS.95).aspx">Validator</a>, это инфраструктура Silverlight. Этот класс собирает все аттрибуты, в которых описывается валидация, и соответственно производит валидирование. В методе IsValidObject он просто вернет булевское значение. Метод ValidateProperty бросить исключение, если какое-то из условий валидации не пройдет. Условия можно описать при помощи следующих заготовленных аттрибутов, наследованных от <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationattribute(VS.95).aspx">ValidationAttribute</a> (можно реализовать свой): <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.stringlengthattribute(VS.95).aspx">StringLengthAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.requiredattribute(VS.95).aspx">RequiredAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.regularexpressionattribute(VS.95).aspx">RegularExpressionAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.rangeattribute(VS.95).aspx">RangeAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.datatypeattribute(VS.95).aspx">DataTypeAttribute</a>, <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.customvalidationattribute(VS.95).aspx">CustomValidationAttribute</a>. По ссылкам можно ознакомиться ближе с каждым из ним, а я теперь опишу два свойства моего типа BindingModel:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">[Required]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[StringLength(20)]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">[Display(Name = <span style="color: #006080">&quot;New password&quot;</span>)]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> NewPassword</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    get { <span style="color: #0000ff">return</span> _newPassword; }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    set</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        _newPassword = <span style="color: #0000ff">value</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        OnPropertyChanged(<span style="color: #006080">&quot;NewPassword&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        ChangePasswordCommand.RaiseCanExecuteChanged();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        ValidateProperty(<span style="color: #006080">&quot;NewPassword&quot;</span>, <span style="color: #0000ff">value</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[CustomValidation(<span style="color: #0000ff">typeof</span>(BindingModel), <span style="color: #006080">&quot;CheckPasswordConfirmation&quot;</span>)]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">[Display(Name = <span style="color: #006080">&quot;New password confirmation&quot;</span>)]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> NewPasswordConfirmation</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    get { <span style="color: #0000ff">return</span> _newPasswordConfirmation; }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    set</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        _newPasswordConfirmation = <span style="color: #0000ff">value</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        OnPropertyChanged(<span style="color: #006080">&quot;NewPasswordConfirmation&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        ChangePasswordCommand.RaiseCanExecuteChanged();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        ValidateProperty(<span style="color: #006080">&quot;NewPasswordConfirmation&quot;</span>, <span style="color: #0000ff">value</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Думаю, что с <em>NewPassword</em> свойством все ясно, там используется два аттрибута Required и StringLenght, которые реализуют два условия валидации. Так же я использую <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.displayattribute(VS.95).aspx">DisplayAttribute</a> для того, чтобы ValidationSummary правильно отображало, что скрывается за этим полем, а не простое “NewPassword”. Оба свойства имеют в set методах одинаковую процедуру: установить значение, сказать, что значение изменилось, сказать команде, что может быть изменилось значение <em>CanExecute</em> метода (если используем), и произвести валидацию для этого свойства. Свойство <em>NewPasswordConfirmation</em> использует CustomValidatorAttribute, в нем описан метод, который нужно вызвать для того, чтобы произвести валидацию, а так же описан тип, в котором этот метод описан. На этот метод накладываются следующие правила: он должен быть публичным, статичным, возвращать тип <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationresult(VS.95).aspx">ValidationResult</a>, принимать первым параметром переменную, тип у которой должен быть такой же как у свойства, второй параметр может быть <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationcontext(VS.95).aspx">ValidationContext</a>. Моя реализация следующая:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> ValidationResult CheckPasswordConfirmation(<span style="color: #0000ff">string</span> <span style="color: #0000ff">value</span>, ValidationContext context)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    var bindingModel = context.ObjectInstance <span style="color: #0000ff">as</span> BindingModel;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">if</span> (bindingModel == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;ObjectInstance must be BindingModel&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (<span style="color: #0000ff">string</span>.CompareOrdinal(bindingModel._newPassword, <span style="color: #0000ff">value</span>) != 0)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">return</span> <span style="color: #0000ff">new</span> ValidationResult(<span style="color: #006080">&quot;Password confirmation not equal to password.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">return</span> ValidationResult.Success;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Дальше нужно решить как быть с кнопкой, как она будет работать. Сделаю следующим образом:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> BindingModel()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ChangePasswordCommand = <span style="color: #0000ff">new</span> DelegateCommand(ChangePassword, CanChangePassword);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">bool</span> CanChangePassword(<span style="color: #0000ff">object</span> arg)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">return</span> IsValidObject();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> ChangePassword(<span style="color: #0000ff">object</span> obj)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (ChangePasswordCommand.CanExecute(obj))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        MessageBox.Show(<span style="color: #006080">&quot;Bingo!&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Для этого примера я так же установлю для обоих контролов PasswordBox <em>UpdateSourceTrigger=”True” </em>в Xaml разметке. Итого получаем следующий результат (внизу SL пример):</p>
+<object data="data:application/x-silverlight-2," type="application/x-silverlight-2" width="100%" height="150px">
+		  <param name="source" value="http://outcoldman.com/library/content/03/SLValidation/SilverlightValidation1.xap" />
+		  <param name="background" value="white" />
+		  <param name="minRuntimeVersion" value="4.0.50826.0" />
+		  <param name="autoUpgrade" value="true" />
+		  <a href="http://go.microsoft.com/fwlink/?LinkID=149156&amp;v=4.0.50826.0" style="text-decoration:none">
+ 			  <img src="http://go.microsoft.com/fwlink/?LinkId=161376" alt="Get Microsoft Silverlight" style="border-style:none" />
+		  </a>
+	    </object>
+
+<p>Минусы этого подхода очевидны. Основной минус – это сами бросания исключений. Они мешают везде. Если отлаживаете приложение, то это, скорее всего, лишнее при отладке (особенно если включите байдинг на каждое изменение значение, на каждое нажатие клавиши). Самое неприятное, что, например, нет нормальной возможности обнулить поле извне без какого-нибудь backend свойства или метода. Например, нам нужно было бы установить null в оба поля при загрузке контрола, а не сможем просто так - получим исключения. Очень не приятно. Конечно, решается, при помощи какого-нибудь метода Set[Property]Value, но в целом свойства реально можно будет использовать только для байдинга, что немного архитектурно странно.</p>
+
+<p>Другое, что мне тоже очень не нравится, это сама реализация. Приходится использовать CanExecute свойство для команды, и делать неактивным кнопку изменения пароля, что, мне кажется, не совсем очевидным и ясным для пользователя. Очевиднее, когда кнопка активна всегда. А когда пользователь нажмет ее в случае, если ничего не установлено – он увидит список ошибок валидации. Но так просто это реализовать не получится (или я не знаю как). Нельзя просто провалидировать весь объект и сказать контролам о том, что произошли какие-то ошибки валидации. То есть в методе ChangePassword я могу только проверить (и это делаю на всякий случай), но не вызвать какое-нибудь событие о том, что произошли ошибки валидации. Хотя реализовать подобное поведение, конечно же, можно. Нужно просто дернуть для каждого контрола UpdateBinding, для этого нужно написать специальный класс (типа Validation Scope), который бы это делал. </p>
+
+<p>Мне так же приходится в этом случае постоянно использовать <em>UpdateSourceTrigger</em>, так как если байдинг будет происходить на смену фокуса, то у пользователя будет ступор. Он ввел New Password, ввел Confirmation, оба пароля одинаковые, а кнопка до сих пор не валидна, просто потому, что байдинг еще не произошел. А когда используешь <em>UpdateSourceTrigger </em>при вводе Confirmation пароля на каждое нажатие клавиши уже видишь, что пароли не совпадают. Ужасно кривое решение.</p>
+
+<p>В общем, этот вариант валидации явно ужасен. Хорошо, разработчики Silverlight услышали просьбы, и реализовали интерфейсы <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.idataerrorinfo(VS.95).aspx">IDataErrorInfo</a> и <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifydataerrorinfo(VS.95).aspx">INotifyDataErrorInfo</a>, но о них <strong><a href="/ru/blog/show/250">в следующей статье</a></strong>. </p>
+
+<p>Этот пример можно скачать с <a href="https://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightValidation?rev=9">assembla.com</a></p>

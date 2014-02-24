@@ -1,0 +1,83 @@
+---
+layout: post
+title: "Первые впечатления о LightSwitch"
+date: 2010-08-20 19:38:00
+categories: ru
+tags: [Silverlight, Dynamic, XAML, Silverlight 4, DataGrid, LightSwitch]
+permalink: ru/blog/show/218
+---
+<p><a href="http://www.microsoft.com/visualstudio/en-us/lightswitch"><img src="/library/images/02/lightswitch/01.png" alt="lightswitch" /></a></p>
+<p>Как и многие скачал я себе <a href="http://www.microsoft.com/visualstudio/en-us/lightswitch">LightSwitch</a>, недавно он стал доступен для MSDN подписчиков. Скачивал и устанавливал я его не просто так, чтобы посмотреть, а у меня в голове были уже идеи, как это можно было бы использовать в текущем проекте. Наш основной проект сейчас – это модульное Silverlight приложение, один из модулей – это административная часть с кучей редактируемых таблиц (буду называть их справочниками). Мне не хотелось делать отдельные представления на каждый справочник, потому я сделал механизм, который позволял просто заполнять DataGrid по имени таблицы и списку полей. Причем поля можно указываться и из таблиц, на которые есть ссылки (reference) из главной таблицы, на сервере построится правильный join. Так же реализовал свой DataForm, к сожалению стандартный расширить не получилось, из-за того что там были спрятаны некоторые необходимые методы и свойства, и помню, что в WPF эти свойства спрятаны не были, ну да ладно. В итоге, на сервер передаются объекты и построенные запросы: что нужно отобразить, что показать. То есть, чтобы добавить редактирование новой таблицы CronTask мне теперь необходимо сделать буквально следующее</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">Views:ListEditControl</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">Views:ListEditControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">ViewModel:ListEditViewModel</span> <span style="color: #ff0000">MainTableName</span><span style="color: #0000ff">=&quot;CronTask&quot;</span> <span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">ViewModel:ListEditViewModel.MetadataColumns</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataColumn</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Task Type&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;Name&quot;</span> <span style="color: #ff0000">Table</span><span style="color: #0000ff">=&quot;TaskType&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataColumn</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Periodicity&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;Periodicity&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataColumn</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Is Active&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;IsActive&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataColumn</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Finish Only When Successful&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;FinishOnlyWhenSuccessful&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataColumn</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Company&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;CompanyName&quot;</span> <span style="color: #ff0000">Table</span><span style="color: #0000ff">=&quot;DuneClientCompanies&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">ViewModel:ListEditViewModel.MetadataColumns</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">ViewModel:ListEditViewModel.MetadataFields</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataField</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Task Type&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;TaskTypeID&quot;</span> <span style="color: #ff0000">ReferenceShowingColumn</span><span style="color: #0000ff">=&quot;Name&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataField</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Periodicity&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;Periodicity&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataField</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Is Active&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;IsActive&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataField</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Finish Only When Successful&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;FinishOnlyWhenSuccessful&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:DynamicMetadataField</span> <span style="color: #ff0000">HeaderText</span><span style="color: #0000ff">=&quot;Company&quot;</span> <span style="color: #ff0000">Column</span><span style="color: #0000ff">=&quot;CompanyID&quot;</span> <span style="color: #ff0000">ReferenceShowingColumn</span><span style="color: #0000ff">=&quot;CompanyName&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">ViewModel:ListEditViewModel.MetadataFields</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">ViewModel:ListEditViewModel</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">&lt;/</span><span style="color: #800000">Views:ListEditControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">Views:ListEditControl</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Это решение я писал еще на Silverlight 3, потому я особо не хочу вдаваться в подробности реализации, могу сказать только то, что сейчас я бы реализовал это немного по-другому, так как в Silverlight 4 уже есть динамические объекты (dynamic), а они бы сильно облегчили реализацию, и, скорее всего, мне бы удалось использовать стандартный DataForm. Так вот, таблиц для редактирования в админской части становится все больше, все больше таблиц нам нужно отображать для администраторов компаний, а это заказчики – для них нужно делать красиво. Необходимо делать все более юзабильнее и красивее, а понятно, что мое решение приходится постоянно сильно дорабатывать, и чем больше дизайнер старается, тем все ближе момент, когда эта реализация станет проигрывать по затраченному времени на обычную реализацию «в лоб». Так вот я сейчас искал замену этой реализации, и вариантов было несколько. </p>
+
+<p>Первый – это все же доработка текущей реализации. Мне так-то все нравится, работы вижу впереди много, но зато насколько это будет облегчать нам добавление возможности редактирования новых справочников, да и опыт полезен. </p>
+
+<p>Второй – это сделать «в лоб», тогда у дизайнера появится прямая возможность редактировать пользовательские интерфейсы как угодно. Единственное, все-таки хочется по максимуму упростить себя жизнь при помощи ORM на сервере, вроде Entity Framework и сервисов, вроде WCF RIA Services. А на клиенте, что захочет дизайнер то и будет. По началу, конечно же, будут стандартные DataGrid и DataForm. Минусы тут ясны, любой новый справочник – это куча нового кода: перегенировать объекты Entity Framework, сервисов, добавить View и т.п., но, вроде все можно возложить на Visual Studio и может быть затраты будут не такие уж и большие. </p>
+
+<p>Третий вариант – это сделать модуль на основе LightSwitch. Тут-то я вот и разочаровался в LightSwitch. Честно, по видео и первым попыткам обуздать этот продукт я был уже на 90% уверен, что, скорее всего, его и буду использовать для админской части, легко настраивается, легко строятся странички для редактирования справочников, все очень шустро, юзабильно – бери да пользуйся. Но не тут-то было, так просто внедрить это детище в свой продукт не получится, все спрятано от разработчика как можно дальше. Единственное, что честно сейчас можно редактировать – это методы форм: добавлять что-то на OnSaving, на OnSaved или какие-нибудь другие и все. Оно и понятно, начни править в серверном коде, так все начнет валиться, и все будут сваливать на продукт, что сырой и недоработанный. Понятное дело, что LightSwitch будет хорошо расширяем: будет возможность добавлять свои расширения и темы для него, но это будет разработка на основе LightSwitch, а не использование LightSwitch в своем приложении и мне не подходит. Код, что генерирует LightSwitch, я все же посмотрел через файловый менеджер (так же можно открывать файлы классов через Object Browser в Visual Studio) – поддерживать и править его точно не вариант. </p>
+
+<p>Если есть вопросы к LightSwitch, но нет возможности его попробовать, можете задать тут – попробую проверить и дать ответ. Мне, как я и <a href="/ru/blog/show/216">говорил</a> в подкасте 2Гига, этот продукт пока что становится неинтересным (занятным, но все же неинтересным). </p>

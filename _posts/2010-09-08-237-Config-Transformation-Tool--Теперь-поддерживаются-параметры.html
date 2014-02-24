@@ -1,0 +1,1352 @@
+---
+layout: post
+title: "Config Transformation Tool: Теперь поддерживаются параметры"
+date: 2010-09-08 20:04:00
+categories: ru
+tags: [.NET, C#, CodePlex, XDT, XML-Document-Transform, Config Transformation Tool]
+permalink: ru/blog/show/237
+---
+<p>Пару недель назад я писал про небольшую утилиту <a href="/ru/blog/show/222">Config Transformation Tool</a>, которую я создал на базе задачи трансформирования <a href="http://msdn.microsoft.com/en-us/library/dd465326.aspx">web.config файла</a>. В тот момент у меня сразу же возникла идея, что было бы неплохо еще иметь возможность указывать места в файле-трансформере, вместо которых можно было бы подставлять значения при помощи этой утилиты. И вот, сегодня я готов объявить, что мне удалось решить эту задачу. Сначала хотелось бы поблагодарить <a href="/ru/blog/show/222#comment_752">AlexBar</a>, за то, что он порекомендовал посмотреть глубже при помощи .Net Reflector в недры библиотеки <em>Microsoft.WebApplication.Build.Tasks.Dll</em>, и отыскать там класс Microsoft.Web.Publishing.Tasks.XmlTransformation, который умеет выполнять XML-Document-Transform для строк. Мне это очень сильно упростило реализацию. Чтобы утилита смогла поддерживать параметры мне предстояло решить две задачи: (а) уметь пробегаться по файлу и подставлять значения вместо параметров, (б) уметь парсить командную строку на предмет передачи параметров со значениями.</p>    <h2>ParametersTask</h2>  <p>Итак, сначала опишу, как я решал первую задачу. Синтаксис для параметров я решил сделать таким: {Имя_параметра:значение_по_умолчанию}, где значение по умолчанию это необязательный параметр. Правила для замены следующие: </p>  <ol>   <li>если указан параметр со значением, то использовать это значение; </li>    <li>если параметр не указан, но указано значение по умолчанию, то подставлять его; </li>    <li>если параметр не указан, и значение по умолчанию так же не указано, то оставить все как есть. </li> </ol>  <p>Перед тем как решать данную задачу я так же подумал о том, что RegEx или простыми string.Replace тут лучше не увлекаться, так как, если параметров будет много, то такая задача может выполняться очень долго. Потому я решил обойтись одним проходом по строке-трансформере, и, соответственно, за этот один проход подставить значения параметров. Так же я подумал о том, что в строке-трансформере могут применяться символы ‘{‘, ‘}’ не только для моих параметров, а для того, чтобы моя утилита их игнорировала нужно использовать комбинации “\}”, “\{“, ну и, соответственно, для самого символа ‘\’ так же используем комбинацию “\\”. Итак, класс ParametersTask имеет одно поле _parameters с типом IDictionary&lt;string, string&gt;, где ключи – это имена параметров, а значения – значения этих параметров. Основной метод ApplyParameters:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> ApplyParameters(<span style="color: #0000ff">string</span> sourceString)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    StringBuilder result = <span style="color: #0000ff">new</span> StringBuilder();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">int</span> index = 0;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">char</span>[] source = sourceString.ToCharArray();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">bool</span> fParameterRead = <span style="color: #0000ff">false</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    StringBuilder parameter = <span style="color: #0000ff">new</span> StringBuilder();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">while</span> (index &lt; source.Length)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">// If parameter read, read it and replace it</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (fParameterRead &amp;&amp; source[index] == <span style="color: #006080">'}'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            var s = parameter.ToString();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">int</span> colonIndex = parameter.ToString().IndexOf(<span style="color: #006080">':'</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            var parameterName = colonIndex &gt; 0 ? s.Substring(0, colonIndex) : s;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            var parameterDefaultValue = colonIndex &gt; 0 ? s.Substring(colonIndex + 1, s.Length - colonIndex - 1) : <span style="color: #0000ff">null</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">string</span> parameterValue = <span style="color: #0000ff">null</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (_parameters != <span style="color: #0000ff">null</span> &amp;&amp; _parameters.ContainsKey(parameterName))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                parameterValue = _parameters[parameterName];</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #008000">// Put &quot;value&quot; or &quot;default value&quot; or &quot;string which was here&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            result.Append(parameterValue ?? parameterDefaultValue ?? <span style="color: #006080">&quot;{&quot;</span> + parameter + <span style="color: #006080">&quot;}&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            fParameterRead = <span style="color: #0000ff">false</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            index++;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">continue</span>; </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (source[index] == <span style="color: #006080">'{'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            fParameterRead = <span style="color: #0000ff">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            parameter = <span style="color: #0000ff">new</span> StringBuilder();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            index++;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #008000">// Check is this escape \{ \} \\</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">else</span> <span style="color: #0000ff">if</span> (source[index] == <span style="color: #006080">'\\'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            var nextIndex = index + 1;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (nextIndex &lt; source.Length)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                var nextChar = source[nextIndex];</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">if</span> (nextChar == <span style="color: #006080">'}'</span> || nextChar == <span style="color: #006080">'{'</span> || nextChar == <span style="color: #006080">'\\'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    index++;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (fParameterRead)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            parameter.Append(source[index]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            result.Append(source[index]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        index++;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">return</span>  result.ToString();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Основная идея метода в том, что в цикле мы читаем либо параметр, либо просто содержание. В методе первый if на то, что это окончание параметра, второй if на то, что это начало параметра. Следующий пропускает специальные комбинации “\{”, “\}” или “\\”. Это, конечно, не полноценный “<a href="http://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D1%80%D0%B5%D0%BA%D1%83%D1%80%D1%81%D0%B8%D0%B2%D0%BD%D0%BE%D0%B3%D0%BE_%D1%81%D0%BF%D1%83%D1%81%D0%BA%D0%B0">нисходящий разбор</a>”, но, вроде выглядит ничего, и он отлично отрабатывает на следующих тестах:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> ApplyParameters_Sample()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> ExpectedResult =</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Value CustomParameter1&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;False&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test2&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;Value CustomParameter2&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test3&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;False&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;{CustomParameter1:Default value}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TrueValueParameter:True}&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test2&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{CustomParameter2:Default value of CustomParameter2}&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test3&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TrueValueParameter:True}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    task.AddParameters(<span style="color: #0000ff">new</span> Dictionary&lt;<span style="color: #0000ff">string</span>, <span style="color: #0000ff">string</span>&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                            {<span style="color: #006080">&quot;CustomParameter1&quot;</span>, <span style="color: #006080">&quot;Value CustomParameter1&quot;</span>},</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                            {<span style="color: #006080">&quot;TrueValueParameter&quot;</span>, <span style="color: #006080">&quot;False&quot;</span>},</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                            {<span style="color: #006080">&quot;CustomParameter2&quot;</span>, <span style="color: #006080">&quot;Value CustomParameter2&quot;</span>}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                        });</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(ExpectedResult, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> WithoutParameters()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;{CustomParameter1}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TrueValueParameter}&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test2&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{CustomParameter2}&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test3&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TrueValueParameter}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(Source, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> WithoutParameters_But_With_Default_Values()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> ExpectedResult =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Default value&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;True&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test2&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;Default value of CustomParameter2&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test3&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;False&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;{CustomParameter1:Default value}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TrueValueParameter:True}&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test2&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{CustomParameter2:Default value of CustomParameter2}&quot;</span><span style="color: #006080">&quot; /&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Test3&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TrueValueParameter:False}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(ExpectedResult, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Apply_With_Double_Colon_In_Definition()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> ExpectedResult =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Default:value&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;Val&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;{Parameter1:Default:value}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;Val&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(ExpectedResult, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Apply_With_Escaped_Brackets()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> ExpectedResult =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Default:value&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TestParameter:Test}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;{Parameter1:Default:value}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;\{TestParameter:Test\}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(ExpectedResult, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Apply_With_Escaped_Brackets_In_Default_Value()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> ExpectedResult =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Defa{ultva}lue&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TestParameter:Test}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;{Parameter1:Defa\{ultva\}lue}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;\{TestParameter:Test\}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(ExpectedResult, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Apply_With_Parameter_At_End_Of_String()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> ExpectedResult =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;Defa{ultva}lue&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;Test&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&lt;value key=&quot;</span><span style="color: #006080">&quot;{Parameter1:Defa\{ultva\}lue}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TestParameter:Test}&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(ExpectedResult, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Apply_With_Parameter_At_Start_Of_String()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> ExpectedResult =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #006080">@&quot;Defa{ultva}lue&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;{TestParameter:Test}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> Source =</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #006080">@&quot;{Parameter1:Defa\{ultva\}lue}&quot;</span><span style="color: #006080">&quot; value=&quot;</span><span style="color: #006080">&quot;\{TestParameter:Test\}&quot;</span><span style="color: #006080">&quot; /&gt;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ParametersTask task = <span style="color: #0000ff">new</span> ParametersTask();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    var result = task.ApplyParameters(Source);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(ExpectedResult, result);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<h2>ParametersParser</h2>
+
+<p>Вторая задача – это уметь распарсить параметры из командной строки. Реализовать эту функциональность я решил способом, который используется в MsBuild.exe, ну или очень похожим на него. Параметры должны быть разделены точкой с запятой ‘;’, имя параметра и значение должно разделять двоеточие ‘:’, если значение параметра включает в себя пробелы или точку запятой, то это значение лучше заключить в кавычки, и так же есть возможность использовать ‘\”’, ‘\\’. Реализация ниже:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #008000">/// Parse string of parameters </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">class</span> ParametersParser</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">readonly</span> <span style="color: #0000ff">static</span> ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType); </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// Parse string of parameters &lt;paramref name=&quot;parametersString&quot;/&gt; separated by semi ';'.</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// Value should be separated from name by colon ':'. </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// If value has spaces or semi you can use quotes for value. </span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// You can escape symbols '\' and '&quot;' with \.</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;param name=&quot;parametersString&quot;&gt;String of parameters&lt;/param&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;returns&gt;Dicrionary of parameters, where keys are names and values are values of parameters. </span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// Can be null if &lt;paramref name=&quot;parametersString&quot;/&gt; is empty or null.&lt;/returns&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> IDictionary&lt;<span style="color: #0000ff">string</span>, <span style="color: #0000ff">string</span>&gt; ReadParameters(<span style="color: #0000ff">string</span> parametersString)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (<span style="color: #0000ff">string</span>.IsNullOrWhiteSpace(parametersString)) <span style="color: #0000ff">return</span> <span style="color: #0000ff">null</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Dictionary&lt;<span style="color: #0000ff">string</span>, <span style="color: #0000ff">string</span>&gt; parameters = <span style="color: #0000ff">new</span> Dictionary&lt;<span style="color: #0000ff">string</span>, <span style="color: #0000ff">string</span>&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        var source = parametersString.ToCharArray();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">int</span> index = 0;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">bool</span> fParameterNameRead = <span style="color: #0000ff">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">bool</span> fForceParameterValueRead = <span style="color: #0000ff">false</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        StringBuilder parameterName = <span style="color: #0000ff">new</span> StringBuilder();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        StringBuilder parameterValue = <span style="color: #0000ff">new</span> StringBuilder();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">while</span> (index &lt; source.Length)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (fParameterNameRead &amp;&amp; source[index] == <span style="color: #006080">':'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                fParameterNameRead = <span style="color: #0000ff">false</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                index++;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">if</span> (index &lt; source.Length &amp;&amp; source[index] == <span style="color: #006080">'&quot;'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    fForceParameterValueRead = <span style="color: #0000ff">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    index++;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">continue</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> ((!fForceParameterValueRead &amp;&amp; source[index] == <span style="color: #006080">';'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                || (fForceParameterValueRead &amp;&amp; source[index] == <span style="color: #006080">'&quot;'</span> &amp;&amp; ((index + 1) == source.Length || source[index + 1] == <span style="color: #006080">';'</span>)))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                AddParameter(parameters, parameterName, parameterValue);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                index++;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">if</span> (fForceParameterValueRead)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    index++;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                parameterName.Clear();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                parameterValue.Clear();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                fParameterNameRead = <span style="color: #0000ff">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                fForceParameterValueRead = <span style="color: #0000ff">false</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">continue</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #008000">// Check is this escape \{ \} \\</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (source[index] == <span style="color: #006080">'\\'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                var nextIndex = index + 1;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">if</span> (nextIndex &lt; source.Length)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    var nextChar = source[nextIndex];</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    <span style="color: #0000ff">if</span> (nextChar == <span style="color: #006080">'&quot;'</span> || nextChar == <span style="color: #006080">'\\'</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                        index++;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (fParameterNameRead)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                parameterName.Append(source[index]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                parameterValue.Append(source[index]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            index++;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        AddParameter(parameters, parameterName, parameterValue);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (Log.IsDebugEnabled)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">foreach</span> (var parameter <span style="color: #0000ff">in</span> parameters)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                Log.DebugFormat(<span style="color: #006080">&quot;Parameter Name: '{0}', Value: '{1}'&quot;</span>, parameter.Key, parameter.Value);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> parameters;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> AddParameter(Dictionary&lt;<span style="color: #0000ff">string</span>, <span style="color: #0000ff">string</span>&gt; parameters, StringBuilder parameterName, StringBuilder parameterValue)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        var name = parameterName.ToString();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (!<span style="color: #0000ff">string</span>.IsNullOrWhiteSpace(name))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (parameters.ContainsKey(name))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                parameters.Remove(name);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            parameters.Add(name, parameterValue.ToString());</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Тут все проще чем в предыдущий раз. Мы в цикле либо читаем имя параметра, либо его значение. Конечно, можно было бы сделать все попроще при помощи Split функций, но я решил и тут все сделать правильно за один проход. Итого, несколько тестов для данного метода:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #008000">/// Check simple parameters command line</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Sample()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> parametersLine = <span style="color: #006080">&quot;Parameter1:Value1;Parameter2:121.232&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    var parameters = ParametersParser.ReadParameters(parametersLine);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;Value1&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter1&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;121.232&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter2&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #008000">/// Check parameters command line when one of parameter has semi in value string</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> String_With_Semicolon_In_Value()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> parametersLine = <span style="color: #006080">&quot;Parameter1:Value1;Parameter2:\&quot;121;232\&quot;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    var parameters = ParametersParser.ReadParameters(parametersLine);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;Value1&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter1&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;121;232&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter2&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #008000">/// Check that if command line has semicon at end parameters will be loaded</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> String_With_Semicolon_At_End()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> parametersLine = <span style="color: #006080">&quot;Parameter1:Value1;Parameter2:\&quot;121.232\&quot;;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    var parameters = ParametersParser.ReadParameters(parametersLine);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;Value1&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter1&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;121.232&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter2&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #008000">/// Check that value of parameter can contain escaped quotes</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">[Test]</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> String_With_Values_With_Quotes()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">const</span> <span style="color: #0000ff">string</span> parametersLine = <span style="color: #006080">@&quot;Parameter1:Value1;Parameter2:&quot;&quot;12\&quot;&quot;1.2\&quot;&quot;32&quot;&quot;;&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    var parameters = ParametersParser.ReadParameters(parametersLine);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;Value1&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter1&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    Assert.AreEqual(<span style="color: #006080">&quot;12\&quot;1.2\&quot;32&quot;</span>, parameters[<span style="color: #006080">&quot;Parameter2&quot;</span>]);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<h2>Результат</h2>
+
+<p>В итоге теперь можно при помощи утилиты проработать такой пример. Исходный файл (s.config):</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup1&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test1&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;False&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test2&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;600&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup2&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test3&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;C:\Test\&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Теперь файл трансформации (t.config), в нем описано два параметра, один Parameter1, значение которого указывать необязательно, и параметр с именем Test3Value:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configuration</span> <span style="color: #ff0000">xmlns:xdt</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/XML-Document-Transform&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup1&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test2&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;601&quot;</span> <span style="color: #ff0000">xdt:Transform</span><span style="color: #0000ff">=&quot;Replace&quot;</span>  <span style="color: #ff0000">xdt:Locator</span><span style="color: #0000ff">=&quot;Match(key)&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test1&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;{Parameter1:True5665}&quot;</span> <span style="color: #ff0000">xdt:Transform</span><span style="color: #0000ff">=&quot;Replace&quot;</span>  <span style="color: #ff0000">xdt:Locator</span><span style="color: #0000ff">=&quot;Match(key)&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup2&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test3&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;{Test3Value}&quot;</span> <span style="color: #ff0000">xdt:Transform</span><span style="color: #0000ff">=&quot;Replace&quot;</span>  <span style="color: #ff0000">xdt:Locator</span><span style="color: #0000ff">=&quot;Match(key)&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Вызываем утилиту:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">ctt s:s.config t:t.config d:d.config p:Parameter1:True;Test3Value:&quot;c:\Program Files\Test&quot;</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Как и следовало ожидать получаем d.config:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">&lt;</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup1&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">          <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test1&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;True&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">          <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test2&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;601&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup2&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">          <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test3&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;c:\Program Files\Test&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">&lt;/</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>К аргументам утилиты еще добавил fpt – этот параметр следует применять, когда в файле-трансформере находятся параметры со значениями по умолчанию, а в командной строке вызова утилиты значения параметров не указываете, тогда под действием этого параметра утилиты пробежится и все-таки проставит значения по-умолчанию. Без параметра утилита не вызывает задача подстановки параметров, если в командной строке параметры со значениями не указаны.</p>
+
+<h2>Итог</h2>
+
+<p>Скорее всего есть очень много проблемных мест и недочетов, если видите что-то, либо знаете коварный тест, где точно не проработает – отпишитесь, пожалуйста, в комментариях, постараюсь все допилить. Ну и буду рад любым замечаниям и предложениям. Исходники и собранную версию можно скачать на сайте проекта на CodePlex: <a href="http://ctt.codeplex.com">http://ctt.codeplex.com</a>, последняя версия <a href="http://ctt.codeplex.com/releases/view/52027">Config Transformation Tool v1.1</a>.</p>

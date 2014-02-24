@@ -1,0 +1,376 @@
+---
+layout: post
+title: "Конфигурирование log4net runtime & Получаем больше информации для тестов"
+date: 2010-08-19 18:07:00
+categories: ru
+tags: [.NET, C#, TDD, Log System, log4net]
+permalink: ru/blog/show/217
+---
+<p>Для логгирования приложений, написанных под .NET большинство разработчиков используют log4net (а другие разработчики используют <a href="http://logging.apache.org/">log4 под другие платформы</a>). Но так, к сожалению, бывает не везде. Так, например, в нашем проекте до сегодняшнего дня мы использовали свою самописную библиотеку для логгирования. Была она, видимо, написана давно нашим team leader, но так как нас сейчас покидает текущий team leader, мы решили так же распрощаться с некоторым legacy кодом, который был дорог нашему лидеру, но который не особо то мы хотим поддерживать. Сразу уточню, что код написан отлично, и наш team leader – отличный кодер, но log4net имеет больше преимуществ, а текущий логгер нам приходится частенько дописывать функционалом, который уже давно есть в log4net. </p>
+
+<p>Большинство конфигурируют log4net при помощи config файла (попросту обычный xml файл), и скорее всего у фирм такой файл уже написан давно, и его просто копируют из проекта в проект, изменяя названия файлов или подправляя формат сообщений. А чтобы написать хороший конфиг рекомендую посмотреть на <a href="http://logging.apache.org/log4net/release/config-examples.html">примеры</a>, который предоставляет сама библиотека log4net. Самый используемый Appender – это, наверное, RollingFileAppender. Для этого сайта у меня, к примеру, такой упрощенный config:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">log4net</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">&lt;!-- contexts:</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">    --&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">&lt;!-- Setup the root category, add the appenders and set the default priority </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">            Off, Fatal, Error, Warn, Info, Debug, All.--&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">root</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">level</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;Error&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">appender-ref</span> <span style="color: #ff0000">ref</span><span style="color: #0000ff">=&quot;RollingFileAppender&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">&lt;!--&lt;appender-ref ref=&quot;TraceAppender&quot; /&gt;--&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">root</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">appender</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;RollingFileAppender&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;log4net.Appender.RollingFileAppender&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;File&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;App_Data\\Logs\\personalweb.log&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;AppendToFile&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;true&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;RollingStyle&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;Size&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;MaxSizeRollBackups&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;10&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;MaximumFileSize&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;1MB&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;StaticLogFileName&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;true&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">lockingModel</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;log4net.Appender.FileAppender+MinimalLock&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">layout</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;log4net.Layout.PatternLayout&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">header</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;[Application Starts]&amp;#13;&amp;#10;&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">footer</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;[Application Stops]&amp;#13;&amp;#10;&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;ConversionPattern&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;%date{yyyy-dd-MM HH:mm:ss} [%thread] %-5level %logger{3} - %message%newline&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">layout</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">appender</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">appender</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TraceAppender&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;log4net.Appender.TraceAppender&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">layout</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;log4net.Layout.PatternLayout&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">param</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;ConversionPattern&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;%date{yyyy-dd-MM HH:mm:ss} [%thread] %-5level %logger{3} - %message%newline&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">layout</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">appender</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">log4net</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Логгер по большому счету должен спасать тогда, когда на сайте или в приложении валятся ошибки уже на live инсталяции, а понять о сути их происхождения сложно, тогда грамотно расставленные записи в лог помогут справиться нам с этой задачей. Но можно получить от него и больше пользы еще до этого, для этого мы заставим наш код, который выполняется в тестах, писать в Output окно Visual Studio. Я делаю это потому, что я тот программист, который запускает проект в режиме отладки только в крайнем случае, сначала я пишу код/тесты, проверяю их, потом строю приложение – смотрю, что все работает и с легкостью комичу код. И только в случае непонятных мне ошибок, странного поведения или memory-leak я начинаю отлаживать приложение. Такой подход очень сильно мне экономит время. </p>
+
+<p>Так вот, тесты в моем процессе разработки играют большую роль, и, конечно же, я не хочу запускать тесты в режиме отладке, но хочу видеть как можно больше информации в output окне, потому мой конфигуратор для log4net выглядит следующим образом</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">class</span> Log4NetUtils</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">bool</span> _isConfigurated;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> <span style="color: #0000ff">object</span> _locker = <span style="color: #0000ff">new</span> <span style="color: #0000ff">object</span>();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">///     Load configuration from config file</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> InitLogger()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        InitLogger(<span style="color: #0000ff">false</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">///     Load configuration from config file when &lt;paramref name = &quot;useBasicConfiguration&quot; /&gt; = false </span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">///     or set basic configuration with trace appender if &lt;paramref name = &quot;useBasicConfiguration&quot; /&gt; = true. </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">///     Method is thread safe only for x86 and x64 architectures and Microsoft .NET platform.</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;param name = &quot;useBasicConfiguration&quot;&gt;&lt;/param&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> InitLogger(<span style="color: #0000ff">bool</span> useBasicConfiguration)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (!_isConfigurated)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">lock</span> (_locker)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">if</span> (!_isConfigurated)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    <span style="color: #0000ff">if</span> (useBasicConfiguration)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                        ConfigureRunTimeFromBasic();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                        ConfigureFromFile();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    _isConfigurated = <span style="color: #0000ff">true</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> ConfigureRunTimeFromBasic()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        TraceAppender traceAppender = <span style="color: #0000ff">new</span> TraceAppender();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        PatternLayout patternLayout = <span style="color: #0000ff">new</span> PatternLayout</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                          {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                              ConversionPattern =</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                                  <span style="color: #006080">&quot;%date{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{2} - %message%newline&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                          };</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        patternLayout.ActivateOptions();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        traceAppender.Layout = patternLayout;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        BasicConfigurator.Configure(traceAppender);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> ConfigureFromFile()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">string</span> fileConfiguration = ConfigurationManager.AppSettings.Get(<span style="color: #006080">&quot;Log4NetConfigurationFile&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (<span style="color: #0000ff">string</span>.IsNullOrWhiteSpace(fileConfiguration))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            fileConfiguration = <span style="color: #006080">&quot;log4net.config&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        XmlConfigurator.ConfigureAndWatch(<span style="color: #0000ff">new</span> FileInfo(AppDomain.CurrentDomain.BaseDirectory + fileConfiguration));</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Соответственно для самого приложения вызывается метод <em>Log4NetUtils.InitLogger()</em> в Global.asax для веб приложения или в Main функции Windows-приложения, а вот в SetUp() для тестов я вызываю <em>Log4NetUtils.InitLogger(true)</em>, который и включает мне логгирование всего в Output окно VS для тестов:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">[TestFixture]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">class</span> ParserSpec</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">// ReSharper disable InconsistentNaming</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    [SetUp]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> SetUp()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Log4NetUtils.InitLogger(<span style="color: #0000ff">false</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    [Test]</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> parse_string_to_int()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">int</span> i = <span style="color: #006080">&quot;1&quot;</span>.To&lt;<span style="color: #0000ff">int</span>&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Assert.AreEqual(i, 1);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">//......</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">// ReSharper enable InconsistentNaming</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+<p>На самом деле у меня есть еще файл BaseSpec, в котором уже существует SetUp метод и делает он не только регистрацию log4net. А в целом получается очень удобно:</p>
+
+<p><img alt="VS Output" src="/library/images/02/log4net/01.png" /></p>
+
+<p>P.S. Америку я тут не открывал, просто сохранил для потомков (будущих проектов) :) </p>
