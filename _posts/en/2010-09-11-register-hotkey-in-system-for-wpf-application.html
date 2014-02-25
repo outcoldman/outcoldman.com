@@ -6,336 +6,95 @@ categories: en
 tags: [.NET, C#, WPF, Hotkey]
 alias: en/blog/show/240
 ---
-<p>Couple days ago I got a question about how to register hotkey in Windows for WPF application. I remembered that one year ago I was solving the same problem in WinForms application, I was registering hot keys for my application, it was <a href="/en/tools/keys">Vista Keys Extender</a> project. I knew that my project worked, so I suggested author of question to use code of my project to solve his problem. But as we learned later in WPF message handle mechanism different from WinForms. So I started to find solution for WPF application. I copied my <a href="http://keysextender.codeplex.com/SourceControl/changeset/view/51053#330409">old code</a> from my old project and started to rewrite it step-by-step.</p>    <p>First off all we need to import WinAPI methods:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">internal</span> <span style="color: #0000ff">class</span> HotKeyWinApi</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">const</span> <span style="color: #0000ff">int</span> WmHotKey = 0x0312;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    [DllImport(<span style="color: #006080">&quot;user32.dll&quot;</span>, SetLastError = <span style="color: #0000ff">true</span>)]</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">extern</span> <span style="color: #0000ff">bool</span> RegisterHotKey(IntPtr hWnd, <span style="color: #0000ff">int</span> id, ModifierKeys fsModifiers, Keys vk);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    [DllImport(<span style="color: #006080">&quot;user32.dll&quot;</span>, SetLastError = <span style="color: #0000ff">true</span>)]</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">extern</span> <span style="color: #0000ff">bool</span> UnregisterHotKey(IntPtr hWnd, <span style="color: #0000ff">int</span> id);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<p>Couple days ago I got a question about how to register hotkey in Windows for WPF application. I remembered that one year ago I was solving the same problem in WinForms application, I was registering hot keys for my application, it was <a href="/en/tools/keys">Vista Keys Extender</a> project. I knew that my project worked, so I suggested author of question to use code of my project to solve his problem. But as we learned later in WPF message handle mechanism different from WinForms. So I started to find solution for WPF application. I copied my <a href="http://keysextender.codeplex.com/SourceControl/changeset/view/51053#330409">old code</a> from my old project and started to rewrite it step-by-step.</p>    <p>First off all we need to import WinAPI methods:</p>  <pre><code>internal class HotKeyWinApi
+{    public const int WmHotKey = 0x0312;
+&#160;    [DllImport(&quot;user32.dll&quot;, SetLastError = true)]
+    public static extern bool RegisterHotKey(IntPtr hWnd, int id, ModifierKeys fsModifiers, Keys vk);
+&#160;    [DllImport(&quot;user32.dll&quot;, SetLastError = true)]
+    public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+}
+</code></pre>
 
 <p>In Vista Keys Extender project I implemented own enum KeyModifiers, but in WPF I don’t need to do this, because it has <a href="http://msdn.microsoft.com/en-us/library/system.windows.input.modifierkeys.aspx">System.Windows.Input.ModifierKeys</a>, which equals to my own enum. Also in my old project I used <a href="http://msdn.microsoft.com/en-us/library/system.windows.forms.keys.aspx">System.Windows.Forms.Keys</a>, but in WPF enum <a href="http://msdn.microsoft.com/en-us/library/system.windows.input.key.aspx">System.Windows.Input.Key</a> different, it has other values. I didn’t want to set reference from my new WPF project to assembly <em>System.Windows.Forms</em>, because I need just one enum. So I copied this enum from assembly to my new WPF project. Ok, so I did all preparations and now I need to realize main class HotKey:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">sealed</span> <span style="color: #0000ff">class</span> HotKey : IDisposable</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">event</span> Action&lt;HotKey&gt; HotKeyPressed;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">readonly</span> <span style="color: #0000ff">int</span> _id;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">bool</span> _isKeyRegistered;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">readonly</span> IntPtr _handle;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(ModifierKeys modifierKeys, Keys key, Window window)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        : <span style="color: #0000ff">this</span> (modifierKeys, key, <span style="color: #0000ff">new</span> WindowInteropHelper(window))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Contract.Requires(window != <span style="color: #0000ff">null</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(ModifierKeys modifierKeys, Keys key, WindowInteropHelper window)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        : <span style="color: #0000ff">this</span>(modifierKeys, key, window.Handle)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Contract.Requires(window != <span style="color: #0000ff">null</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> HotKey(ModifierKeys modifierKeys, Keys key, IntPtr windowHandle)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Contract.Requires(modifierKeys != ModifierKeys.None || key != Keys.None);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Contract.Requires(windowHandle != IntPtr.Zero);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Key = key;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        KeyModifier = modifierKeys;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        _id = GetHashCode();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        _handle = windowHandle;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        RegisterHotKey();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        ComponentDispatcher.ThreadPreprocessMessage += ThreadPreprocessMessageMethod;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    ~HotKey()</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Dispose();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> Keys Key { get; <span style="color: #0000ff">private</span> set; }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> ModifierKeys KeyModifier { get; <span style="color: #0000ff">private</span> set; }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> RegisterHotKey()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (Key == Keys.None)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">return</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (_isKeyRegistered)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            UnregisterHotKey();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        _isKeyRegistered = HotKeyWinApi.RegisterHotKey(_handle, _id, KeyModifier, Key);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (!_isKeyRegistered)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ApplicationException(<span style="color: #006080">&quot;Hotkey already in use&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> UnregisterHotKey()</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        _isKeyRegistered = !HotKeyWinApi.UnregisterHotKey(_handle, _id);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> Dispose()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        ComponentDispatcher.ThreadPreprocessMessage -= ThreadPreprocessMessageMethod;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        UnregisterHotKey();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> ThreadPreprocessMessageMethod(<span style="color: #0000ff">ref</span> MSG msg, <span style="color: #0000ff">ref</span> <span style="color: #0000ff">bool</span> handled)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (!handled)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (msg.message == HotKeyWinApi.WmHotKey</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                &amp;&amp; (<span style="color: #0000ff">int</span>)(msg.wParam) == _id)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                OnHotKeyPressed();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                handled = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> OnHotKeyPressed()</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (HotKeyPressed != <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            HotKeyPressed(<span style="color: #0000ff">this</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public sealed class HotKey : IDisposable
+{    public event Action&lt;HotKey&gt; HotKeyPressed;
+&#160;    private readonly int _id;
+    private bool _isKeyRegistered;
+    readonly IntPtr _handle;
+&#160;    public HotKey(ModifierKeys modifierKeys, Keys key, Window window)
+        : this (modifierKeys, key, new WindowInteropHelper(window))
+    {        Contract.Requires(window != null);
+    }
+&#160;    public HotKey(ModifierKeys modifierKeys, Keys key, WindowInteropHelper window)
+        : this(modifierKeys, key, window.Handle)
+    {        Contract.Requires(window != null);
+    }
+&#160;    public HotKey(ModifierKeys modifierKeys, Keys key, IntPtr windowHandle)
+    {
+        Contract.Requires(modifierKeys != ModifierKeys.None || key != Keys.None);
+        Contract.Requires(windowHandle != IntPtr.Zero);
+&#160;
+        Key = key;
+        KeyModifier = modifierKeys;
+        _id = GetHashCode();
+        _handle = windowHandle;
+        RegisterHotKey();
+        ComponentDispatcher.ThreadPreprocessMessage += ThreadPreprocessMessageMethod;
+    }
+&#160;
+    ~HotKey()
+    {
+        Dispose();
+    }
+&#160;    public Keys Key { get; private set; }
+&#160;    public ModifierKeys KeyModifier { get; private set; }
+&#160;    public void RegisterHotKey()
+    {        if (Key == Keys.None)
+            return;
+        if (_isKeyRegistered)
+            UnregisterHotKey();
+        _isKeyRegistered = HotKeyWinApi.RegisterHotKey(_handle, _id, KeyModifier, Key);        if (!_isKeyRegistered)
+            throw new ApplicationException(&quot;Hotkey already in use&quot;);
+    }
+&#160;    public void UnregisterHotKey()
+    {
+        _isKeyRegistered = !HotKeyWinApi.UnregisterHotKey(_handle, _id);
+    }
+&#160;    public void Dispose()
+    {
+        ComponentDispatcher.ThreadPreprocessMessage -= ThreadPreprocessMessageMethod;
+        UnregisterHotKey();
+    }
+&#160;    private void ThreadPreprocessMessageMethod(ref MSG msg, ref bool handled)
+    {        if (!handled)
+        {            if (msg.message == HotKeyWinApi.WmHotKey
+                &amp;&amp; (int)(msg.wParam) == _id)
+            {
+                OnHotKeyPressed();                handled = true;
+            }
+        }
+    }
+&#160;    private void OnHotKeyPressed()
+    {        if (HotKeyPressed != null)
+            HotKeyPressed(this);
+    }
+}
+</code></pre>
 
 <p>And small sample of using:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">partial</span> <span style="color: #0000ff">class</span> MainWindow : Window</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">private</span> HotKey _hotkey;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> MainWindow()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        InitializeComponent();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Loaded += (s, e) =&gt;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                      {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                          _hotkey = <span style="color: #0000ff">new</span> HotKey(ModifierKeys.Windows | ModifierKeys.Alt, Keys.Left, <span style="color: #0000ff">this</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                          _hotkey.HotKeyPressed += (k) =&gt; Console.Beep();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                      };</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public partial class MainWindow : Window
+{    private HotKey _hotkey;
+&#160;    public MainWindow()
+    {
+        InitializeComponent();
+        Loaded += (s, e) =&gt;
+                      {                          _hotkey = new HotKey(ModifierKeys.Windows | ModifierKeys.Alt, Keys.Left, this);
+                          _hotkey.HotKeyPressed += (k) =&gt; Console.Beep();
+                      };
+    }
+}
+</code></pre>
 
 <p>You can look and download source code of this sample from my public SVN repository at <a href="https://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/WpfApplicationHotKey">assembla</a>.</p>

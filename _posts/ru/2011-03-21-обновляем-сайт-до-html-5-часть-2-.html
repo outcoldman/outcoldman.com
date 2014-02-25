@@ -6,83 +6,32 @@ categories: ru
 tags: [JavaScript, HTML, Internet Explorer, Internet Explorer 8, outcoldman.ru, Html 5, Internet Explorer 9]
 alias: ru/blog/show/282
 ---
-<p>Продолжу тему обновления верстки сайта до HTML 5. С первой частью статьи можно ознакомиться здесь <a href="/ru/blog/show/275">Обновляем сайт до HTML 5. Часть 1.</a> Как я и говорил – это можно назвать рефератом на книгу <a href="http://diveintohtml5.org/">DIVE INTO HTML5,</a> большинство примеров взяты оттуда. </p>      <h2>Video</h2>  <p>Затея очень классная, по идеи без лишних плагинов (Flash или Silverlight) можно сразу же смотреть видео в интернете. Для разработчиков тоже хлопот мало, по минимуму можно просто выложить видео и все будет работать, примерно так:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">   <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">     <pre style="background-color: white; margin: 0em">&lt;video src=<span style="color: #006080">&quot;pr6.webm&quot;</span> width=<span style="color: #006080">&quot;320&quot;</span> height=<span style="color: #006080">&quot;240&quot;</span> controls&gt;&lt;/video&gt;</pre>
-<!--CRLF--></div>
-</div>
+<p>Продолжу тему обновления верстки сайта до HTML 5. С первой частью статьи можно ознакомиться здесь <a href="/ru/blog/show/275">Обновляем сайт до HTML 5. Часть 1.</a> Как я и говорил – это можно назвать рефератом на книгу <a href="http://diveintohtml5.org/">DIVE INTO HTML5,</a> большинство примеров взяты оттуда. </p>      <h2>Video</h2>  <p>Затея очень классная, по идеи без лишних плагинов (Flash или Silverlight) можно сразу же смотреть видео в интернете. Для разработчиков тоже хлопот мало, по минимуму можно просто выложить видео и все будет работать, примерно так:</p>  <pre><code>&lt;video src=&quot;pr6.webm&quot; width=&quot;320&quot; height=&quot;240&quot; controls&gt;&lt;/video&gt;
+</code></pre>
 
 <p>А на практике мы получаем нечто другое. Разработчики браузеров не могут договориться насчет кодеков, приходится поддерживать старые браузеры, а потому от Flash/Silverlight все равно не отказаться, в итоге вместо приведенного выше примера получаем нечто, вроде:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em">&lt;video id=<span style="color: #006080">&quot;movie&quot;</span> width=<span style="color: #006080">&quot;320&quot;</span> height=<span style="color: #006080">&quot;240&quot;</span> preload controls&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  &lt;source src=<span style="color: #006080">&quot;pr6.webm&quot;</span> type=<span style="color: #006080">'video/webm; codecs=&quot;vp8, vorbis&quot;'</span> /&gt;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  &lt;source src=<span style="color: #006080">&quot;pr6.ogv&quot;</span> type=<span style="color: #006080">'video/ogg; codecs=&quot;theora, vorbis&quot;'</span> /&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  &lt;source src=<span style="color: #006080">&quot;pr6.mp4&quot;</span> /&gt;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  &lt;object width=<span style="color: #006080">&quot;320&quot;</span> height=<span style="color: #006080">&quot;240&quot;</span> type=<span style="color: #006080">&quot;application/x-shockwave-flash&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    data=<span style="color: #006080">&quot;flowplayer-3.2.1.swf&quot;</span>&gt; </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    &lt;param name=<span style="color: #006080">&quot;movie&quot;</span> value=<span style="color: #006080">&quot;flowplayer-3.2.1.swf&quot;</span> /&gt; </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    &lt;param name=<span style="color: #006080">&quot;allowfullscreen&quot;</span> value=<span style="color: #006080">&quot;true&quot;</span> /&gt; </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    &lt;param name=<span style="color: #006080">&quot;flashvars&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        value=<span style="color: #006080">'config={&quot;clip&quot;: {&quot;url&quot;: &quot;http://wearehugh.com/dih5/pr6.mp4&quot;, &quot;autoPlay&quot;:false, &quot;autoBuffering&quot;:true}}'</span> /&gt; </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    &lt;p&gt;Download video as &lt;a href=<span style="color: #006080">&quot;pr6.mp4&quot;</span>&gt;MP4&lt;/a&gt;, &lt;a href=<span style="color: #006080">&quot;pr6.webm&quot;</span>&gt;WebM&lt;/a&gt;, or &lt;a href=<span style="color: #006080">&quot;pr6.ogv&quot;</span>&gt;Ogg&lt;/a&gt;.&lt;/p&gt; </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  &lt;/object&gt;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&lt;/video&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&lt;script&gt;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  var v = document.getElementById(<span style="color: #006080">&quot;movie&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  v.onclick = function() {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (v.paused) {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      v.play();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    } <span style="color: #0000ff">else</span> {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      v.pause();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  };</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&lt;/script&gt;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;video id=&quot;movie&quot; width=&quot;320&quot; height=&quot;240&quot; preload controls&gt;
+  &lt;source src=&quot;pr6.webm&quot; type='video/webm; codecs=&quot;vp8, vorbis&quot;' /&gt;
+  &lt;source src=&quot;pr6.ogv&quot; type='video/ogg; codecs=&quot;theora, vorbis&quot;' /&gt;
+  &lt;source src=&quot;pr6.mp4&quot; /&gt;
+  &lt;object width=&quot;320&quot; height=&quot;240&quot; type=&quot;application/x-shockwave-flash&quot;
+    data=&quot;flowplayer-3.2.1.swf&quot;&gt; 
+    &lt;param name=&quot;movie&quot; value=&quot;flowplayer-3.2.1.swf&quot; /&gt; 
+    &lt;param name=&quot;allowfullscreen&quot; value=&quot;true&quot; /&gt; 
+    &lt;param name=&quot;flashvars&quot; 
+        value='config={&quot;clip&quot;: {&quot;url&quot;: &quot;http://wearehugh.com/dih5/pr6.mp4&quot;, &quot;autoPlay&quot;:false, &quot;autoBuffering&quot;:true}}' /&gt; 
+    &lt;p&gt;Download video as &lt;a href=&quot;pr6.mp4&quot;&gt;MP4&lt;/a&gt;, &lt;a href=&quot;pr6.webm&quot;&gt;WebM&lt;/a&gt;, or &lt;a href=&quot;pr6.ogv&quot;&gt;Ogg&lt;/a&gt;.&lt;/p&gt; 
+  &lt;/object&gt;
+&lt;/video&gt;
+&lt;script&gt;  var v = document.getElementById(&quot;movie&quot;);
+  v.onclick = function() {    if (v.paused) {
+      v.play();    } else {
+      v.pause();
+    }
+  };
+&lt;/script&gt;
+</code></pre>
 
 <p>Все дело в том, что нет ни одной пары кодека с контейнером, который поддерживался бы всеми браузерами (можно посмотреть, например, страничку <a href="http://en.wikipedia.org/wiki/HTML5_video#Table">HTML5 video</a> на wikipedia). Итого, если вы раньше отображали видео при помощи flash, то, если захотите переходить на HTML5 тег video, то вам все равно придется конвертировать видео для флеш, и поддерживать этот плеер, чтобы поддерживались старые браузеры. К тому же, при использовании тега video, не обойтись конвертацией видео в один формат, нужно использовать несколько, чтобы поддерживать все браузеры. </p>
 
@@ -96,35 +45,15 @@ alias: ru/blog/show/282
 
 <p>Политика у всех браузеров сейчас одинаковая, не давать доступ к методам определения положения, пока пользователь не даст на это добро. Потому, если вы у себя на сайте внедрите эти методы, не факт что они будут работать, пользователь может не разрешить их использование. Вопрос пользователю будет в немодальном диалоге, поэтому браузер не будет блокировать возможность дальше работать с сайтом. В связи с этим запросы являются асинхронными:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">function</span> get_location() {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  navigator.geolocation.getCurrentPosition(show_map);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">function</span> show_map(position) {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">var</span> latitude = position.coords.latitude;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">var</span> longitude = position.coords.longitude;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #008000">// let's show a map or do something interesting!</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>function get_location() {
+  navigator.geolocation.getCurrentPosition(show_map);
+}
+&#160;function show_map(position) {
+  var latitude = position.coords.latitude;
+  var longitude = position.coords.longitude;
+  // let's show a map or do something interesting!
+}
+</code></pre>
 
 <p>Из переменной position так же можно получить множество других данных (какие именно можно посмотреть в спецификации).</p>
 
@@ -134,84 +63,33 @@ alias: ru/blog/show/282
 
 <p>Считаю одной из самых лучших фич в HTML5. Сколько раз я натыкался на проблемы, когда где-то заполняю информацию, потом нажимаю Save, а у меня интернет отвалился (или хуже что-то на сервере отвалилось, как раньше с gotdotnet бывало). Или сидишь, скорчившись в аэропорту, заполняешь что-то, и вот тянешься к другой вкладке или избранному, чтобы открыть какое-то окно, откуда хочется что-то вставить в форму. И для этого всего используешь супер удобный трекпад, и вот в какой-то момент случайно нажимаешь на закрыть браузер или закрыть таб со страницей, где было что-то заполнено и не сохранено. Сколько злости у меня в этот момент копится. В общем, думаю, проблема понятна, а так же понятно как можно это применить. Я так же у себя на сайте добавил эту фичу. Чтобы просто сохранялся комментарий, пока его не отправили на сервер. То есть вы можете теперь без проблем начать писать комментарий, потом закрыть вкладку, вернуться и продолжить допиливать свой комментарий. Делается это уж очень легко, у меня примерно так (используется jQuery):</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em">$(document).ready(<span style="color: #0000ff">function</span> () {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">try</span> {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (Modernizr.localstorage) {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">var</span> savedComment = localStorage[document.URL + <span style="color: #006080">&quot;_commentBody&quot;</span>];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (savedComment != <span style="color: #0000ff">null</span>) {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                $(<span style="color: #006080">&quot;#commentBody&quot;</span>)[0].value = saved;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            $(<span style="color: #006080">&quot;#commentBody&quot;</span>).bind(<span style="color: #006080">'keyup'</span>, <span style="color: #0000ff">function</span> () {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                localStorage[document.URL + &quot;_commentBody] = <span style="color: #0000ff">this</span>.value;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            });</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">       </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">catch</span>(e) {}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>$(document).ready(function () {
+    try {
+        if (Modernizr.localstorage) {
+            var savedComment = localStorage[document.URL + &quot;_commentBody&quot;];
+            if (savedComment != null) {
+                $(&quot;#commentBody&quot;)[0].value = saved;
+            }            $(&quot;#commentBody&quot;).bind('keyup', function () {
+                localStorage[document.URL + &quot;_commentBody] = this.value;
+            });
+        }
+       
+    }    catch(e) {}
+}
+</code></pre>
 
 <p>Ну и не забываем после добавления комментария удалить из local Storage:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> (Modernizr.localstorage) {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    localStorage.removeItem(document.URL + <span style="color: #006080">&quot;_commentBody&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>if (Modernizr.localstorage) {
+    localStorage.removeItem(document.URL + &quot;_commentBody&quot;);
+}
+</code></pre>
 
 <p>В local Storage все хранится как строки, потому будьте с этим очень аккуратны. Так, например, если выполнить этот код:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em">localStorage[<span style="color: #006080">&quot;key&quot;</span>] = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">var</span> storedValue = localStorage[<span style="color: #006080">&quot;key&quot;</span>];</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>localStorage[&quot;key&quot;] = null;
+var storedValue = localStorage[&quot;key&quot;];
+</code></pre>
 
 <p>В переменной storedValue после выполнения кода будет храниться строковое значение “null”.</p>
 
@@ -223,85 +101,37 @@ alias: ru/blog/show/282
 
 <p>Еще одна интересная возможность – это возможность работы с сайтом в offline режиме. Для этого нужно создать файл манифест и указать его на странице следующим образом:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em">&lt;!DOCTYPE HTML&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&lt;html manifest=<span style="color: #006080">&quot;/cache.manifest&quot;</span>&gt;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&lt;body&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">...</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&lt;/body&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&lt;/html&gt;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;!DOCTYPE HTML&gt;&lt;html manifest=&quot;/cache.manifest&quot;&gt;
+&lt;body&gt;
+...
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 
 <p>Сам файл cache.manifest может выглядеть следующим образом:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em">CACHE MANIFEST</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">NETWORK:</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">/tracking.cgi</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">CACHE:</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">/clock.css</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">/clock.js</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">/clock-face.jpg</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>CACHE MANIFEST
+NETWORK:
+/tracking.cgi
+CACHE:
+/clock.css
+/clock.js
+/clock-face.jpg
+</code></pre>
 Этот манифест говорит о том, что совместно с самой страницей, которую мы только что открыли, будут закешированы файлы из секции CACHE, а вот файлы по URL, описанных в NETWORK, кешировать не нужно. В следующий раз, когда мы захотим открыть эту страницу, а интернет соединения не будет, мы увидим закешированную страницу. 
 
 <p>Есть еще один специальный пример, который везде рассматривают:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em">CACHE MANIFEST</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">CACHE:</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">/clock.css</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">/clock.js</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">/clock-face.jpg</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">FALLBACK:</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">/ /offline.html</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">NETWORK:</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">*</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>CACHE MANIFEST
+CACHE:
+/clock.css
+/clock.js
+/clock-face.jpg
+FALLBACK:
+/ /offline.html
+NETWORK:
+*
+</code></pre>
 
 <p>Тут на самом деле описаны не пути уже в секциях, а паттерны (имею ввиду в секциях FALLBACK и NETWORK). В секции FALLBACK описано, что для URL, удовлетворяющих URL паттерну “/”, если страницы не закешированы, должна отобразится страница offline.html (ранее закешированная). Так же в секции NETWORK просто описано, что все ресурсы, которые не указаны в секции CACHE, должны грузиться в онлайн режиме. То есть при заходе на страницы у нас они будут кешироваться, когда у нас не будет интернет соединения, мы сможем без проблем открыть эти страницы. Если мы будем заходить на другие страницы сайта, на которых мы не были в онлайн режиме, то нам отобразится страница offline.html. </p>
 
@@ -315,27 +145,18 @@ alias: ru/blog/show/282
 
 <p><strong>Placeholder</strong> – текст, который отображается на форме ввода, когда ничего еще не введено. Это то самое, что делается при помощи JavaScript, теперь можно реализовать при помощи простого атрибута:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">input</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;text&quot;</span> <span style="color: #ff0000">placeholder</span><span style="color: #0000ff">=&quot;Input Name&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;input type=&quot;text&quot; placeholder=&quot;Input Name&quot; /&gt;
+</code></pre>
 
 <p><strong>Autofocus</strong>. Можно указать какой-нибудь форме этот атрибут, чтобы после загрузки туда установился фокус. Не поддерживается большинством браузеров, проще написать JavaScript на onload:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em">$get(<span style="color: #006080">&quot;inputForm&quot;</span>).focus();</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>$get(&quot;inputForm&quot;).focus();
+</code></pre>
 
 <p>вместо </p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">input</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;text&quot;</span> <span style="color: #ff0000">autofocus</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;input type=&quot;text&quot; autofocus /&gt;
+</code></pre>
 
 <p>Появились новые типы для input полей, такие как color, search, email, url, number, range. Последние 4 очень полезны для мобильных устройств, чтобы отобразить нужную клавиатуру, так iPhone, вроде, поддерживает уже их все, и отображает специальные клавиатуры для каждого из них. Для search еще нужно подумать, зачем его стоит использовать (может интеграция сразу же с полем для поиска у самого браузера). Еще несколько типов для дат, такие как date, month, week, time, datetime, datetime-local. Из всех браузеров только у Opera есть поддержка, вроде. </p>
 

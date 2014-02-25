@@ -6,318 +6,83 @@ categories: ru
 tags: [.NET, C#, Code Contracts]
 alias: ru/blog/show/251
 ---
-<p>Прошло уже более месяца с того момента, как я начал использовать Code Contracts в проекте нашей компании, и как я написал статью о них <a href="/ru/blog/show/241">Небольшой пример использования Code Contract</a>. Хочу порекомендовать <a href="http://research.microsoft.com/en-us/projects/contracts/userdoc.pdf">документацию</a> с сайта Microsoft Research, если еще не читали. </p>  <p>Вообще, как мне и <a href="/ru/blog/show/241#comment_853">сказали</a> в комментариях к предыдущей статье – во-первых, с ними немного сложно: в целом все настроить, и чтобы все отлично работало. Во-вторых, увеличивается время билда из-за перезаписи. Я пока настроил контракты только для серверной части нашего проекта, пока не вводил их для клиентской части. Серверных библиотек у нас раза в 3 меньше, чем библиотек на Silverlight. На сервере контракты пока что оправдывают себя неплохо. </p>  <p>Мне понравилась возможность написания контрактов для интерфейсов (тоже будет работать и для абстрактных классов). Например, у нас есть интерфейс репозитария пользователей:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">interface</span> IUserRepository</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    User GetUserByID(<span style="color: #0000ff">int</span> id);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">void</span> AddUser(User user);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">void</span> UpdateUser(User user);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">void</span> DeleteUser(User user);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<p>Прошло уже более месяца с того момента, как я начал использовать Code Contracts в проекте нашей компании, и как я написал статью о них <a href="/ru/blog/show/241">Небольшой пример использования Code Contract</a>. Хочу порекомендовать <a href="http://research.microsoft.com/en-us/projects/contracts/userdoc.pdf">документацию</a> с сайта Microsoft Research, если еще не читали. </p>  <p>Вообще, как мне и <a href="/ru/blog/show/241#comment_853">сказали</a> в комментариях к предыдущей статье – во-первых, с ними немного сложно: в целом все настроить, и чтобы все отлично работало. Во-вторых, увеличивается время билда из-за перезаписи. Я пока настроил контракты только для серверной части нашего проекта, пока не вводил их для клиентской части. Серверных библиотек у нас раза в 3 меньше, чем библиотек на Silverlight. На сервере контракты пока что оправдывают себя неплохо. </p>  <p>Мне понравилась возможность написания контрактов для интерфейсов (тоже будет работать и для абстрактных классов). Например, у нас есть интерфейс репозитария пользователей:</p>  <pre><code>public interface IUserRepository
+{    User GetUserByID(int id);
+&#160;    void AddUser(User user);
+&#160;    void UpdateUser(User user);
+&#160;    void DeleteUser(User user);
+}
+</code></pre>
 
 <p>Класс User самый обычный:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> User</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">int</span> Id { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> Name { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public class User
+{    public int Id { get; set; }
+    public string Name { get; set; }
+}
+</code></pre>
 
 <p>Когда мы будем реализовывать этот репозитарий, то, скорее всего, мы будем в каждом методе писать проверки на то, что user != null, и выкидывать ArgumentNullException и т.п.:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">class</span> UserRepository : IUserRepository</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> User GetUserByID(<span style="color: #0000ff">int</span> id) </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    { </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (user.Id &lt;= 0)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentException(<span style="color: #006080">&quot;Identify should be greater than 0&quot;</span>, <span style="color: #006080">&quot;id&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #008000">/* ... */</span>     </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> AddUser(User user)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (user == <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (user.Id &gt; 0)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentException(<span style="color: #006080">&quot;Should be new user&quot;</span>, <span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">/* ... */</span>     </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> UpdateUser(User user) </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    { </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (user == <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (user.Id &lt;= 0)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentException(<span style="color: #006080">&quot;Should be saved user&quot;</span>, <span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #008000">/* ... */</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> DeleteUser(User user) </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    { </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (user == <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (user.Id &lt;= 0)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentException(<span style="color: #006080">&quot;Should be saved user&quot;</span>, <span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">/* ... */</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>class UserRepository : IUserRepository
+{    public User GetUserByID(int id) 
+    {        if (user.Id &lt;= 0)
+            throw new ArgumentException(&quot;Identify should be greater than 0&quot;, &quot;id&quot;);
+&#160;        /* ... */     
+    }
+&#160;    public void AddUser(User user)
+    {        if (user == null)
+            throw new ArgumentNullException(&quot;user&quot;);
+&#160;        if (user.Id &gt; 0)
+            throw new ArgumentException(&quot;Should be new user&quot;, &quot;user&quot;);
+&#160;        /* ... */     
+    }    public void UpdateUser(User user) 
+    {        if (user == null)
+            throw new ArgumentNullException(&quot;user&quot;);
+&#160;        if (user.Id &lt;= 0)
+            throw new ArgumentException(&quot;Should be saved user&quot;, &quot;user&quot;);
+&#160;        /* ... */ 
+    }
+&#160;    public void DeleteUser(User user) 
+    {        if (user == null)
+            throw new ArgumentNullException(&quot;user&quot;);
+&#160;        if (user.Id &lt;= 0)
+            throw new ArgumentException(&quot;Should be saved user&quot;, &quot;user&quot;);
+&#160;        /* ... */ 
+    }
+}
+</code></pre>
 
 <p>А если реализаций будет больше чем одна, тогда что? Писать в каждой? Вот тут приходят на помощь Code Contracts. Дописываем к интерфейсу контракты, и указываем аттрибутами ClassContract и ClassContractFor принадлежность этих контрактов к определенному интерфейсу:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">[ContractClass(<span style="color: #0000ff">typeof</span>(IUserRepositoryContract))]</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">interface</span> IUserRepository</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    User GetUserByID(<span style="color: #0000ff">int</span> id);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> AddUser(User user);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> UpdateUser(User user);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> DeleteUser(User user);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">[ContractClassFor(<span style="color: #0000ff">typeof</span>(IUserRepository))]</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">abstract</span> <span style="color: #0000ff">class</span> IUserRepositoryContract : IUserRepository</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    User IUserRepository.GetUserByID(<span style="color: #0000ff">int</span> id)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Contract.Requires&lt;ArgumentException&gt;(id &gt; 0, <span style="color: #006080">&quot;Identify should be greater than 0.&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Contract.Ensures(Contract.Result&lt;User&gt;() != <span style="color: #0000ff">null</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> <span style="color: #0000ff">default</span>(User);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> IUserRepository.AddUser(User user)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Contract.Requires&lt;ArgumentNullException&gt;(user != <span style="color: #0000ff">null</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Contract.Requires&lt;ArgumentException&gt;(user.Id == 0, <span style="color: #006080">&quot;Should be new user.&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> IUserRepository.UpdateUser(User user)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Contract.Requires&lt;ArgumentNullException&gt;(user != <span style="color: #0000ff">null</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Contract.Requires&lt;ArgumentException&gt;(user.Id &gt; 0, <span style="color: #006080">&quot;Should be saved user.&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> IUserRepository.DeleteUser(User user)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Contract.Requires&lt;ArgumentNullException&gt;(user != <span style="color: #0000ff">null</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Contract.Requires&lt;ArgumentException&gt;(user.Id &gt; 0, <span style="color: #006080">&quot;Should be saved user.&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>[ContractClass(typeof(IUserRepositoryContract))]
+public interface IUserRepository
+{    User GetUserByID(int id);
+&#160;    void AddUser(User user);
+&#160;    void UpdateUser(User user);
+&#160;    void DeleteUser(User user);
+}
+&#160;[ContractClassFor(typeof(IUserRepository))]
+abstract class IUserRepositoryContract : IUserRepository
+{    User IUserRepository.GetUserByID(int id)
+    {        Contract.Requires&lt;ArgumentException&gt;(id &gt; 0, &quot;Identify should be greater than 0.&quot;);
+        Contract.Ensures(Contract.Result&lt;User&gt;() != null);
+&#160;        return default(User);
+    }
+&#160;    void IUserRepository.AddUser(User user)
+    {        Contract.Requires&lt;ArgumentNullException&gt;(user != null);
+        Contract.Requires&lt;ArgumentException&gt;(user.Id == 0, &quot;Should be new user.&quot;);
+    }
+&#160;    void IUserRepository.UpdateUser(User user)
+    {        Contract.Requires&lt;ArgumentNullException&gt;(user != null);
+        Contract.Requires&lt;ArgumentException&gt;(user.Id &gt; 0, &quot;Should be saved user.&quot;);
+    }
+&#160;    void IUserRepository.DeleteUser(User user)
+    {        Contract.Requires&lt;ArgumentNullException&gt;(user != null);
+        Contract.Requires&lt;ArgumentException&gt;(user.Id &gt; 0, &quot;Should be saved user.&quot;);
+    }
+}
+</code></pre>
 
 <p>Больше в самой реализации нам не нужно делать проверки. Более того, если вы установите плагин для VS с официального сайта Code Contracts, то будете видеть все эти условия вот так:</p>
 
@@ -325,14 +90,9 @@ alias: ru/blog/show/251
 
 <p>Ну и соответственно при выполнении такого кода:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">IUserRepository repository = <span style="color: #0000ff">new</span> UserRepository();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">repository.AddUser(<span style="color: #0000ff">null</span>);</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>IUserRepository repository = new UserRepository();
+repository.AddUser(null);
+</code></pre>
 
 <p>Получим ошибку:</p>
 
@@ -340,32 +100,14 @@ alias: ru/blog/show/251
 
 <p>Вместо использования методов Contract класса можно так же писать и свои проверки с бросанием исключений, вроде такого:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">void</span> IUserRepository.AddUser(User user)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (user == <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (user.Id == 0)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentException(<span style="color: #006080">&quot;Should be new user.&quot;</span>, <span style="color: #006080">&quot;user&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    Contract.EndContractBlock();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>void IUserRepository.AddUser(User user)
+{    if (user == null)
+        throw new ArgumentNullException(&quot;user&quot;);
+    if (user.Id == 0)
+        throw new ArgumentException(&quot;Should be new user.&quot;, &quot;user&quot;);
+    Contract.EndContractBlock();
+}
+</code></pre>
 
 <p>Пишите безопасный код. <img style="border-bottom-style: none; border-right-style: none; border-top-style: none; border-left-style: none" class="wlEmoticon wlEmoticon-winkingsmile" alt="Winking smile" src="/Library/2010/10/20/wlEmoticon-winkingsmile_0452C861.png" /></p>
 

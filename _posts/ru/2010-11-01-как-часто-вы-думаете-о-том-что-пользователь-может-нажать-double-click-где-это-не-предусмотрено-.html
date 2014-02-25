@@ -6,243 +6,70 @@ categories: ru
 tags: [Silverlight, XAML, Bug, Double Click]
 alias: ru/blog/show/253
 ---
-<p>Вспомните то время, когда обучали бабушку/дедушку/маму/папу/дядю/тетю основам компьютера. Когда показываете, что на кнопке нужно щелкнуть один раз, на ссылке один раз, но вот на иконке в проводнике два раза (зависит, конечно, от настроек, но все же). Но, если обучаемый научился делать двойной клик, то все. Потом такое ощущение, что он специально тренируясь делает его везде: и на меню, и на кнопке. Бывает, правда, и случайно. В общем, попался недавно неприятный баг. Код в котором баг очевиден видели и дорабатывали несколько раз несколько разных человек (я в их числе), баг не замечали и не обнаруживали. Правда, когда обнаружилась ошибка, я буквально за 10 секунд понял причину, даже не смотря код.</p>    <p>Расскажу на небольшом примере. Пускай у нас есть ViewModel:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> ViewModel : DependencyObject</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> DependencyProperty IsBusyProperty =</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        DependencyProperty.Register(<span style="color: #006080">&quot;IsBusy&quot;</span>, <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">bool</span>), <span style="color: #0000ff">typeof</span>(ViewModel), <span style="color: #0000ff">new</span> PropertyMetadata(<span style="color: #0000ff">false</span>));</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> ViewModel()</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        ClickMeCommand = <span style="color: #0000ff">new</span> DelegateCommand(OnClickMe);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        ClickCollection = <span style="color: #0000ff">new</span> ObservableCollection&lt;ClickInfoViewModel&gt;();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> DelegateCommand ClickMeCommand { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> ObservableCollection&lt;ClickInfoViewModel&gt; ClickCollection { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">bool</span> IsBusy</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        get { <span style="color: #0000ff">return</span> (<span style="color: #0000ff">bool</span>)GetValue(IsBusyProperty); }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        set { SetValue(IsBusyProperty, <span style="color: #0000ff">value</span>); }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> OnClickMe(<span style="color: #0000ff">object</span> obj)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        IsBusy = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">new</span> Thread(DoAsyncAction).Start(DateTime.Now);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> DoAsyncAction(<span style="color: #0000ff">object</span> date)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Thread.Sleep(2000);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Dispatcher.BeginInvoke(() =&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                   {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                    ClickCollection.Add(<span style="color: #0000ff">new</span> ClickInfoViewModel((DateTime)date));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                       IsBusy = <span style="color: #0000ff">false</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                   });</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<p>Вспомните то время, когда обучали бабушку/дедушку/маму/папу/дядю/тетю основам компьютера. Когда показываете, что на кнопке нужно щелкнуть один раз, на ссылке один раз, но вот на иконке в проводнике два раза (зависит, конечно, от настроек, но все же). Но, если обучаемый научился делать двойной клик, то все. Потом такое ощущение, что он специально тренируясь делает его везде: и на меню, и на кнопке. Бывает, правда, и случайно. В общем, попался недавно неприятный баг. Код в котором баг очевиден видели и дорабатывали несколько раз несколько разных человек (я в их числе), баг не замечали и не обнаруживали. Правда, когда обнаружилась ошибка, я буквально за 10 секунд понял причину, даже не смотря код.</p>    <p>Расскажу на небольшом примере. Пускай у нас есть ViewModel:</p>  <pre><code>public class ViewModel : DependencyObject
+{    public static readonly DependencyProperty IsBusyProperty =
+        DependencyProperty.Register(&quot;IsBusy&quot;, typeof(bool), typeof(ViewModel), new PropertyMetadata(false));
+&#160;    public ViewModel()
+    {        ClickMeCommand = new DelegateCommand(OnClickMe);
+        ClickCollection = new ObservableCollection&lt;ClickInfoViewModel&gt;();
+    }
+&#160;    public DelegateCommand ClickMeCommand { get; set; }
+&#160;    public ObservableCollection&lt;ClickInfoViewModel&gt; ClickCollection { get; set; }
+&#160;    public bool IsBusy
+    {        get { return (bool)GetValue(IsBusyProperty); }
+        set { SetValue(IsBusyProperty, value); }
+    }
+&#160;    private void OnClickMe(object obj)
+    {        IsBusy = true;
+        new Thread(DoAsyncAction).Start(DateTime.Now);
+    }
+&#160;    private void DoAsyncAction(object date)
+    {
+        Thread.Sleep(2000);
+        Dispatcher.BeginInvoke(() =&gt;
+                                   {                                    ClickCollection.Add(new ClickInfoViewModel((DateTime)date));
+                                       IsBusy = false;
+                                   });
+    }
+}
+</code></pre>
 
 <p>Класс содержит команду ClickMeCommand, которая выполняет, точнее запускает какую-то команду асинхронно. В нашем примере – эта команда DoAsyncAction, которая просто спит 2 секунды, а затем добавляет в коллекцию сделанных кликов новый элемент типа ClickInfoViewModel:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> ClickInfoViewModel</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> ClickInfoViewModel(DateTime date)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Date = date;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> DateTime Date { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">string</span> ToString()</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">return</span> <span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;Clicked at {0}&quot;</span>, Date);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public class ClickInfoViewModel
+{    public ClickInfoViewModel(DateTime date)
+    {
+        Date = date;
+    }
+&#160;    public DateTime Date { get; set; }
+&#160;    public override string ToString()
+    {        return string.Format(&quot;Clicked at {0}&quot;, Date);
+    }
+}
+</code></pre>
 
 <p>Так же ViewModel класс содержит свойство IsBusy, в которое мы выставляем значение, когда наше представление должно быть занято. Уже видите проблему? </p>
 
 <p>Представление будет следующим:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl</span> <span style="color: #ff0000">x:Class</span><span style="color: #0000ff">=&quot;SilverlightDoubleClick.MainPage&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">xmlns:x</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns:SilverlightDoubleClick</span><span style="color: #0000ff">=&quot;clr-namespace:SilverlightDoubleClick&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">             <span style="color: #ff0000">xmlns:Controls</span><span style="color: #0000ff">=&quot;clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Toolkit&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">SilverlightDoubleClick:ViewModel</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">Grid</span> <span style="color: #ff0000">Width</span><span style="color: #0000ff">=&quot;500&quot;</span> <span style="color: #ff0000">Height</span><span style="color: #0000ff">=&quot;250&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">StackPanel</span> <span style="color: #ff0000">x:Name</span><span style="color: #0000ff">=&quot;LayoutRoot&quot;</span> <span style="color: #ff0000">Background</span><span style="color: #0000ff">=&quot;White&quot;</span> <span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">Button</span> <span style="color: #ff0000">Command</span><span style="color: #0000ff">=&quot;{Binding Path=ClickMeCommand}&quot;</span><span style="color: #0000ff">&gt;</span>Click Me<span style="color: #0000ff">&lt;/</span><span style="color: #800000">Button</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">ListBox</span> <span style="color: #ff0000">ItemsSource</span><span style="color: #0000ff">=&quot;{Binding Path=ClickCollection}&quot;</span> <span style="color: #ff0000">Height</span><span style="color: #0000ff">=&quot;200&quot;</span> <span style="color: #ff0000">HorizontalAlignment</span><span style="color: #0000ff">=&quot;Stretch&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                 <span style="color: #ff0000">ScrollViewer</span>.<span style="color: #ff0000">VerticalScrollBarVisibility</span><span style="color: #0000ff">=&quot;Auto&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:BusyIndicator</span> <span style="color: #ff0000">IsBusy</span><span style="color: #0000ff">=&quot;{Binding IsBusy}&quot;</span>  <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">Grid</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;UserControl x:Class=&quot;SilverlightDoubleClick.MainPage&quot;
+    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:SilverlightDoubleClick=&quot;clr-namespace:SilverlightDoubleClick&quot; 
+             xmlns:Controls=&quot;clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Toolkit&quot;&gt;
+&#160;    &lt;UserControl.DataContext&gt;
+        &lt;SilverlightDoubleClick:ViewModel /&gt;
+    &lt;/UserControl.DataContext&gt;
+&#160;    &lt;Grid Width=&quot;500&quot; Height=&quot;250&quot;&gt;
+        &lt;StackPanel x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot; &gt;
+&#160;            &lt;Button Command=&quot;{Binding Path=ClickMeCommand}&quot;&gt;Click Me&lt;/Button&gt;
+&#160;            &lt;ListBox ItemsSource=&quot;{Binding Path=ClickCollection}&quot; Height=&quot;200&quot; HorizontalAlignment=&quot;Stretch&quot; 
+                 ScrollViewer.VerticalScrollBarVisibility=&quot;Auto&quot;  /&gt;
+&#160;        &lt;/StackPanel&gt;
+        &lt;Controls:BusyIndicator IsBusy=&quot;{Binding IsBusy}&quot;  /&gt;
+    &lt;/Grid&gt;
+&lt;/UserControl&gt;
+</code></pre>
 
 <p>Основное на нем – это кнопка, список, отображающий коллекцию сделанных кликов и BusyIndicator, который не дает возможность выполнять действия, пока предыдущее действие не закончится. Собственно можно попробовать. И не забыть попробовать двойной клик:</p>
 <object data="data:application/x-silverlight-2," type="application/x-silverlight-2" width="100%" height="250px">
@@ -259,31 +86,12 @@ alias: ru/blog/show/253
 
 <p>Решить данную проблему очень просто, добавив проверку в метод OnClickMe:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> OnClickMe(<span style="color: #0000ff">object</span> obj)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (!IsBusy)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        IsBusy = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">new</span> Thread(DoAsyncAction).Start(DateTime.Now);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>private void OnClickMe(object obj)
+{    if (!IsBusy)
+    {        IsBusy = true;
+        new Thread(DoAsyncAction).Start(DateTime.Now);
+    }
+}
+</code></pre>
 
 <p>Было такое? Или я все-таки один такой?</p>

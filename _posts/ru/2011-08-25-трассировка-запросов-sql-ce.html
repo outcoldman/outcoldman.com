@@ -6,57 +6,20 @@ categories: ru
 tags: [Visual Studio 2010, SQL Server Compact, SQL Server CE 4, Profiling]
 alias: ru/blog/show/297
 ---
-<p>SQL Compact Edition – это действительно отличное решение для разработчиков использующих .NET платформу. SQL CE можно использовать и как хранилище для небольших веб проектов (как мой сайт <a href="http://outcoldman.com">http://outcoldman.com</a>), так и для Windows приложений (WinForms, WPF). А особенно с ORM от Microsoft, Entity Framework 4.1, приложения можно разрабатывать очень легко и быстро. Правда, у этого решения есть небольшие проблемы с набором инструментов, поставляемых с ним. Так, например, непонятно как профилировать SQL запросы. </p>    <p>Одно из решений – это встраивать трассировку в код вашего приложения. Один из способов – это использовать <a href="http://msdn.microsoft.com/en-us/library/bb896155.aspx" target="_blank">STATISTICS XML</a>, но его еще нужно умудриться заставить работать с Entity Framework. Другой способ – это получать SQL запросы от самого Entity Framework – как это делать, и можно ли это сделать, именно для связки EF4.1 + SQL CE 4.0 – я, честно, не знаю. </p>  <p>Я вам хочу показать более простой способ профилирования приложений, точнее трассировки запросов к SQL CE базе данных. Для этого вам, правда, нужно быть обладателем Visual Studio 2010 минимум Premium редакции, если я не ошибаюсь. Чтобы попробовать то, что я опишу – вы можете скачать мое небольшое консольное приложение с assembla – <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SqlCeNorthwindSample" target="_blank">SqlCeNorthwindSample</a>. Все NuGet пакеты прописаны в packages.config, но они не загружены в репозиторий, потому не забудьте убедиться, что они у вас установились. </p>  <p>В моем случае приложение выглядит следующим образом:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">   <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">class</span> Program</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> Main(<span style="color: #0000ff">string</span>[] args)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">var</span> storage = <span style="color: #0000ff">new</span> Storage(<span style="color: #006080">&quot;Northwind.sdf&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">using</span> (<span style="color: #0000ff">var</span> context = <span style="color: #0000ff">new</span> StorageContext(storage))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">foreach</span> (Customer customer <span style="color: #0000ff">in</span> context.Customers)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                Console.WriteLine(customer.CustomerID);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Console.ReadKey();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<p>SQL Compact Edition – это действительно отличное решение для разработчиков использующих .NET платформу. SQL CE можно использовать и как хранилище для небольших веб проектов (как мой сайт <a href="http://outcoldman.com">http://outcoldman.com</a>), так и для Windows приложений (WinForms, WPF). А особенно с ORM от Microsoft, Entity Framework 4.1, приложения можно разрабатывать очень легко и быстро. Правда, у этого решения есть небольшие проблемы с набором инструментов, поставляемых с ним. Так, например, непонятно как профилировать SQL запросы. </p>    <p>Одно из решений – это встраивать трассировку в код вашего приложения. Один из способов – это использовать <a href="http://msdn.microsoft.com/en-us/library/bb896155.aspx" target="_blank">STATISTICS XML</a>, но его еще нужно умудриться заставить работать с Entity Framework. Другой способ – это получать SQL запросы от самого Entity Framework – как это делать, и можно ли это сделать, именно для связки EF4.1 + SQL CE 4.0 – я, честно, не знаю. </p>  <p>Я вам хочу показать более простой способ профилирования приложений, точнее трассировки запросов к SQL CE базе данных. Для этого вам, правда, нужно быть обладателем Visual Studio 2010 минимум Premium редакции, если я не ошибаюсь. Чтобы попробовать то, что я опишу – вы можете скачать мое небольшое консольное приложение с assembla – <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SqlCeNorthwindSample" target="_blank">SqlCeNorthwindSample</a>. Все NuGet пакеты прописаны в packages.config, но они не загружены в репозиторий, потому не забудьте убедиться, что они у вас установились. </p>  <p>В моем случае приложение выглядит следующим образом:</p>  <pre><code>class Program
+{    static void Main(string[] args)
+    {        var storage = new Storage(&quot;Northwind.sdf&quot;);
+&#160;        using (var context = new StorageContext(storage))
+        {            foreach (Customer customer in context.Customers)
+            {
+                Console.WriteLine(customer.CustomerID);
+            }
+        }
+&#160;
+        Console.ReadKey();
+    }
+}
+</code></pre>
 
 <p>Мы хотим определить, какие SQL запрос(ы) строит Entity Framework для того, чтобы получить список Customers. Да и вообще, какие запросы выполняются нашим приложением. Для того, чтобы начать новую сессию профилирования мы можем воспользоваться помощником, открыв его при помощи меню “Analyze –&gt; Launch Performance Wizard…”. Если такого меню у вас нет, значит ваша редакция Visual Studio не включает средства анализа. </p>
 

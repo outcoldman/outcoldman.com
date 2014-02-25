@@ -16,59 +16,23 @@ alias: ru/blog/show/126
  
 <p>В сборке F# нам нужен один файл MyFunctions.fs. Там мы описываем некоторые функции, которые по нашему мнению нам проще написать на функциональном языке. К примеру, пускай это будет функция перевода массива битовой картинки из цветового пространства RGB в YCbCr (это просто пример). Запись в F# может быть примерно такая: </p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">open System</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">// Перевод в цветовое пространство YCbCr</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">let RGB_to_YCbCr (r : <span style="color: #0000ff;">double</span>,g : <span style="color: #0000ff;">double</span>,b : <span style="color: #0000ff;">double</span>) = </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    let y = 0.299 * r + 0.587 * g + 0.114 * b <span style="color: #0000ff;">in</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    let Cb = (-0.1687) * r - 0.3313 * g + 0.5 * b + 128.0 <span style="color: #0000ff;">in</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    let Cr = 0.5 * r - 0.4187 * g - 0.0813 * b + 128.0 <span style="color: #0000ff;">in</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    (y,Cb,Cr);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">let RGB_to_YCbCr_v (v : _ array) = </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    RGB_to_YCbCr (v.[0], v.[1], v.[2]);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">let Process (image : _ array)  = </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    let lenght = Array.length image <span style="color: #0000ff;">in</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    let imageYCbCr = Array.create lenght (0.0, 0.0, 0.0) <span style="color: #0000ff;">in</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">for</span> index = 0 to lenght - 1 <span style="color: #0000ff;">do</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        imageYCbCr.[index] &amp;lt;- RGB_to_YCbCr_v (image.[index])</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    done</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    imageYCbCr</pre>
-<!--CRLF--></div>
-</div> 
+<pre><code>open System
+// Перевод в цветовое пространство YCbCr
+let RGB_to_YCbCr (r : double,g : double,b : double) = 
+    let y = 0.299 * r + 0.587 * g + 0.114 * b in
+    let Cb = (-0.1687) * r - 0.3313 * g + 0.5 * b + 128.0 in
+    let Cr = 0.5 * r - 0.4187 * g - 0.0813 * b + 128.0 in
+    (y,Cb,Cr);
+   
+let RGB_to_YCbCr_v (v : _ array) = 
+    RGB_to_YCbCr (v.[0], v.[1], v.[2]);
+let Process (image : _ array)  = 
+    let lenght = Array.length image in
+    let imageYCbCr = Array.create lenght (0.0, 0.0, 0.0) in
+    for index = 0 to lenght - 1 do
+        imageYCbCr.[index] &amp;lt;- RGB_to_YCbCr_v (image.[index])
+    done
+    imageYCbCr</code></pre> 
 <p>После сборки мы можем заметить, что добраться до функций не просто, namespace имеют непонятный вид, и как их использовать тоже не представляется ясным. Посмотреть расположение функций в сборке мы можем при помощи Reflector.</p>
  
 <p>Для того, чтобы описать namespace и класс необходимо добавить следующую строку сразу после #light: </p>
@@ -79,78 +43,28 @@ alias: ru/blog/show/126
  
 <p>Дальше в нашем консольном приложении мы устанавливаем Reference на сборки <em>FSharp.Sample</em> - имя моей сборки на F#, и <em>FSharp.Core</em> - для того, чтобы использовать типы (классы) F# типа Triple. И пишем следующий код:</p>
 
- <div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">using</span> System;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">using</span> FSharp.Sample;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">namespace</span> CSharp.Sample.Console</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">class</span> Program</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> Main()</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">double</span>[][] image = <span style="color: #0000ff;">new</span> <span style="color: #0000ff;">double</span>[1000][];</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Random rand = <span style="color: #0000ff;">new</span> Random();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">for</span> (<span style="color: #0000ff;">int</span> i = 0; i &amp;lt; 1000; i ++ )</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                image[i] = <span style="color: #0000ff;">new</span> <span style="color: #0000ff;">double</span>[3];</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                image[i][0] = rand.Next();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                image[i][1] = rand.Next();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                image[i][2] = rand.Next();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">foreach</span> (var doubles <span style="color: #0000ff;">in</span> MyFunctions.Process(image))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                System.Console.WriteLine(doubles);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            } </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF--></div>
-</div>
+ <pre><code>using System;
+using FSharp.Sample;
+namespace CSharp.Sample.Console
+{
+    class Program
+    {
+        static void Main()
+        {
+            double[][] image = new double[1000][];
+            Random rand = new Random();
+            for (int i = 0; i &amp;lt; 1000; i ++ )
+            {
+                image[i] = new double[3];
+                image[i][0] = rand.Next();
+                image[i][1] = rand.Next();
+                image[i][2] = rand.Next();
+            }
+            foreach (var doubles in MyFunctions.Process(image))
+            {
+                System.Console.WriteLine(doubles);
+            } 
+        }
+    }
+}</code></pre>
 <p>Где изначально мы указываем на использование namespace FSharp.Sample. В коде мы генерируем массив данных и передаем его в функцию MyFunction.Process, которая преобразовывает нам его по выбранному алгоритму. Данные нам возвращаются в виде массива данных типов "Microsoft.FSharp.Core.Tuple`3".</p>

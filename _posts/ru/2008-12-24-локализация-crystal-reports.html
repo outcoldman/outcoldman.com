@@ -78,8 +78,19 @@ alias: ru/blog/show/124
 
 <p>Все что остается сделать, это локализовать наше приложение, для этого в коде Main функции добавляем к примеру так:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">[STAThread]</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> Main()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    Application.EnableVisualStyles();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    Application.SetCompatibleTextRenderingDefault(<span style="color: #0000ff;">false</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    InitCulture();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    Application.Run(<span style="color: #0000ff;">new</span> MyAppForm());</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> InitCulture()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    System.Threading.Thread.CurrentThread.CurrentUICulture = <span style="color: #0000ff;">new</span> System.Globalization.CultureInfo(<span style="color: #006080;">"ru-RU"</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture(<span style="color: #006080;">"ru"</span>);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>[STAThread]
+private static void Main()
+{
+    Application.EnableVisualStyles();
+    Application.SetCompatibleTextRenderingDefault(false);
+    InitCulture();
+    Application.Run(new MyAppForm());
+}
+private static void InitCulture()
+{
+    System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("ru-RU");
+    System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture("ru");
+}</code></pre>
 
 
 <p>Дальше мы должны видеть все переведенные нами надписи во Viewer на русском языке. </p>

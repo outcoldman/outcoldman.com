@@ -19,477 +19,206 @@ alias: ru/blog/show/123
 
 <p>Дальше нам необходимо создать 3 PerfomanceCounter объекта из пространства имен System.Diagnostics:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span class="preproc">#region</span> Counters</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> PerformanceCounter pcCpu;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> PerformanceCounter pcRam;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> PerformanceCounter pcPage;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Инициализация счетчиков</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> InitCounters()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  pcCpu = <span style="color: #0000ff;">new</span> PerformanceCounter(<span style="color: #006080;">"Processor"</span>, <span style="color: #006080;">"% Processor Time"</span>, <span style="color: #006080;">"_Total"</span>, Environment.MachineName);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  pcRam = <span style="color: #0000ff;">new</span> PerformanceCounter(<span style="color: #006080;">"Memory"</span>, <span style="color: #006080;">"% Committed Bytes In Use"</span>, String.Empty, Environment.MachineName);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  pcPage = <span style="color: #0000ff;">new</span> PerformanceCounter(<span style="color: #006080;">"Paging File"</span>, <span style="color: #006080;">"% Usage"</span>, <span style="color: #006080;">"_Total"</span>, Environment.MachineName);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Освобождаем ресурсы - PerformanceCounters</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> DisposeCounters()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">try</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   <span style="color: #0000ff;">if</span> (pcCpu != <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    pcCpu.Dispose(); </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   <span style="color: #0000ff;">if</span> (pcRam != <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    pcRam.Dispose(); </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   <span style="color: #0000ff;">if</span> (pcPage != <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    pcPage.Dispose(); </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">finally</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   PerformanceCounter.CloseSharedResources();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span class="preproc">#endregion</span></pre><!--CRLF--></div></div>
+<pre><code>#region Counters
+&nbsp;
+private PerformanceCounter pcCpu;
+private PerformanceCounter pcRam;
+private PerformanceCounter pcPage;
+&nbsp;
+/// &lt;summary&gt;
+/// Инициализация счетчиков
+/// &lt;/summary&gt;
+private void InitCounters()
+{
+  pcCpu = new PerformanceCounter("Processor", "% Processor Time", "_Total", Environment.MachineName);
+  pcRam = new PerformanceCounter("Memory", "% Committed Bytes In Use", String.Empty, Environment.MachineName);
+  pcPage = new PerformanceCounter("Paging File", "% Usage", "_Total", Environment.MachineName);
+}
+&nbsp;
+/// &lt;summary&gt;
+/// Освобождаем ресурсы - PerformanceCounters
+/// &lt;/summary&gt;
+private void DisposeCounters()
+{
+  try
+  {
+   if (pcCpu != null)
+    pcCpu.Dispose(); 
+   if (pcRam != null)
+    pcRam.Dispose(); 
+   if (pcPage != null)
+    pcPage.Dispose(); 
+  }
+  finally
+  {
+   PerformanceCounter.CloseSharedResources();
+  }
+}
+&nbsp;
+#endregion</code></pre>
 
 <p>
 Метод InitCounters вызываем в конструкторе формы. А метод DisposeCounters в методе Dispose. Далее описываем работу потока, который будет добавлять данные в график каждые 0.1 секунды. Данный подход есть в одном из примеров, поставляемых с MS Chart, я взял его оттуда.
 </p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span class="preproc">#region</span> Thread Sample</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> Thread addDataRunner;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">delegate</span> <span style="color: #0000ff;">void</span> AddDataDelegate();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> AddDataDelegate addDataDel;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Инициализируем поток, который будет добавлять нам данные в график</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">protected</span> <span style="color: #0000ff;">override</span> <span style="color: #0000ff;">void</span> OnLoad(EventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">base</span>.OnLoad(e);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  Application.DoEvents();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #008000;">// create the Adding Data Thread but do not start until start button clicked</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  ThreadStart addDataThreadStart = <span style="color: #0000ff;">new</span> ThreadStart(AddDataThreadLoop);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">addDataRunner = <span style="color: #0000ff;">new</span> Thread(addDataThreadStart);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #008000;">// create a delegate for adding data</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  addDataDel += <span style="color: #0000ff;">new</span> AddDataDelegate(AddData);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #008000;">// start worker threads.</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">if</span> (addDataRunner.IsAlive == <span style="color: #0000ff;">true</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   addDataRunner.Resume();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">else</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   addDataRunner.Start();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Вызываем работу подсчета каждые 0.1 секунды</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> AddDataThreadLoop()</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">while</span> (<span style="color: #0000ff;">true</span>)</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   <span style="color: #0000ff;">if</span> (!chartPerfomance.IsHandleCreated)</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">return</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   chartPerfomance.Invoke(addDataDel);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   Thread.Sleep(100);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Заканчиваем работу потока</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> DisposeThread()</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">if</span> ((addDataRunner.ThreadState &amp; ThreadState.Suspended) == ThreadState.Suspended)</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   addDataRunner.Resume();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  addDataRunner.Abort();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span class="preproc">#endregion</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>#region Thread Sample
+&#160;
+private Thread addDataRunner;
+public delegate void AddDataDelegate();
+public AddDataDelegate addDataDel;
+&#160;
+/// &lt;summary&gt;
+/// Инициализируем поток, который будет добавлять нам данные в график
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+protected override void OnLoad(EventArgs e)
+{
+  base.OnLoad(e);
+  Application.DoEvents();
+&#160;
+  // create the Adding Data Thread but do not start until start button clicked
+  ThreadStart addDataThreadStart = new ThreadStart(AddDataThreadLoop);
+addDataRunner = new Thread(addDataThreadStart);
+&#160;
+  // create a delegate for adding data
+  addDataDel += new AddDataDelegate(AddData);
+&#160;
+  // start worker threads.
+  if (addDataRunner.IsAlive == true)
+  {
+   addDataRunner.Resume();
+  }
+  else
+  {
+   addDataRunner.Start();
+  }
+}
+&#160;
+/// &lt;summary&gt;
+/// Вызываем работу подсчета каждые 0.1 секунды
+/// &lt;/summary&gt;
+private void AddDataThreadLoop()
+{
+  while (true)
+  {
+   if (!chartPerfomance.IsHandleCreated)
+    return;
+&#160;
+   chartPerfomance.Invoke(addDataDel);
+&#160;
+   Thread.Sleep(100);
+  }
+}
+&#160;
+/// &lt;summary&gt;
+/// Заканчиваем работу потока
+/// &lt;/summary&gt;
+private void DisposeThread()
+{
+  if ((addDataRunner.ThreadState &amp; ThreadState.Suspended) == ThreadState.Suspended)
+  {
+   addDataRunner.Resume();
+  }
+  addDataRunner.Abort();
+}
+&#160;
+#endregion</code></pre>
 
 <p>
 Метод DisposeThread необходимо вызвать в методе Dispose формы для окончания работы потока. Дальше описываем методы для добавления точек в графики:
 </p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span class="preproc">#region</span> Add Data </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Метод добавляет данные в три графика на данный период времени</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> AddData()</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  DateTime timeStamp = DateTime.Now;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  AddNewPoint(timeStamp, chartPerfomance.Series[0], pcCpu.NextValue());</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  AddNewPoint(timeStamp, chartPerfomance.Series[1], pcRam.NextValue());</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  AddNewPoint(timeStamp, chartPerfomance.Series[2], pcPage.NextValue());</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Добавление точки (timeStamp, nexVal) в график ptSeries</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;timeStamp&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;ptSeries&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;nexVal&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> AddNewPoint( DateTime timeStamp, Series ptSeries, <span style="color: #0000ff;">float</span> nexVal )</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  ptSeries.Points.AddXY(timeStamp.ToOADate(), nexVal);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">double</span> removeBefore = timeStamp.AddSeconds( (<span style="color: #0000ff;">double</span>)(9) * ( -1 )).ToOADate();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">while</span> ( ptSeries.Points[0].XValue &lt; removeBefore )</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   ptSeries.Points.RemoveAt(0);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  chartPerfomance.ChartAreas[0].AxisX.Minimum = ptSeries.Points[0].XValue;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  chartPerfomance.ChartAreas[0].AxisX.Maximum = DateTime.FromOADate(ptSeries.Points[0].XValue).AddSeconds(10).ToOADate();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  chartPerfomance.Invalidate();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>#region Add Data 
+&#160;
+/// &lt;summary&gt;
+/// Метод добавляет данные в три графика на данный период времени
+/// &lt;/summary&gt;
+public void AddData()
+{
+  DateTime timeStamp = DateTime.Now;
+&#160;
+  AddNewPoint(timeStamp, chartPerfomance.Series[0], pcCpu.NextValue());
+  AddNewPoint(timeStamp, chartPerfomance.Series[1], pcRam.NextValue());
+  AddNewPoint(timeStamp, chartPerfomance.Series[2], pcPage.NextValue());
+}
+&#160;
+/// &lt;summary&gt;
+/// Добавление точки (timeStamp, nexVal) в график ptSeries
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;timeStamp&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;ptSeries&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;nexVal&quot;&gt;&lt;/param&gt;
+public void AddNewPoint( DateTime timeStamp, Series ptSeries, float nexVal )
+{
+  ptSeries.Points.AddXY(timeStamp.ToOADate(), nexVal);
+&#160;
+  double removeBefore = timeStamp.AddSeconds( (double)(9) * ( -1 )).ToOADate();
+&#160;
+  while ( ptSeries.Points[0].XValue &lt; removeBefore )
+  {
+   ptSeries.Points.RemoveAt(0);
+  }
+&#160;
+  chartPerfomance.ChartAreas[0].AxisX.Minimum = ptSeries.Points[0].XValue;
+  chartPerfomance.ChartAreas[0].AxisX.Maximum = DateTime.FromOADate(ptSeries.Points[0].XValue).AddSeconds(10).ToOADate();
+&#160;
+  chartPerfomance.Invalidate();
+}</code></pre>
 
 <p>Теперь добавляем логику вращения:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span class="preproc">#region</span> Mouse Events</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Движение мыши </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> chartPerfomance_MouseMove(<span style="color: #0000ff;">object</span> sender, MouseEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">if</span> (e.Button == MouseButtons.Left)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   <span style="color: #0000ff;">int</span> x = savedRotation - (savedLocation.X - e.X);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   <span style="color: #0000ff;">int</span> y = savedInclination - (savedLocation.Y - e.Y);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   chartPerfomance.ChartAreas[0].Area3DStyle.Rotation = Math.Max(Math.Min(x, 180), -180); </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   chartPerfomance.ChartAreas[0].Area3DStyle.Inclination = Math.Max(Math.Min(y, 90), -90);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Нажатие на кнопку мыши</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> chartPerfomance_MouseDown(<span style="color: #0000ff;">object</span> sender, MouseEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">if</span> (e.Button == MouseButtons.Left)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   Cursor = Cursors.NoMove2D;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   savedLocation = e.Location;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   savedRotation = chartPerfomance.ChartAreas[0].Area3DStyle.Rotation;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   savedInclination = chartPerfomance.ChartAreas[0].Area3DStyle.Inclination;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Кнопку отпустили</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">void</span> chartPerfomance_MouseUp(<span style="color: #0000ff;">object</span> sender, MouseEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">if</span> (e.Button == MouseButtons.Left)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">   Cursor = Cursors.Default;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> Point savedLocation;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">int</span> savedRotation;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">int</span> savedInclination;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span class="preproc">#endregion</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>#region Mouse Events
+&#160;
+/// &lt;summary&gt;
+/// Движение мыши 
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+private void chartPerfomance_MouseMove(object sender, MouseEventArgs e)
+{
+  if (e.Button == MouseButtons.Left)
+  {
+   int x = savedRotation - (savedLocation.X - e.X);
+   int y = savedInclination - (savedLocation.Y - e.Y);
+   chartPerfomance.ChartAreas[0].Area3DStyle.Rotation = Math.Max(Math.Min(x, 180), -180); 
+   chartPerfomance.ChartAreas[0].Area3DStyle.Inclination = Math.Max(Math.Min(y, 90), -90);
+}
+}
+&#160;
+/// &lt;summary&gt;
+/// Нажатие на кнопку мыши
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+private void chartPerfomance_MouseDown(object sender, MouseEventArgs e)
+{
+  if (e.Button == MouseButtons.Left)
+  {
+   Cursor = Cursors.NoMove2D;
+   savedLocation = e.Location;
+   savedRotation = chartPerfomance.ChartAreas[0].Area3DStyle.Rotation;
+   savedInclination = chartPerfomance.ChartAreas[0].Area3DStyle.Inclination;
+}
+}
+&#160;
+/// &lt;summary&gt;
+/// Кнопку отпустили
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+private void chartPerfomance_MouseUp(object sender, MouseEventArgs e)
+{
+  if (e.Button == MouseButtons.Left)
+  {
+   Cursor = Cursors.Default;
+  }
+}
+&#160;
+private Point savedLocation;
+private int savedRotation;
+private int savedInclination;
+&#160;
+#endregion</code></pre>
 
 <p>
 Угол по оси Y можно выставить только в пределах от -90 до 90 градусов, потому полное 3d вращение сделать не удастся. Перевернуть график вверх ногами не получиться (правда сделать конечно можно, но не так просто).  По оси X угол можно выставить от -180 до 180 градусов, потому там можно сделать полное вращение, выставляя на движение мыши свойству Rotation значение x % 360 - 360 * ((x / 180) % 2).</p>

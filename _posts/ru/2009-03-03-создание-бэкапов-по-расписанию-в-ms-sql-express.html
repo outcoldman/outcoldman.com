@@ -13,31 +13,15 @@ alias: ru/blog/show/127
 <p><img src="/library/images/01/0000008.jpg" border="0" /> </p> 
 <p>Я же использую обычно в таких задачах следующий скрипт:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">DECLARE</span> @pathName NVARCHAR(512) </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">SET</span> @pathName = <span style="color: #006080;">'D:\Backup\db_backup_'</span> + <span style="color: #0000ff;">Convert</span>(<span style="color: #0000ff;">varchar</span>(8), GETDATE(), 112) + <span style="color: #006080;">'.bak'</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">BACKUP</span> <span style="color: #0000ff;">DATABASE</span> [MyDataBase] <span style="color: #0000ff;">TO</span>  <span style="color: #0000ff;">DISK</span> = @pathName <span style="color: #0000ff;">WITH</span> NOFORMAT, NOINIT,  NAME = N<span style="color: #006080;">'db_backup'</span>, SKIP, NOREWIND, NOUNLOAD,  STATS = 10</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>DECLARE @pathName NVARCHAR(512) 
+SET @pathName = 'D:\Backup\db_backup_' + Convert(varchar(8), GETDATE(), 112) + '.bak' 
+BACKUP DATABASE [MyDataBase] TO  DISK = @pathName WITH NOFORMAT, NOINIT,  NAME = N'db_backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10</code></pre>
 
 <p>Этот скрипт создает бекап с именем файла<em> db_backup_YYYYDDMM.bak</em> где <em>YYYYDDMM</em> – это текущая дата.  Дата в имени файла позволит нам создавать каждый день бекап в новом файле. Запустите и проверьте что бекап действительно создается такой какой вам и нужен. Этот скрипт сохраняем в какой-нибудь папке под именем<em> schedule.sql</em>, предположим <em>c:\sheduled tasks\.</em> В этой же папке создадим исполняемый файл <em>backup.bat</em>, следующего содержания: </p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">sqlcmd -S SEVERNAME -U UserName -P Password -i schedule.sql</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">7z a -tzip D:\Backup \db_backup_%date%.zip -i! D:\Backup\db_backup_*.bak</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">del d:\Backup\db_backup_*.bak</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>sqlcmd -S SEVERNAME -U UserName -P Password -i schedule.sql
+7z a -tzip D:\Backup \db_backup_%date%.zip -i! D:\Backup\db_backup_*.bak
+del d:\Backup\db_backup_*.bak</code></pre>
  
 <p>Где меняем SERVERNAME – имя сервера, UserName – имя пользователя, Password – пароль пользователя, schedule.sql – имя сохраненного скрипта. Вторая и третья строка батника архивирует бекап в zip файл и удаляет сам файл бекапа. Для того чтобы работала архивация необходимо установить архиватор 7z и прописать полные пути до исполняемого файла 7z.exe либо положить 7z.exe и 7z.dll в ту же папку, где располагаются скрипты. Теперь можем запустить исполняемый файл backup.bat и проверить проработает ли он так как нужно. Последний шаг это записать schedule в задачи windows. Запускаем Task Scheduler из меню Пуск, либо набираем в командной строке <em>taskschd.msc</em>. В разных версиях Windows это выглядит по разному, да и информацию о том как сделать задачу можно прочитать в помощи Windows. Основное – это запускать задачу от имени пользователя с достаточными правами на используемые папки. При помощи таких действий можно так же запрограммировать и любые другие задачи. В скрипте <em>schedule.sql</em> можно перед бекапом вызвать какие-либо необходимые процедуры, может переиндексирование или сжатие базы данных. </p>
 

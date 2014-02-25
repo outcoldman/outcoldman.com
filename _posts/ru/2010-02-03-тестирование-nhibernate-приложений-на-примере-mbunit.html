@@ -10,26 +10,275 @@ alias: ru/blog/show/173
 
 <p>NHibernate предоставляет нам несколько возможностей хранить конфигурацию. Одна из таких возможностей – это конфигурировать все на лету, а именно в коде приложения. В этом случае мы можем создать свой класс Configuration, отнаследовать его от класса Configuration NHibernate и внести необходимую логику по конфигурации приложения, выглядеть это будет примерно так:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span> Configuration : global::NHibernate.Cfg.Configuration</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span class="preproc">#region</span> Singleton</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">readonly</span> <span style="color: #0000ff;">object</span> _locker = <span style="color: #0000ff;">new</span> <span style="color: #0000ff;">object</span>();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> Configuration _config;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> ISessionFactory _factory;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Thread safe current NHibernate configuration</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> Configuration Current</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        get</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (_config == <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">lock</span> (_locker)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    <span style="color: #0000ff;">if</span> (_config == <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                        CreateConfiguration();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> _config;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Create Configuration of NHibernate</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> ReConfigurate()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">if</span> (_config != <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">lock</span> (_locker)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">if</span> (_config != <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    CreateConfiguration();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> CreateConfiguration()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config = <span style="color: #0000ff;">new</span> Configuration();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config.SetProperty(Environment.ConnectionProvider, <span style="color: #0000ff;">typeof</span>(DriverConnectionProvider).FullName);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config.SetProperty(Environment.Dialect, <span style="color: #0000ff;">typeof</span>(MsSql2005Dialect).FullName);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config.SetProperty(Environment.ConnectionString, GetConnectionString());</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config.SetProperty(Environment.Isolation, <span style="color: #006080;">"ReadCommitted"</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config.SetProperty(Environment.CommandTimeout, <span style="color: #006080;">"600"</span>);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config.SetProperty(Environment.MaxFetchDepth, <span style="color: #006080;">"4"</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _config.SetProperty(Environment.ProxyFactoryFactoryClass,</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                            <span style="color: #006080;">"NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle"</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        _factory = <span style="color: #0000ff;">null</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Thread safe NHibernate Session Factory</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> ISessionFactory Factory</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        get</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (_factory == <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">lock</span> (_locker)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    <span style="color: #0000ff;">if</span> (_factory == <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                        _factory = Current.BuildSessionFactory();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> _factory;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span class="preproc">#endregion</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">string</span> GetConnectionString()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">return</span> ConfigurationManager.ConnectionStrings[<span style="color: #006080;">"Main"</span>].ConnectionString; </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>public class Configuration : global::NHibernate.Cfg.Configuration
+{
+    #region Singleton
+ 
+    private static readonly object _locker = new object();
+ 
+    private static Configuration _config;
+    private static ISessionFactory _factory;
+ 
+    /// &lt;summary&gt;
+    /// Thread safe current NHibernate configuration
+    /// &lt;/summary&gt;
+    public static Configuration Current
+    {
+        get
+        {
+            if (_config == null)
+            {
+                lock (_locker)
+                {
+                    if (_config == null)
+                    {
+                        CreateConfiguration();
+                    }
+                }
+            }
+ 
+            return _config;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Create Configuration of NHibernate
+    /// &lt;/summary&gt;
+    public static void ReConfigurate()
+    {
+        if (_config != null)
+        {
+            lock (_locker)
+            {
+                if (_config != null)
+                {
+                    CreateConfiguration();
+                }
+            }
+        }
+    }
+ 
+    private static void CreateConfiguration()
+    {
+        _config = new Configuration();
+        _config.SetProperty(Environment.ConnectionProvider, typeof(DriverConnectionProvider).FullName);
+        _config.SetProperty(Environment.Dialect, typeof(MsSql2005Dialect).FullName);
+        _config.SetProperty(Environment.ConnectionString, GetConnectionString());
+        _config.SetProperty(Environment.Isolation, "ReadCommitted");
+        _config.SetProperty(Environment.CommandTimeout, "600");
+        _config.SetProperty(Environment.MaxFetchDepth, "4");
+        _config.SetProperty(Environment.ProxyFactoryFactoryClass,
+                            "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle");
+        _factory = null;
+    }
+ 
+    /// &lt;summary&gt;
+    /// Thread safe NHibernate Session Factory
+    /// &lt;/summary&gt;
+    public static ISessionFactory Factory
+    {
+        get
+        {
+            if (_factory == null)
+            {
+                lock (_locker)
+                {
+                    if (_factory == null)
+                    {
+                        _factory = Current.BuildSessionFactory();
+                    }
+                }
+            }
+            return _factory;
+        }
+    }
+    #endregion
+ 
+    private static string GetConnectionString()
+    {
+        return ConfigurationManager.ConnectionStrings["Main"].ConnectionString; 
+    }
+}</code></pre>
 
 
 <p>Основная информация инициализируется в методе CreateConfiguration, который устанавливает тип базы данных, провайдера, тип изоляции и некоторые другие основные параметры. Согласитесь, что вряд ли вы будете эти параметры менять раз в неделю? В большинстве случаев они устанавливаются при первом создании проекта, и, более того, часто бывает, что эти параметры просто копируют из предыдущих приложений. Единственное, что меняется часто – это ConnectionString, получение которого я вынес в отдельный метод.</p>
 
 <p>Для тестирования создадим простейшую бизнес модель, состоящую из одного класса User:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span> User</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">virtual</span> <span style="color: #0000ff;">int</span> Id { get; set; }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">virtual</span> <span style="color: #0000ff;">string</span> Name { get; set; }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">virtual</span> <span style="color: #0000ff;">string</span> Surname { get; set; }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>public class User
+{
+    public virtual int Id { get; set; }
+    public virtual string Name { get; set; }
+    public virtual string Surname { get; set; }
+}</code></pre>
 
 <p>Маппинг этого класса будет выглядеть так:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">class</span> <span style="color: #ff0000;">name</span><span style="color: #0000ff;">="User"</span> <span style="color: #ff0000;">table</span><span style="color: #0000ff;">="[User]"</span> <span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">id</span> <span style="color: #ff0000;">name</span><span style="color: #0000ff;">="Id"</span> <span style="color: #ff0000;">unsaved-value</span><span style="color: #0000ff;">="0"</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">generator</span> <span style="color: #ff0000;">class</span><span style="color: #0000ff;">="identity"</span><span style="color: #0000ff;">/&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">id</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">property</span> <span style="color: #ff0000;">name</span><span style="color: #0000ff;">="Name"</span> <span style="color: #ff0000;">type</span><span style="color: #0000ff;">="String"</span><span style="color: #0000ff;">/&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">property</span> <span style="color: #ff0000;">name</span><span style="color: #0000ff;">="Surname"</span> <span style="color: #ff0000;">type</span><span style="color: #0000ff;">="String"</span><span style="color: #0000ff;">/&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">class</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--></div></div>
+<pre><code>&lt;class name="User" table="[User]" &gt;
+    &lt;id name="Id" unsaved-value="0"&gt;
+        &lt;generator class="identity"/&gt;
+    &lt;/id&gt;
+    &lt;property name="Name" type="String"/&gt;
+    &lt;property name="Surname" type="String"/&gt;
+&lt;/class&gt;</code></pre>
 
 <p>Для работы с сессиями создадим класс DataContext (название позаимствовал из Linq-to-SQL) следующего вида:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// Context for work with NHibernate Sessions</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span> DataContext : IDisposable</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">readonly</span> ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Create new context and open session</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> DataContext()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        OpenSession();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Create new context and open session</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;param name="fBeginTransaction"&gt;need to begin transaction&lt;/param&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> DataContext(<span style="color: #0000ff;">bool</span> fBeginTransaction)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        OpenSession();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">if</span> (fBeginTransaction)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            BeginTransaction();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> ISession _session;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">private</span> ITransaction _transaction;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Return current session</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> ISession CurrentSession</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        get</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">try</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                OpenSession();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">catch</span> (HibernateException e)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                Log.Error(<span style="color: #006080;">"Cannot open session"</span>, e);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">throw</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> _session;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Open session if not opened before</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> OpenSession()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">if</span> (_session == <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            _session = Configuration.Factory.OpenSession();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            _session.FlushMode = FlushMode.Commit;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Close session if it opened</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> CloseSession()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">try</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (_session != <span style="color: #0000ff;">null</span> &amp;&amp; _session.IsOpen)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                _session.Close();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            _session = <span style="color: #0000ff;">null</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">catch</span> (HibernateException e)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Log.Error(<span style="color: #006080;">"Cannot close session"</span>, e);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">throw</span>;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Begin transaction if it not started before</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> BeginTransaction()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">try</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (_transaction == <span style="color: #0000ff;">null</span>)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                _transaction = CurrentSession.BeginTransaction();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">catch</span> (HibernateException e)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Log.Error(<span style="color: #006080;">"Cannot begin transaction"</span>, e);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">throw</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Commit current transaction if it opened</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> CommitTransaction()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">try</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (_transaction != <span style="color: #0000ff;">null</span> &amp;&amp; !_transaction.WasCommitted &amp;&amp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                !_transaction.WasRolledBack)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                _transaction.Commit();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            _transaction = <span style="color: #0000ff;">null</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">catch</span> (HibernateException e)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Log.Error(<span style="color: #006080;">"Cannot commit transaction"</span>, e);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">throw</span>;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Rollback current transaction</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> RollbackTransaction()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">try</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (_transaction != <span style="color: #0000ff;">null</span> &amp;&amp; !_transaction.WasCommitted &amp;&amp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                !_transaction.WasRolledBack)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                _transaction.Rollback();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            _transaction = <span style="color: #0000ff;">null</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">catch</span> (HibernateException e)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Log.Error(<span style="color: #006080;">"Cannot rollback transaction"</span>, e);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">throw</span>;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">finally</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            CloseSession();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// Commit transaction if requied and close session</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">/// &lt;/summary&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> Dispose()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        CommitTransaction();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        CloseSession();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>/// &lt;summary&gt;
+/// Context for work with NHibernate Sessions
+/// &lt;/summary&gt;
+public class DataContext : IDisposable
+{
+    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+ 
+    /// &lt;summary&gt;
+    /// Create new context and open session
+    /// &lt;/summary&gt;
+    public DataContext()
+    {
+        OpenSession();
+    }
+ 
+    /// &lt;summary&gt;
+    /// Create new context and open session
+    /// &lt;/summary&gt;
+    /// &lt;param name="fBeginTransaction"&gt;need to begin transaction&lt;/param&gt;
+    public DataContext(bool fBeginTransaction)
+    {
+        OpenSession();
+        if (fBeginTransaction)
+            BeginTransaction();
+    }
+ 
+    private ISession _session;
+    private ITransaction _transaction;
+ 
+    /// &lt;summary&gt;
+    /// Return current session
+    /// &lt;/summary&gt;
+    public ISession CurrentSession
+    {
+        get
+        {
+            try
+            {
+                OpenSession();
+            }
+            catch (HibernateException e)
+            {
+                Log.Error("Cannot open session", e);
+                throw;
+            }
+ 
+            return _session;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Open session if not opened before
+    /// &lt;/summary&gt;
+    public void OpenSession()
+    {
+        if (_session == null)
+        {
+            _session = Configuration.Factory.OpenSession();
+            _session.FlushMode = FlushMode.Commit;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Close session if it opened
+    /// &lt;/summary&gt;
+    public void CloseSession()
+    {
+        try
+        {
+            if (_session != null &amp;&amp; _session.IsOpen)
+            {
+                _session.Close();
+            }
+            _session = null;
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot close session", e);
+            throw;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Begin transaction if it not started before
+    /// &lt;/summary&gt;
+    public void BeginTransaction()
+    {
+        try
+        {
+            if (_transaction == null)
+            {
+                _transaction = CurrentSession.BeginTransaction();
+            }
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot begin transaction", e);
+            throw;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Commit current transaction if it opened
+    /// &lt;/summary&gt;
+    public void CommitTransaction()
+    {
+        try
+        {
+            if (_transaction != null &amp;&amp; !_transaction.WasCommitted &amp;&amp;
+                !_transaction.WasRolledBack)
+            {
+                _transaction.Commit();
+            }
+            _transaction = null;
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot commit transaction", e);
+            throw;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Rollback current transaction
+    /// &lt;/summary&gt;
+    public void RollbackTransaction()
+    {
+        try
+        {
+            if (_transaction != null &amp;&amp; !_transaction.WasCommitted &amp;&amp;
+                !_transaction.WasRolledBack)
+                _transaction.Rollback();
+ 
+            _transaction = null;
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot rollback transaction", e);
+            throw;
+        }
+        finally
+        {
+            CloseSession();
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Commit transaction if requied and close session
+    /// &lt;/summary&gt;
+    public void Dispose()
+    {
+        CommitTransaction();
+        CloseSession();
+    }
+}</code></pre>
 
 
 <p>Теперь у нас есть испытуемые, можно приступить к написанию тестов и самого приложения. Замечу, что все классы по работе с NHibernate и классы бизнес логики я положил в библиотеку <em>NHibernateTestConsoleApplication.Core</em>.</p>
@@ -37,13 +286,51 @@ alias: ru/blog/show/173
 
 <p>Итак, создаем еще одну библиотеку <em>NHibernateTestConsoleApplication.Test</em>, в которой и напишем первый тест:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">[TestFixture]</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span> UsersTest</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    [TestFixtureSetUp]</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> TestFixtureSetUp()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        Configuration.ReConfigurate();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        Configuration.Current.AddAssembly(<span style="color: #0000ff;">typeof</span> (User).Assembly);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    [Test]</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span> UsersShouldBeSave()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">using</span> (DataContext dataContext = <span style="color: #0000ff;">new</span> DataContext(<span style="color: #0000ff;">true</span>))</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            User user = <span style="color: #0000ff;">new</span> User { Name = <span style="color: #006080;">"User1_Name"</span>, Surname = <span style="color: #006080;">"User1_Surname"</span> };</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            dataContext.CurrentSession.Save(user);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        IList&lt;User&gt; users;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">using</span> (DataContext dataContext = <span style="color: #0000ff;">new</span> DataContext())</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            users = dataContext.CurrentSession.CreateCriteria&lt;User&gt;()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                .Add(Restrictions.Eq(<span style="color: #006080;">"Name"</span>, <span style="color: #006080;">"User1_Name"</span>))</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                .List&lt;User&gt;();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        Assert.AreEqual(users.Count, 1);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        Assert.AreEqual(users[0].Surname, <span style="color: #006080;">"User1_Surname"</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">using</span> (DataContext dataContext = <span style="color: #0000ff;">new</span> DataContext(<span style="color: #0000ff;">true</span>))</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            dataContext.CurrentSession.Delete(users[0]);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>[TestFixture]
+public class UsersTest
+{
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+        Configuration.ReConfigurate();
+        Configuration.Current.AddAssembly(typeof (User).Assembly);
+    }
+ 
+    [Test]
+    public void UsersShouldBeSave()
+    {
+        using (DataContext dataContext = new DataContext(true))
+        {
+            User user = new User { Name = "User1_Name", Surname = "User1_Surname" };
+            dataContext.CurrentSession.Save(user);
+        }
+ 
+        IList&lt;User&gt; users;
+        using (DataContext dataContext = new DataContext())
+        {
+            users = dataContext.CurrentSession.CreateCriteria&lt;User&gt;()
+                .Add(Restrictions.Eq("Name", "User1_Name"))
+                .List&lt;User&gt;();
+        }
+ 
+        Assert.AreEqual(users.Count, 1);
+        Assert.AreEqual(users[0].Surname, "User1_Surname");
+ 
+        using (DataContext dataContext = new DataContext(true))
+        {
+            dataContext.CurrentSession.Delete(users[0]);
+        }
+    }
+}</code></pre>
 
 <p>Метод TestFixtureSetUp конфигурирует NHibernate, а так же добавляет все маппинги из библиотеки, в которой находится тип User. UsersShouldBeSave – обычный метод для тестирования логики над пользователями (вообще лучше этот метод разбить на несколько), но для нас важна не эта тема. Так как мы написали метод <em>GetConnectionString</em> в Configuration так, что он обращается к конфигурации app.config, то мы можем просто добавить такой файл к библиотеке <em>NHibernateTestConsoleApplication.Test </em>следующего содержания:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;?</span><span style="color: #800000;">xml</span> <span style="color: #ff0000;">version</span><span style="color: #0000ff;">="1.0"</span> <span style="color: #ff0000;">encoding</span><span style="color: #0000ff;">="utf-8"</span> ?<span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">configuration</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">connectionStrings</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">add</span> <span style="color: #ff0000;">name</span><span style="color: #0000ff;">="Main"</span> <span style="color: #ff0000;">connectionString</span><span style="color: #0000ff;">="user id=XXX; password=XXX; server=(local); database=XXX;"</span> <span style="color: #ff0000;">providerName</span><span style="color: #0000ff;">="System.Data.SqlClient"</span> <span style="color: #0000ff;">/&gt;</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">connectionStrings</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">configuration</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--></div></div>
+<pre><code>&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;configuration&gt;
+    &lt;connectionStrings&gt;
+        &lt;add name="Main" connectionString="user id=XXX; password=XXX; server=(local); database=XXX;" providerName="System.Data.SqlClient" /&gt;
+    &lt;/connectionStrings&gt;
+&lt;/configuration&gt;</code></pre>
 
 <p>Это самая простейшая конфигурация проекта с использованием NHibernate для тестирования. Чем он хорош – это тем, что у вас всего лишь одна конфигурация на все проекты – основной проект – программы и проект для тестирования. И в случае, если в будущем вы поставите другой timeout в приложении, то тесты будут работать на той же настройке. Чем этот метод конфигурирования плох, если что то хочется поменять в настройке – нужно будет пересобирать проект, отчасти это лечится тем, что некоторые параметры так же как ConnectionString можно вынести в настройки в app.config и иметь какие-то дефолтные значения в случае, если эти настройки не выставлены в app.config. </p>
 
@@ -53,6 +340,6 @@ alias: ru/blog/show/173
 
 
 <p>
-<a rev="vote-for" href="http://progg.ru/outcoldman-%D0%A2%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-NHibernate-%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B9-%D0%BD%D0%B0-%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D0%B5-MbUnit"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.livejournal.com%2F47289.html" style="border:0px" /></a>
+
 </p>
 

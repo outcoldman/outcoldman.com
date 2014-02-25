@@ -18,32 +18,14 @@ alias: ru/blog/show/130
 
 <p>Работать с такой библиотекой достаточно просто (привыкаешь), но иногда просто убивают некоторые недоделки: </p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">Workbook book = Workbook.Open(filePath);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">foreach</span> (Worksheet worksheet <span style="color: #0000ff;">in</span> book.Worksheets)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">foreach</span> (Pair&lt;Pair&lt;<span style="color: #0000ff;">int</span>, <span style="color: #0000ff;">int</span>&gt;, Cell&gt; cell <span style="color: #0000ff;">in</span> worksheet.Cells)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">//Как получить значение в cell.Value (нету такого Property)? Зачем есть реализация GetEnumerator, а работать с ним в реальности не возможно...</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>Workbook book = Workbook.Open(filePath);
+foreach (Worksheet worksheet in book.Worksheets)
+{
+  foreach (Pair&lt;Pair&lt;int, int&gt;, Cell&gt; cell in worksheet.Cells)
+  {
+    //Как получить значение в cell.Value (нету такого Property)? Зачем есть реализация GetEnumerator, а работать с ним в реальности не возможно...
+  }
+}</code></pre>
 
 
 <h2>Ссылки по теме Office 2007: </h2>

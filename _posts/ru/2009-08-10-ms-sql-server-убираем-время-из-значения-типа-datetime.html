@@ -8,23 +8,52 @@ alias: ru/blog/show/150
 ---
 <p>Этот текст является в какой то мере переводом топика <a href="http://www.thycotic.com/removing-time-from-sql-datetime">Kevin Jones - Removing time from SQL datetime</a>, так что если вы хорошо знаете английский, то лучше, наверное, читать руководство из первых рук. Правда, мой вариант дополнен некоторыми тестами.</p>  <p>Итак, мы довольно часто используем SQL сервер для хранения данных с типом дата и время. В SQL Server 2005/2000 существуют два типа данных (специальных типов данных) для хранения даты и времени – это datetime и smalldatetime, разница между ними в возможностях хранения (от и до), точности времени и, соответственно, в количестве используемой памяти. В SQL Server 2008 появились дополнительные типы данных, такие как datetime2, time, date, datetimeoffset, о них вы можете прочитать в статье на MSDN - <a href="http://msdn.microsoft.com/ru-ru/library/ms186724.aspx">Типы данных и функции даты и времени (Transact-SQL)</a>.</p>  <p>Вернемся же к типу DATETIME. Часто возникает необходимость выбрать из типа DATETIME только дату, а время установить равным 0:00. Не приходиться об этом думать, когда нужно просто вывести результат – тогда все можно сделать форматом вывода, например в C# это может быть “dd.MM.yyyy”. Другое дело, если с данными нужно еще оперировать (например, группировать по дате или что то прибавить или убавить), тогда нам необходим тип DATETIME, в котором нам нужно обнулять время.</p> <p>Первый вариант, как можно это сделать (до прочтения топика Kevin Jones’а я так всегда и делал) – это привести изначально тип DATETIME в VARCHAR без времени (определенным форматом) и обратно:</p> 
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">SELECT</span> <span style="color: #0000ff;">CONVERT</span>(DATETIME, <span style="color: #0000ff;">CONVERT</span>(<span style="color: #0000ff;">VARCHAR</span>(15), GETDATE(), 101))</pre><!--CRLF--></div></div>
+<pre><code>SELECT CONVERT(DATETIME, CONVERT(VARCHAR(15), GETDATE(), 101))</code></pre>
 
 <p>Данный вариант достаточно часто встречается. Правда, от него могут быть проблемы в производительности, когда вы будите обрабатывать несколько тысяч строк и более. </p>  <p>Другой вариант, если вы используете SQL Server 2008 – это приводить DATETIME к упомянутому выше типу DATE:</p>  
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">SELECT</span> <span style="color: #0000ff;">CAST</span>(GETDATE() <span style="color: #0000ff;">AS</span> <span style="color: #0000ff;">DATE</span>)</pre><!--CRLF--></div></div>
+<pre><code>SELECT CAST(GETDATE() AS DATE)</code></pre>
 
 <p>Вы так же можете привести данный тип потом к DATETIME, если вам необходимо оперировать именно с этим типом. </p>  <p>И все же, если вы до сих пор используете SQL Server версии 2005, то лучше способ, чем описанный выше способ с VARCHAR – это приведение к типу FLOAT, вызов FLOOR (целое от числа), а затем приведение обратно к DATETIME:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">SELECT</span> <span style="color: #0000ff;">CAST</span>(FLOOR(<span style="color: #0000ff;">CAST</span>(GETDATE() <span style="color: #0000ff;">AS</span> <span style="color: #0000ff;">FLOAT</span>)) <span style="color: #0000ff;">AS</span> DATETIME)</pre><!--CRLF--></div></div>
+<pre><code>SELECT CAST(FLOOR(CAST(GETDATE() AS FLOAT)) AS DATETIME)</code></pre>
 
 <p>Kevin Jones утверждает, что данные операции пройдут быстрее, аргументируя это тем, что во время приведения к типу VARCHAR и обратно SQL сервер еще задумывается о collation и о форматах. Когда же переводишь тип данных DATETIME к FLOAT, то целая часть числа – хранит информацию о дне, а дробная о времени. Использую функцию FLOAR мы берем только время. Кстати, с таким подходом легко, к примеру, сразу же прибавить день к дате.</p>  <p>Я в отличие от Kevin Jones попробовал все таки провести тест сравнения этих двух методов, правда использовав SQL Server 2008. Я написал следующий тест:</p>  
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">set</span> nocount <span style="color: #0000ff;">on</span> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">go</span> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">declare</span> @<span style="color: #0000ff;">date</span> datetime, @i <span style="color: #0000ff;">int</span> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">declare</span> @test <span style="color: #0000ff;">table</span>(d datetime) </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">set</span> @<span style="color: #0000ff;">date</span> = getdate() </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">set</span> @i = 0 </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">-- заполняем тестовыми данными (10000001 строка с датами) </span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">while</span> @i &lt;= 10000000 </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">begin</span>  </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    insert <span style="color: #0000ff;">into</span> @test (d)  </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">values</span> (@<span style="color: #0000ff;">date</span>) </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">set</span> @<span style="color: #0000ff;">date</span> = dateadd(<span style="color: #0000ff;">minute</span>, 1, @<span style="color: #0000ff;">date</span>) </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">set</span> @i = @i + 1 </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">end</span> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">print</span> <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(20), getdate(), 109) </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">-- тестируем способ с VARCHAR </span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">select</span> <span style="color: #0000ff;">convert</span>(datetime, <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(15), d, 101))  </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">from</span> @test </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">print</span> <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(20), getdate(), 109) </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">-- тестируем способ с FLOAT </span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">select</span> <span style="color: #0000ff;">cast</span>(floor(<span style="color: #0000ff;">cast</span>(d <span style="color: #0000ff;">as</span> <span style="color: #0000ff;">float</span>)) <span style="color: #0000ff;">as</span> datetime) </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">from</span> @test </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">print</span> <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(20), getdate(), 109)</pre><!--CRLF--></div></div> 
+<pre><code>set nocount on 
+go 
+&nbsp;
+declare @date datetime, @i int 
+  
+declare @test table(d datetime) 
+&nbsp;
+set @date = getdate() 
+set @i = 0 
+&nbsp;
+-- заполняем тестовыми данными (10000001 строка с датами) 
+while @i &lt;= 10000000 
+begin  
+    insert into @test (d)  
+    values (@date) 
+&nbsp;
+    set @date = dateadd(minute, 1, @date) 
+    set @i = @i + 1 
+end 
+&nbsp;
+&nbsp;
+print convert(varchar(20), getdate(), 109) 
+&nbsp;
+-- тестируем способ с VARCHAR 
+select convert(datetime, convert(varchar(15), d, 101))  
+from @test 
+&nbsp;
+print convert(varchar(20), getdate(), 109) 
+&nbsp;
+-- тестируем способ с FLOAT 
+select cast(floor(cast(d as float)) as datetime) 
+from @test 
+&nbsp;
+print convert(varchar(20), getdate(), 109)</code></pre> 
 
 <p>Результат выполнения (в окне Messages):</p>  
 
@@ -40,8 +69,19 @@ Aug 10 2009 11:38:20</i>
 <p>Благодаря комментариям Ulugbek Umirov и Евгений Веприков из <a href="http://blogs.gotdotnet.ru/personal/outcoldman/default.aspx#a69F0C596-F0DA-4250-BA3B-C6C0B900B958">ветки</a> блогов GotDotNet получены более честные результаты. </p>
 <p>Было предложено использовать COUNT, а не чистый вывод в окно Managment Studio:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">print</span> <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(20), getdate(), 109) </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">-- тестируем способ с VARCHAR </span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">select</span> <span style="color: #0000ff;">count</span>(<span style="color: #0000ff;">convert</span>(datetime, <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(15), d, 101))) </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">from</span> @test </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">print</span> <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(20), getdate(), 109) </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">-- тестируем способ с FLOAT </span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">select</span> <span style="color: #0000ff;">count</span>(<span style="color: #0000ff;">cast</span>(floor(<span style="color: #0000ff;">cast</span>(d <span style="color: #0000ff;">as</span> <span style="color: #0000ff;">float</span>)) <span style="color: #0000ff;">as</span> datetime)) </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">from</span> @test </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">print</span> <span style="color: #0000ff;">convert</span>(<span style="color: #0000ff;">varchar</span>(20), getdate(), 109)</pre><!--CRLF--></div></div>
+<pre><code>print convert(varchar(20), getdate(), 109) 
+&nbsp;
+-- тестируем способ с VARCHAR 
+select count(convert(datetime, convert(varchar(15), d, 101))) 
+from @test 
+&nbsp;
+print convert(varchar(20), getdate(), 109) 
+&nbsp;
+-- тестируем способ с FLOAT 
+select count(cast(floor(cast(d as float)) as datetime)) 
+from @test 
+&nbsp;
+print convert(varchar(20), getdate(), 109)</code></pre>
 
 <p>И тогда результаты будут уже более значимыми:</p>
 
@@ -55,9 +95,8 @@ Aug 11 2009 12:14:41</i>
 
 <p>Так же был предложен еще один метод by Ulugbek Umirov:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">SELECT</span> DATEADD(dd, 0, DATEDIFF(dd, 0, GETDATE())) </pre><!--CRLF--></div></div>
+<pre><code>SELECT DATEADD(dd, 0, DATEDIFF(dd, 0, GETDATE())) </code></pre>
 
 <p>Данный метод показывает лучше результаты на 2000 сервере, на 2005/2008 почти такой же. </p>
 <p>
-<a rev="vote-for" href="http://progg.ru/outcoldman-MS-SQL-Server-%D0%A3%D0%B1%D0%B8%D1%80%D0%B0%D0%B5%D0%BC-%D0%B2%D1%80%D0%B5%D0%BC%D1%8F-%D0%B8%D0%B7-%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-%D1%82%D0%B8%D0%BF%D0%B0-datetime"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.livejournal.com%2F30109.html" style="border:0px"/></a> </p>
+ </p>

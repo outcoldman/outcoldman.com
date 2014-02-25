@@ -12,92 +12,45 @@ alias: ru/blog/show/200
 
 <p>В Silverlight 4 и .NET 4 <a href="/ru/blog/show/143">появились</a> динамические объекты, что дает нам возможность не устанавливать зависимости на библиотеки MS Office, а просто использовать их. То есть, чтобы создать Excel документ в .NET 4 (далее приложение WPF) нам просто нужно написать:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject(<span style="color: #006080">&quot;Excel.Application&quot;</span>, <span style="color: #0000ff">string</span>.Empty);</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject(&quot;Excel.Application&quot;, string.Empty);
+</code></pre>
 
 <p>А в случае SIlverlight 4:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">dynamic excel = AutomationFactory.CreateObject(<span style="color: #006080">&quot;Excel.Application&quot;</span>);</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>dynamic excel = AutomationFactory.CreateObject(&quot;Excel.Application&quot;);
+</code></pre>
 
 <p>Для Silverlight нужно учитывать, что работать с AutomationFactory возможно только для доверенных приложений (необходимо установить в настройках проекта), запущенных в out-of-browser режиме, а проверять возможность использования можно при помощи свойства AutomationFactory.IsAvailable.</p>
 
 <p>Для начала давайте создадим метод, который позволял бы нам экспортировать в Excel массив данных (я объясню ниже, почему именно массив):</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> ExportToExcel(<span style="color: #0000ff">object</span>[,] data) { <span style="color: #008000">/* ... */</span> }</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public static void ExportToExcel(object[,] data) { /* ... */ }
+</code></pre>
 
 <p>Несколькими строчками выше мы написали как можно создать ссылку на Excel объект, теперь проведем небольшой подготовительный процесс:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">excel.ScreenUpdating = <span style="color: #0000ff">false</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">dynamic workbook = excel.workbooks;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">workbook.Add();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">dynamic worksheet = excel.ActiveSheet;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">const</span> <span style="color: #0000ff">int</span> left = 1;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">const</span> <span style="color: #0000ff">int</span> top = 1;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">int</span> height = data.GetLength(0);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">int</span> width = data.GetLength(1);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">int</span> bottom = top + height - 1;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">int</span> right = left + width - 1;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">if</span> (height == 0 || width == 0)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">return</span>;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>excel.ScreenUpdating = false;
+dynamic workbook = excel.workbooks;
+workbook.Add();
+&#160;
+dynamic worksheet = excel.ActiveSheet;
+&#160;const int left = 1;
+const int top = 1;
+int height = data.GetLength(0);
+int width = data.GetLength(1);
+int bottom = top + height - 1;
+int right = left + width - 1;
+&#160;if (height == 0 || width == 0)
+  return;
+</code></pre>
 
 <p>Мы сделали так, чтобы Excel не отображал изменения, которые мы будем вносить, пока мы ему об этом не скажем. Данных подход дает нам небольшой прирост в скорости экспорта. Дальше мы создаем новый документ (workbook) и у данного документа берем активную страницу (worsheet), а дальше вычисляем размер области, в которую мы произведем экспорт данных. </p>
 
 <p>Следующий шаг – это непосредственно экспорт массива в Excel. Мало кто знает, что экспортировать данные в Excel можно выставлением значений не только по ячейке, но и сразу определенной области (range), для этого просто нужно выбрать эту область и установить в свойство Value экспортируемый массив. Попробуйте сравнить два данных подхода при экспорте таблицы с 1000 записями, разница будет ощутимой: секунда против 10 секунд. Делается это следующим способом:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">rg.Value = data;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];
+rg.Value = data;
+</code></pre>
 
 <p>Все, наши данные уже в Excel документе, правда данный подход не хочет работать в Silverlight 4, что не может не огорчать. На строчке установки значения я получаю ошибку&#160; </p>
 
@@ -136,414 +89,133 @@ alias: ru/blog/show/200
 
 <p>Итак, чтобы сделать подобное в Silverlight 4 я сделал экспорт по строкам:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> i = 1; i &lt;= height; i++)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">object</span>[] row = <span style="color: #0000ff">new</span> <span style="color: #0000ff">object</span>[width];</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> j = 1; j &lt;= width; j++)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    row[j - 1] = data[i - 1, j - 1];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  dynamic r = worksheet.Range[worksheet.Cells[i, left], worksheet.Cells[i, right]];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  r.Value = row;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  r = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>for (int i = 1; i &lt;= height; i++)
+{  object[] row = new object[width];
+  for (int j = 1; j &lt;= width; j++)
+  {
+    row[j - 1] = data[i - 1, j - 1];
+  }
+  dynamic r = worksheet.Range[worksheet.Cells[i, left], worksheet.Cells[i, right]];
+  r.Value = row;  r = null;
+}
+</code></pre>
 
 <p>Конечно, если вы разрабатываете только под Silverlight, то может имеет смысл отказаться вообще от работы с двумерными массивами, но я писал классы, которые будут работать и в SL4 и в WPF (.NET 4), потому все же оставил работу именно с этим типом данных. </p>
 
 <p>Ну и после экспорта осталось только применить изменения и показать сам Excel:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">excel.ScreenUpdating = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">excel.Visible = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>excel.ScreenUpdating = true;
+excel.Visible = true;
+</code></pre>
 
 <p>А перед этим можно сделать немного улучшений внешнего вида экспортируемого документа:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// Set borders</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> i = 1; i &lt;= 4; i++)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  rg.Borders[i].LineStyle = 1;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// Set auto columns width</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">rg.EntireColumn.AutoFit();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">// Set header view</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">rgHeader.Font.Bold = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">rgHeader.Interior.Color = 189 * (<span style="color: #0000ff">int</span>)Math.Pow(16, 4) + 129 * (<span style="color: #0000ff">int</span>)Math.Pow(16, 2) + 78; <span style="color: #008000">// #4E81BD</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>// Set borders
+for (int i = 1; i &lt;= 4; i++)
+  rg.Borders[i].LineStyle = 1;
+&#160;// Set auto columns width
+rg.EntireColumn.AutoFit();
+&#160;// Set header view
+dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];rgHeader.Font.Bold = true;
+rgHeader.Interior.Color = 189 * (int)Math.Pow(16, 4) + 129 * (int)Math.Pow(16, 2) + 78; // #4E81BD
+</code></pre>
 
 <p>Данным кодом мы нарисовали границы, установили автоматический размер для колонок, и выделили первую строчку (это в будущем будет заголовок, который будет отображать названия колонок из DataGrid). Если вам нужно еще как-то улучшить интерфейс, то можно просто подсмотреть как это делается – откройте Excel документ, включите запись макроса, произведите необходимые манипуляции и посмотрите код записанного макроса, а дальше переводите код на C#. </p>
 
 <p>В конце не забудьте очистить ресурсы, чтобы процессы Excel не оставлялись в памяти после закрытия приложения, в .NET для этого существует метод Marshal.ReleaseComObject(…), а вот в Silverlight мне помогло простая установка null объектам и принудительный вызов сборщика мусора:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #cc6633">#if</span> SILVERLIGHT</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#else</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">Marshal.ReleaseComObject(rg);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">Marshal.ReleaseComObject(rgHeader);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">Marshal.ReleaseComObject(worksheet);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">Marshal.ReleaseComObject(workbook);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">Marshal.ReleaseComObject(excel);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#endif</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">rg = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">rgHeader = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">worksheet = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">workbook = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">excel = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">GC.Collect();</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>#if SILVERLIGHT
+#else
+Marshal.ReleaseComObject(rg);
+Marshal.ReleaseComObject(rgHeader);
+Marshal.ReleaseComObject(worksheet);
+Marshal.ReleaseComObject(workbook);
+Marshal.ReleaseComObject(excel);#endif
+rg = null;
+rgHeader = null;
+worksheet = null;
+workbook = null;
+excel = null;
+GC.Collect();
+</code></pre>
 
 <p>В итоге у нас получился такой вот класс с методом</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; max-height: 400px; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">using</span> System;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#if</span> SILVERLIGHT</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">using</span> System.Runtime.InteropServices.Automation;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#else</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">using</span> System.Runtime.InteropServices;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#endif</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">namespace</span> ExportToExcelTools</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">class</span> ExportManager</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> ExportToExcel(<span style="color: #0000ff">object</span>[,] data)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#if</span> SILVERLIGHT</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      dynamic excel = AutomationFactory.CreateObject(<span style="color: #006080">&quot;Excel.Application&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#else</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject(<span style="color: #006080">&quot;Excel.Application&quot;</span>, <span style="color: #0000ff">string</span>.Empty);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#endif</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      excel.ScreenUpdating = <span style="color: #0000ff">false</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      dynamic workbook = excel.workbooks;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      workbook.Add();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      dynamic worksheet = excel.ActiveSheet;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">const</span> <span style="color: #0000ff">int</span> left = 1;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">const</span> <span style="color: #0000ff">int</span> top = 1;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">int</span> height = data.GetLength(0);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">int</span> width = data.GetLength(1);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">int</span> bottom = top + height - 1;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">int</span> right = left + width - 1;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">if</span> (height == 0 || width == 0)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">return</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #cc6633">#if</span> SILVERLIGHT</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #008000">//With setting range value for recnagle export will be fast, but this aproach doesn't work in Silverlight</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> i = 1; i &lt;= height; i++)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">object</span>[] row = <span style="color: #0000ff">new</span> <span style="color: #0000ff">object</span>[width];</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> j = 1; j &lt;= width; j++)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          row[j - 1] = data[i - 1, j - 1];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        dynamic r = worksheet.Range[worksheet.Cells[i, left], worksheet.Cells[i, right]];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        r.Value = row;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        r = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#else</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      rg.Value = data;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#endif</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #008000">// Set borders</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> i = 1; i &lt;= 4; i++)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        rg.Borders[i].LineStyle = 1;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #008000">// Set auto columns width</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      rg.EntireColumn.AutoFit();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #008000">// Set header view</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      rgHeader.Font.Bold = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      rgHeader.Interior.Color = 189 * (<span style="color: #0000ff">int</span>)Math.Pow(16, 4) + 129 * (<span style="color: #0000ff">int</span>)Math.Pow(16, 2) + 78; <span style="color: #008000">// #4E81BD</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #008000">// Show excel app</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      excel.ScreenUpdating = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      excel.Visible = <span style="color: #0000ff">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #cc6633">#if</span> SILVERLIGHT</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #cc6633">#else</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      Marshal.ReleaseComObject(rg);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      Marshal.ReleaseComObject(rgHeader);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      Marshal.ReleaseComObject(worksheet);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      Marshal.ReleaseComObject(workbook);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      Marshal.ReleaseComObject(excel);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #cc6633">#endif</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      rg = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      rgHeader = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      worksheet = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      workbook = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      excel = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      GC.Collect();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>using System;
+#if SILVERLIGHT
+using System.Runtime.InteropServices.Automation;
+#else
+using System.Runtime.InteropServices;
+#endif
+&#160;namespace ExportToExcelTools
+{  public static class ExportManager
+  {    public static void ExportToExcel(object[,] data)
+    {#if SILVERLIGHT
+      dynamic excel = AutomationFactory.CreateObject(&quot;Excel.Application&quot;);
+#else
+      dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject(&quot;Excel.Application&quot;, string.Empty);
+#endif
+&#160;      excel.ScreenUpdating = false;
+      dynamic workbook = excel.workbooks;
+      workbook.Add();
+&#160;
+      dynamic worksheet = excel.ActiveSheet;
+&#160;      const int left = 1;
+      const int top = 1;
+      int height = data.GetLength(0);
+      int width = data.GetLength(1);
+      int bottom = top + height - 1;
+      int right = left + width - 1;
+&#160;      if (height == 0 || width == 0)
+        return;
+&#160;
+      dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];#if SILVERLIGHT
+      //With setting range value for recnagle export will be fast, but this aproach doesn't work in Silverlight
+      for (int i = 1; i &lt;= height; i++)
+      {        object[] row = new object[width];
+        for (int j = 1; j &lt;= width; j++)
+        {
+          row[j - 1] = data[i - 1, j - 1];
+        }
+        dynamic r = worksheet.Range[worksheet.Cells[i, left], worksheet.Cells[i, right]];
+        r.Value = row;        r = null;
+      }#else
+      rg.Value = data;#endif
+&#160;      // Set borders
+      for (int i = 1; i &lt;= 4; i++)
+        rg.Borders[i].LineStyle = 1;
+&#160;      // Set auto columns width
+      rg.EntireColumn.AutoFit();
+&#160;      // Set header view
+      dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];      rgHeader.Font.Bold = true;
+      rgHeader.Interior.Color = 189 * (int)Math.Pow(16, 4) + 129 * (int)Math.Pow(16, 2) + 78; // #4E81BD
+      // Show excel app
+      excel.ScreenUpdating = true;
+      excel.Visible = true;
+&#160;#if SILVERLIGHT
+#else
+      Marshal.ReleaseComObject(rg);
+      Marshal.ReleaseComObject(rgHeader);
+      Marshal.ReleaseComObject(worksheet);
+      Marshal.ReleaseComObject(workbook);
+      Marshal.ReleaseComObject(excel);#endif
+      rg = null;
+      rgHeader = null;
+      worksheet = null;
+      workbook = null;
+      excel = null;
+      GC.Collect();
+    }
+  }
+}
+</code></pre>
 
 <h1>Экспорт данных из DataGrid в двумерный массив</h1>
 
 <p>У нас уже есть метод, который позволяет из массива экспортировать данные в Excel, теперь нам нужно из DataGrid экспортировать в двумерный массив. В WPF есть возможность получить коллекцию объектов из свойства Items контрола DataGrid, в Silverlight же это свойство internal, потому лучшим выбором для меня было преобразование ItemsSource в List:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">List&lt;<span style="color: #0000ff">object</span>&gt; list = grid.ItemsSource.Cast&lt;<span style="color: #0000ff">object</span>&gt;().ToList();</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>List&lt;object&gt; list = grid.ItemsSource.Cast&lt;object&gt;().ToList();
+</code></pre>
 
 <p>Прежде чем продолжить работу нужно подумать о тех возможностях, которые могут нам понадобиться:</p>
 
@@ -559,680 +231,207 @@ alias: ru/blog/show/200
 
 <p>Решать эти 4 проблемы мы будем при помощи attached свойств:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// Include current column in export report to excel</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> DependencyProperty IsExportedProperty = DependencyProperty.RegisterAttached(<span style="color: #006080">&quot;IsExported&quot;</span>,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                                                                <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">bool</span>), <span style="color: #0000ff">typeof</span>(DataGrid), <span style="color: #0000ff">new</span> PropertyMetadata(<span style="color: #0000ff">true</span>));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// Use custom header for report</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> DependencyProperty HeaderForExportProperty = DependencyProperty.RegisterAttached(<span style="color: #006080">&quot;HeaderForExport&quot;</span>,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                                                                <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">string</span>), <span style="color: #0000ff">typeof</span>(DataGrid), <span style="color: #0000ff">new</span> PropertyMetadata(<span style="color: #0000ff">null</span>));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// Use custom path to get value for report</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> DependencyProperty PathForExportProperty = DependencyProperty.RegisterAttached(<span style="color: #006080">&quot;PathForExport&quot;</span>,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                                                                <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">string</span>), <span style="color: #0000ff">typeof</span>(DataGrid), <span style="color: #0000ff">new</span> PropertyMetadata(<span style="color: #0000ff">null</span>));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// Use custom path to get value for report</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> DependencyProperty FormatForExportProperty = DependencyProperty.RegisterAttached(<span style="color: #006080">&quot;FormatForExport&quot;</span>,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                                                                <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">string</span>), <span style="color: #0000ff">typeof</span>(DataGrid), <span style="color: #0000ff">new</span> PropertyMetadata(<span style="color: #0000ff">null</span>));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #cc6633">#region</span> Attached properties helpers methods</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> SetIsExported(DataGridColumn element, Boolean <span style="color: #0000ff">value</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  element.SetValue(IsExportedProperty, <span style="color: #0000ff">value</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> Boolean GetIsExported(DataGridColumn element)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">return</span> (Boolean)element.GetValue(IsExportedProperty);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> SetPathForExport(DataGridColumn element, <span style="color: #0000ff">string</span> <span style="color: #0000ff">value</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  element.SetValue(PathForExportProperty, <span style="color: #0000ff">value</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">string</span> GetPathForExport(DataGridColumn element)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">return</span> (<span style="color: #0000ff">string</span>)element.GetValue(PathForExportProperty);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> SetHeaderForExport(DataGridColumn element, <span style="color: #0000ff">string</span> <span style="color: #0000ff">value</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  element.SetValue(HeaderForExportProperty, <span style="color: #0000ff">value</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">string</span> GetHeaderForExport(DataGridColumn element)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">return</span> (<span style="color: #0000ff">string</span>)element.GetValue(HeaderForExportProperty);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> SetFormatForExport(DataGridColumn element, <span style="color: #0000ff">string</span> <span style="color: #0000ff">value</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  element.SetValue(FormatForExportProperty, <span style="color: #0000ff">value</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">string</span> GetFormatForExport(DataGridColumn element)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">return</span> (<span style="color: #0000ff">string</span>)element.GetValue(FormatForExportProperty);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #cc6633">#endregion</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>/// &lt;summary&gt;
+/// Include current column in export report to excel
+/// &lt;/summary&gt;
+public static readonly DependencyProperty IsExportedProperty = DependencyProperty.RegisterAttached(&quot;IsExported&quot;,
+                                                                                typeof(bool), typeof(DataGrid), new PropertyMetadata(true));
+&#160;/// &lt;summary&gt;
+/// Use custom header for report
+/// &lt;/summary&gt;
+public static readonly DependencyProperty HeaderForExportProperty = DependencyProperty.RegisterAttached(&quot;HeaderForExport&quot;,
+                                                                                typeof(string), typeof(DataGrid), new PropertyMetadata(null));
+&#160;/// &lt;summary&gt;
+/// Use custom path to get value for report
+/// &lt;/summary&gt;
+public static readonly DependencyProperty PathForExportProperty = DependencyProperty.RegisterAttached(&quot;PathForExport&quot;,
+                                                                                typeof(string), typeof(DataGrid), new PropertyMetadata(null));
+&#160;/// &lt;summary&gt;
+/// Use custom path to get value for report
+/// &lt;/summary&gt;
+public static readonly DependencyProperty FormatForExportProperty = DependencyProperty.RegisterAttached(&quot;FormatForExport&quot;,
+                                                                                typeof(string), typeof(DataGrid), new PropertyMetadata(null));
+&#160;#region Attached properties helpers methods
+&#160;public static void SetIsExported(DataGridColumn element, Boolean value)
+{  element.SetValue(IsExportedProperty, value);
+}
+&#160;public static Boolean GetIsExported(DataGridColumn element)
+{  return (Boolean)element.GetValue(IsExportedProperty);
+}
+&#160;public static void SetPathForExport(DataGridColumn element, string value)
+{  element.SetValue(PathForExportProperty, value);
+}
+&#160;public static string GetPathForExport(DataGridColumn element)
+{  return (string)element.GetValue(PathForExportProperty);
+}
+&#160;public static void SetHeaderForExport(DataGridColumn element, string value)
+{  element.SetValue(HeaderForExportProperty, value);
+}
+&#160;public static string GetHeaderForExport(DataGridColumn element)
+{  return (string)element.GetValue(HeaderForExportProperty);
+}
+&#160;public static void SetFormatForExport(DataGridColumn element, string value)
+{  element.SetValue(FormatForExportProperty, value);
+}
+&#160;public static string GetFormatForExport(DataGridColumn element)
+{  return (string)element.GetValue(FormatForExportProperty);
+}
+&#160;#endregion
+</code></pre>
 
 <p>Теперь для получения всех колонок для экспорта мы можем написать следующий код:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">List&lt;DataGridColumn&gt; columns = grid.Columns.Where(x =&gt; (GetIsExported(x) &amp;&amp; ((x <span style="color: #0000ff">is</span> DataGridBoundColumn)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          || (!<span style="color: #0000ff">string</span>.IsNullOrEmpty(GetPathForExport(x))) || (!<span style="color: #0000ff">string</span>.IsNullOrEmpty(x.SortMemberPath))))).ToList();</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>List&lt;DataGridColumn&gt; columns = grid.Columns.Where(x =&gt; (GetIsExported(x) &amp;&amp; ((x is DataGridBoundColumn)
+          || (!string.IsNullOrEmpty(GetPathForExport(x))) || (!string.IsNullOrEmpty(x.SortMemberPath))))).ToList();
+</code></pre>
 
 <p>При помощи данного запроса мы получаем список колонок для которых разрешен экспорт (заметьте, что свойство IsExportedProperty имеет по умолчанию значение true), а так же выбираем только те, для которых мы можем определить, что же экспортировать. </p>
 
 <p>Итак у нас есть список элементов для экспорта и список колонок, которые мы хотим экспортировать, первым делом подготовим двухмерный массив (количество элементов + 1 для заголовка) и запишем в первую строчку заголовки:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">// Create data array (using array for data export optimization)</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">object</span>[,] data = <span style="color: #0000ff">new</span> <span style="color: #0000ff">object</span>[list.Count + 1, columns.Count];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">// First row will be headers</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> columnIndex = 0; columnIndex &lt; columns.Count; columnIndex++)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  data[0, columnIndex] = GetHeader(columns[columnIndex]);</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>// Create data array (using array for data export optimization)
+object[,] data = new object[list.Count + 1, columns.Count];
+&#160;// First row will be headers
+for (int columnIndex = 0; columnIndex &lt; columns.Count; columnIndex++)
+  data[0, columnIndex] = GetHeader(columns[columnIndex]);
+</code></pre>
 
 <p>Метод GetHeader пробует получить установленное в xaml при помощи свойства HeaderForExportProperty заголовок, и если он не установлен, то берет заголовок из колонки:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">string</span> GetHeader(DataGridColumn column)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">string</span> headerForExport = GetHeaderForExport(column);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">if</span> (headerForExport == <span style="color: #0000ff">null</span> &amp;&amp; column.Header != <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">return</span> column.Header.ToString();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">return</span> headerForExport;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>private static string GetHeader(DataGridColumn column)
+{  string headerForExport = GetHeaderForExport(column);
+  if (headerForExport == null &amp;&amp; column.Header != null)
+    return column.Header.ToString();
+  return headerForExport;
+}
+</code></pre>
 
 <p>Дальше заполняем массив данными:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> columnIndex = 0; columnIndex &lt; columns.Count; columnIndex++)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  DataGridColumn gridColumn = columns[columnIndex];</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">string</span>[] path = GetPath(gridColumn);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">string</span> formatForExport = GetFormatForExport(gridColumn);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">if</span> (path != <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">// Fill data with values</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> rowIndex = 1; rowIndex &lt;= list.Count; rowIndex++)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">object</span> source = list[rowIndex - 1];</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      data[rowIndex, columnIndex] = GetValue(path, source, formatForExport);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>for (int columnIndex = 0; columnIndex &lt; columns.Count; columnIndex++)
+{
+  DataGridColumn gridColumn = columns[columnIndex];
+&#160;  string[] path = GetPath(gridColumn);
+&#160;  string formatForExport = GetFormatForExport(gridColumn);
+&#160;  if (path != null)
+  {    // Fill data with values
+    for (int rowIndex = 1; rowIndex &lt;= list.Count; rowIndex++)
+    {      object source = list[rowIndex - 1];
+      data[rowIndex, columnIndex] = GetValue(path, source, formatForExport);
+    }
+  }
+}
+</code></pre>
 Метод GetPath очень прост, поддерживается только проход по свойствам, никаких массивов, статических элементов и т.п., ну и соответственно подразумевается, что Binding прописывается к текущему элементу: 
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">string</span>[] GetPath(DataGridColumn gridColumn)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">string</span> path = GetPathForExport(gridColumn);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">if</span> (<span style="color: #0000ff">string</span>.IsNullOrEmpty(path))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (gridColumn <span style="color: #0000ff">is</span> DataGridBoundColumn)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      Binding binding = ((DataGridBoundColumn)gridColumn).Binding <span style="color: #0000ff">as</span> Binding;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">if</span> (binding != <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        path = binding.Path.Path;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">else</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      path = gridColumn.SortMemberPath;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">return</span> <span style="color: #0000ff">string</span>.IsNullOrEmpty(path) ? <span style="color: #0000ff">null</span> : path.Split(<span style="color: #006080">'.'</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>private static string[] GetPath(DataGridColumn gridColumn)
+{  string path = GetPathForExport(gridColumn);
+&#160;  if (string.IsNullOrEmpty(path))
+  {    if (gridColumn is DataGridBoundColumn)
+    {      Binding binding = ((DataGridBoundColumn)gridColumn).Binding as Binding;
+      if (binding != null)
+      {
+        path = binding.Path.Path;
+      }
+    }    else
+    {
+      path = gridColumn.SortMemberPath;
+    }
+  }
+&#160;  return string.IsNullOrEmpty(path) ? null : path.Split('.');
+}
+</code></pre>
 
 <p>По полученному пути получаем значение данного элемента при помощи метода GetValue:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">object</span> GetValue(<span style="color: #0000ff">string</span>[] path, <span style="color: #0000ff">object</span> obj, <span style="color: #0000ff">string</span> formatForExport)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">foreach</span> (<span style="color: #0000ff">string</span> pathStep <span style="color: #0000ff">in</span> path)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">return</span> <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    Type type = obj.GetType();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    PropertyInfo property = type.GetProperty(pathStep);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (property == <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      Debug.WriteLine(<span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;Couldn't find property '{0}' in type '{1}'&quot;</span>, pathStep, type.Name));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">return</span> <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    obj = property.GetValue(obj, <span style="color: #0000ff">null</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">if</span> (!<span style="color: #0000ff">string</span>.IsNullOrEmpty(formatForExport))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">return</span> <span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;{0:&quot;</span> + formatForExport + <span style="color: #006080">&quot;}&quot;</span>, obj);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">return</span> obj;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>private static object GetValue(string[] path, object obj, string formatForExport)
+{  foreach (string pathStep in path)
+  {    if (obj == null)
+      return null;
+&#160;
+    Type type = obj.GetType();
+    PropertyInfo property = type.GetProperty(pathStep);
+&#160;    if (property == null)
+    {      Debug.WriteLine(string.Format(&quot;Couldn't find property '{0}' in type '{1}'&quot;, pathStep, type.Name));
+      return null;
+    }
+&#160;    obj = property.GetValue(obj, null);
+  }
+&#160;  if (!string.IsNullOrEmpty(formatForExport))
+    return string.Format(&quot;{0:&quot; + formatForExport + &quot;}&quot;, obj);
+&#160;  return obj;
+}
+</code></pre>
 
 <h1>Пример использования</h1>
 
 <p>Для примера напишем простую модель данных и инициализируем список тестовыми данными:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> Person</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> Name { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> Surname { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">public</span> DateTime DateOfBirth { get; set; }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> ExportToExcelViewModel</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">public</span> ObservableCollection&lt;Person&gt; Persons</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    get</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      ObservableCollection&lt;Person&gt; collection = <span style="color: #0000ff">new</span> ObservableCollection&lt;Person&gt;();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> i = 0; i &lt; 100; i++)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        collection.Add(<span style="color: #0000ff">new</span> Person()</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          Name = <span style="color: #006080">&quot;Person Name &quot;</span> + i,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          Surname = <span style="color: #006080">&quot;Person Surname &quot;</span> + i,</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          DateOfBirth = DateTime.Now.AddDays(i)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        });</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">return</span> collection;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public class Person
+{  public string Name { get; set; }
+  public string Surname { get; set; }
+  public DateTime DateOfBirth { get; set; }
+}
+&#160;public class ExportToExcelViewModel
+{  public ObservableCollection&lt;Person&gt; Persons
+  {
+    get
+    {      ObservableCollection&lt;Person&gt; collection = new ObservableCollection&lt;Person&gt;();
+      for (int i = 0; i &lt; 100; i++)
+        collection.Add(new Person()
+        {          Name = &quot;Person Name &quot; + i,
+          Surname = &quot;Person Surname &quot; + i,
+          DateOfBirth = DateTime.Now.AddDays(i)
+        });      return collection;
+    }
+  }
+}
+</code></pre>
 
 <p>В WPF окне будет иметь следующую XAML разметку:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">Window</span> <span style="color: #ff0000">x:Class</span><span style="color: #0000ff">=&quot;ExportToExcelSample.MainWindow&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #ff0000">xmlns:x</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #ff0000">xmlns:ExportToExcelSample</span><span style="color: #0000ff">=&quot;clr-namespace:ExportToExcelSample&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #ff0000">xmlns:ExportToExcelTools</span><span style="color: #0000ff">=&quot;clr-namespace:ExportToExcelTools;assembly=ExportToExcelTools&quot;</span> <span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">Window.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">ExportToExcelSample:ExportToExcelViewModel</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">Window.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">ScrollViewer</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">Button</span> <span style="color: #ff0000">Click</span><span style="color: #0000ff">=&quot;Button_Click&quot;</span><span style="color: #0000ff">&gt;</span>Export To Excel<span style="color: #0000ff">&lt;/</span><span style="color: #800000">Button</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataGrid</span> <span style="color: #ff0000">x:Name</span><span style="color: #0000ff">=&quot;grid&quot;</span> <span style="color: #ff0000">ItemsSource</span><span style="color: #0000ff">=&quot;{Binding Persons}&quot;</span> <span style="color: #ff0000">AutoGenerateColumns</span><span style="color: #0000ff">=&quot;False&quot;</span> <span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataGrid.Columns</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataGridTextColumn</span> <span style="color: #ff0000">Binding</span><span style="color: #0000ff">=&quot;{Binding Path=Name}&quot;</span> <span style="color: #ff0000">Header</span><span style="color: #0000ff">=&quot;Name&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataGridTextColumn</span> <span style="color: #ff0000">Binding</span><span style="color: #0000ff">=&quot;{Binding Path=Surname}&quot;</span> <span style="color: #ff0000">Header</span><span style="color: #0000ff">=&quot;Surname&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                        <span style="color: #ff0000">ExportToExcelTools:DataGridExcelTools</span>.<span style="color: #ff0000">HeaderForExport</span><span style="color: #0000ff">=&quot;SecondName&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataGridTemplateColumn</span> <span style="color: #ff0000">ExportToExcelTools:DataGridExcelTools</span>.<span style="color: #ff0000">FormatForExport</span><span style="color: #0000ff">=&quot;dd.MM.yyyy&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                             <span style="color: #ff0000">ExportToExcelTools:DataGridExcelTools</span>.<span style="color: #ff0000">PathForExport</span><span style="color: #0000ff">=&quot;DateOfBirth&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                             <span style="color: #ff0000">ExportToExcelTools:DataGridExcelTools</span>.<span style="color: #ff0000">HeaderForExport</span><span style="color: #0000ff">=&quot;Date Of Birth&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                        <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataGridTemplateColumn.CellTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                            <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                <span style="color: #0000ff">&lt;</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBlock</span> <span style="color: #ff0000">Text</span><span style="color: #0000ff">=&quot;{Binding Path=DateOfBirth, StringFormat=dd.MM.yyyy}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBlock</span> <span style="color: #ff0000">Text</span><span style="color: #0000ff">=&quot;{Binding Path=DateOfBirth, StringFormat=HH:mm}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">DataTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">DataGridTemplateColumn.CellTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">DataGridTemplateColumn</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">DataGrid.Columns</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">DataGrid</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">ScrollViewer</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">Window</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;Window x:Class=&quot;ExportToExcelSample.MainWindow&quot;
+        xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+        xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot; 
+        xmlns:ExportToExcelSample=&quot;clr-namespace:ExportToExcelSample&quot; 
+        xmlns:ExportToExcelTools=&quot;clr-namespace:ExportToExcelTools;assembly=ExportToExcelTools&quot; &gt;
+    &lt;Window.DataContext&gt;
+        &lt;ExportToExcelSample:ExportToExcelViewModel /&gt;
+    &lt;/Window.DataContext&gt;
+    &lt;ScrollViewer&gt;
+        &lt;StackPanel&gt;
+            &lt;Button Click=&quot;Button_Click&quot;&gt;Export To Excel&lt;/Button&gt;
+            &lt;DataGrid x:Name=&quot;grid&quot; ItemsSource=&quot;{Binding Persons}&quot; AutoGenerateColumns=&quot;False&quot; &gt;
+                &lt;DataGrid.Columns&gt;
+                    &lt;DataGridTextColumn Binding=&quot;{Binding Path=Name}&quot; Header=&quot;Name&quot; /&gt;
+                    &lt;DataGridTextColumn Binding=&quot;{Binding Path=Surname}&quot; Header=&quot;Surname&quot; 
+                                        ExportToExcelTools:DataGridExcelTools.HeaderForExport=&quot;SecondName&quot; /&gt;
+                    &lt;DataGridTemplateColumn ExportToExcelTools:DataGridExcelTools.FormatForExport=&quot;dd.MM.yyyy&quot;
+                                             ExportToExcelTools:DataGridExcelTools.PathForExport=&quot;DateOfBirth&quot;
+                                             ExportToExcelTools:DataGridExcelTools.HeaderForExport=&quot;Date Of Birth&quot;&gt;
+                        &lt;DataGridTemplateColumn.CellTemplate&gt;
+                            &lt;DataTemplate&gt;
+                                &lt;StackPanel&gt;
+                                    &lt;TextBlock Text=&quot;{Binding Path=DateOfBirth, StringFormat=dd.MM.yyyy}&quot; /&gt;
+                                    &lt;TextBlock Text=&quot;{Binding Path=DateOfBirth, StringFormat=HH:mm}&quot; /&gt;
+                                &lt;/StackPanel&gt;
+                            &lt;/DataTemplate&gt;
+                        &lt;/DataGridTemplateColumn.CellTemplate&gt;
+                    &lt;/DataGridTemplateColumn&gt;
+                &lt;/DataGrid.Columns&gt;
+            &lt;/DataGrid&gt;
+        &lt;/StackPanel&gt;
+    &lt;/ScrollViewer&gt;
+&lt;/Window&gt;
+</code></pre>
 
 <p>А обработчик Button_Click имеет следующий код:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> Button_Click(<span style="color: #0000ff">object</span> sender, RoutedEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  grid.ExportToExcel();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>private void Button_Click(object sender, RoutedEventArgs e)
+{
+  grid.ExportToExcel();
+}
+</code></pre>
 
 <p>Где ExportToExcel – это extension метод для DataGrid, который запускает экспорт в Excel в отдельном потоке. Вот и все. В Silverlight 4 код будет приблизительно такой же. Ниже есть ссылка с примерами использования в Silveright 4 и WPF 4 (проект для Visual Studio 2010).</p>
 
@@ -1244,4 +443,4 @@ alias: ru/blog/show/200
 
 <h4><a href="/library/content/01/ExportToExcelTools.zip"></a></h4>
 
-<p><a rev="vote-for" href="http://progg.ru/outcoldman-%D0%AD%D0%BA%D1%81%D0%BF%D0%BE%D1%80%D1%82-%D0%B2-Excel-%D0%B8%D0%B7-SilverlightWPF-DataGrid"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.ru%2Fru%2Fblog%2Fshow%2F200" style="border:0px"/></a></p>
+<p></p>

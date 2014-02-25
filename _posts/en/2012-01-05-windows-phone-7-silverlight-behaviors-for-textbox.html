@@ -6,155 +6,46 @@ categories: en
 tags: [Silverlight, XAML, Expression Blend, Binding, Windows Phone 7, Behavior, Blend, Interactivity]
 alias: en/blog/show/308
 ---
-<p>I’ve submitted my first application for Windows Phone! It is very simple app. Marketplace has a good amount of similar apps: <a href="http://www.windowsphone.com/en-US/apps/f5cf9254-ab40-44be-a042-01a76091076c">Planning Poker</a>. Anyway, I’ve wrote couple own behaviors for TextBox and want to share this code with you.</p>  <p>If you are Silverlight/WPF developer and have already used Blend than you should know what are Behaviors and Interactions. If not or if you forget what it is I will remind you. You can find these libraries in directory “c:\Program Files (x86)\Microsoft SDKs\Expression\Blend\” (in case if you have Windows x86 than you should remove from path (x86)). And of course these libraries exist only in case if Blend has been installed. In this directory you can find packs of libraries for WPF/Silverlight and WindowsPhone. If you don’t know what are Behaviors and Interaction I suggest you to read <a href="http://msdn.microsoft.com/en-us/library/dd440765.aspx">Expression Blend SDK for Windows Phone</a> on MSDN. In few words: this is approach to extend default control’s features, more than! this approach allows you to use MVVM pattern. </p>  <p>Let’s extend some features of default TextBox control.</p>    <h2>FocusOnLoadedBehavior</h2>  <p>If you will try to open phone contact’s item to edit on your device you’ll see that device will set focus on first TextBox. This is very good user experience: if you open something for edit than most likely you will put focus on TextBox to edit data in this TextBox. Otherwise it is good question what if this page will have more than one TextBox, should we place focus on first of them or not? Windows Phone does it, it places focus on first TextBox if you will open edit page of contact’s name. </p>  <p>I found that it will be good to do the same in some of my pages, so I wrote next behavior:</p>  <div class="codeSnippetWrapper" style="cursor: text; font-size: 9pt; border-top: silver 1px solid; font-family: tahoma, verdana, courier, monospace; border-right: silver 1px solid; width: 97.5%; border-bottom: silver 1px solid; color: black; overflow: auto; padding-bottom: 4px; direction: ltr; text-align: left; padding-top: 4px; padding-left: 4px; margin: 20px 0px 10px; border-left: silver 1px solid; line-height: 10pt; padding-right: 4px; background-color: #f4f4f4">   <div class="codeSnippet" style="padding-bottom: 0px; padding-top: 0px; padding-left: 0px; padding-right: 0px">     <pre style="margin: 0em; background-color: white"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// UI Behavior to set focus to &lt;see cref=&quot;AssociatedObject&quot;/&gt; on loaded event.</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> FocusOnLoadedBehavior : Behavior&lt;Control&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">readonly</span> DependencyProperty SetFocusOnLoadedProperty =</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        DependencyProperty.Register(<span style="color: #006080">&quot;SetFocusOnLoaded&quot;</span>, <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">bool</span>), <span style="color: #0000ff">typeof</span>(FocusOnLoadedBehavior), <span style="color: #0000ff">new</span> PropertyMetadata(<span style="color: #0000ff">true</span>));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #008000">/// Set focus to &lt;see cref=&quot;AssociatedObject&quot;/&gt; on loaded event. By default &lt;value&gt;true&lt;/value&gt;.</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">bool</span> SetFocusOnLoaded</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        get { <span style="color: #0000ff">return</span> (<span style="color: #0000ff">bool</span>)GetValue(SetFocusOnLoadedProperty); }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        set { SetValue(SetFocusOnLoadedProperty, <span style="color: #0000ff">value</span>); }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">void</span> OnAttached()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">base</span>.OnAttached();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        AssociatedObject.Loaded += AssociatedObject_Loaded;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">void</span> OnDetaching()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        <span style="color: #0000ff">base</span>.OnDetaching();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        AssociatedObject.Loaded -= AssociatedObject_Loaded;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> AssociatedObject_Loaded(<span style="color: #0000ff">object</span> sender, RoutedEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        AssociatedObject.Loaded -= AssociatedObject_Loaded;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (SetFocusOnLoaded)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            AssociatedObject.Focus();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">}</pre>
-<!--CRLF--></div>
-</div>
+<p>I’ve submitted my first application for Windows Phone! It is very simple app. Marketplace has a good amount of similar apps: <a href="http://www.windowsphone.com/en-US/apps/f5cf9254-ab40-44be-a042-01a76091076c">Planning Poker</a>. Anyway, I’ve wrote couple own behaviors for TextBox and want to share this code with you.</p>  <p>If you are Silverlight/WPF developer and have already used Blend than you should know what are Behaviors and Interactions. If not or if you forget what it is I will remind you. You can find these libraries in directory “c:\Program Files (x86)\Microsoft SDKs\Expression\Blend\” (in case if you have Windows x86 than you should remove from path (x86)). And of course these libraries exist only in case if Blend has been installed. In this directory you can find packs of libraries for WPF/Silverlight and WindowsPhone. If you don’t know what are Behaviors and Interaction I suggest you to read <a href="http://msdn.microsoft.com/en-us/library/dd440765.aspx">Expression Blend SDK for Windows Phone</a> on MSDN. In few words: this is approach to extend default control’s features, more than! this approach allows you to use MVVM pattern. </p>  <p>Let’s extend some features of default TextBox control.</p>    <h2>FocusOnLoadedBehavior</h2>  <p>If you will try to open phone contact’s item to edit on your device you’ll see that device will set focus on first TextBox. This is very good user experience: if you open something for edit than most likely you will put focus on TextBox to edit data in this TextBox. Otherwise it is good question what if this page will have more than one TextBox, should we place focus on first of them or not? Windows Phone does it, it places focus on first TextBox if you will open edit page of contact’s name. </p>  <p>I found that it will be good to do the same in some of my pages, so I wrote next behavior:</p>  <pre><code>/// &lt;summary&gt;
+/// UI Behavior to set focus to &lt;see cref=&quot;AssociatedObject&quot;/&gt; on loaded event.
+/// &lt;/summary&gt;
+public class FocusOnLoadedBehavior : Behavior&lt;Control&gt;
+{    public static readonly DependencyProperty SetFocusOnLoadedProperty =
+        DependencyProperty.Register(&quot;SetFocusOnLoaded&quot;, typeof(bool), typeof(FocusOnLoadedBehavior), new PropertyMetadata(true));
+    /// &lt;summary&gt;
+    /// Set focus to &lt;see cref=&quot;AssociatedObject&quot;/&gt; on loaded event. By default &lt;value&gt;true&lt;/value&gt;.
+    /// &lt;/summary&gt;
+    public bool SetFocusOnLoaded
+    {        get { return (bool)GetValue(SetFocusOnLoadedProperty); }
+        set { SetValue(SetFocusOnLoadedProperty, value); }
+    }    protected override void OnAttached()
+    {        base.OnAttached();
+ 
+        AssociatedObject.Loaded += AssociatedObject_Loaded;
+    }    protected override void OnDetaching()
+    {        base.OnDetaching();
+ 
+        AssociatedObject.Loaded -= AssociatedObject_Loaded;
+    }    void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+    {
+        AssociatedObject.Loaded -= AssociatedObject_Loaded;        if (SetFocusOnLoaded)
+        {
+            AssociatedObject.Focus();
+        }
+    }
+}
+</code></pre>
 
 <p>It is easy to use it. Just place it for one of your TextBox like I will show below and this behavior will set focus on Loaded event (in most cases it will be the moment when user opens page with this control):</p>
 
-<div class="codeSnippetWrapper" style="cursor: text; font-size: 9pt; border-top: silver 1px solid; font-family: tahoma, verdana, courier, monospace; border-right: silver 1px solid; width: 97.5%; border-bottom: silver 1px solid; color: black; overflow: auto; padding-bottom: 4px; direction: ltr; text-align: left; padding-top: 4px; padding-left: 4px; margin: 20px 0px 10px; border-left: silver 1px solid; line-height: 10pt; padding-right: 4px; background-color: #f4f4f4">
-  <div class="codeSnippet" style="padding-bottom: 0px; padding-top: 0px; padding-left: 0px; padding-right: 0px">
-    <pre style="margin: 0em; background-color: white"><span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBox</span> <span style="color: #ff0000">MaxLength</span><span style="color: #0000ff">=&quot;255&quot;</span> <span style="color: #ff0000">Text</span><span style="color: #0000ff">=&quot;{Binding Path=DisplayName, Mode=TwoWay}&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">     <span style="color: #ff0000">xmlns:interactivity</span><span style="color: #0000ff">=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">     <span style="color: #ff0000">xmlns:oBehaviors</span><span style="color: #0000ff">=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">interactivity:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">oBehaviors:FocusOnLoadedBehavior</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">interactivity:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">TextBox</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;TextBox MaxLength=&quot;255&quot; Text=&quot;{Binding Path=DisplayName, Mode=TwoWay}&quot; 
+     xmlns:interactivity=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;
+     xmlns:oBehaviors=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;&gt;
+    &lt;interactivity:Interaction.Behaviors&gt;
+        &lt;oBehaviors:FocusOnLoadedBehavior /&gt;
+    &lt;/interactivity:Interaction.Behaviors&gt;
+&lt;/TextBox&gt;
+</code></pre>
 
 <p>I’ve put namespace definitions “interactivity” and “oBehavior” to TextBox attributes just for example, you can move it on top level, for example you can add it to your page attributes.</p>
 
@@ -164,432 +55,119 @@ alias: en/blog/show/308
 
 <p>This is second must have behavior. If user (or you) set focus to TextBox than in different cases user can expect different default position of cursor. For example if it is TextBox for edit some word than most likely user don’t want to add some letters to this word, in most cases he will delete this word to write new one (for example it can be dictionary), so it is good UX to select whole word on focus set event. To do so you can use next behavior:</p>
 
-<div class="codeSnippetWrapper" style="cursor: text; font-size: 9pt; border-top: silver 1px solid; font-family: tahoma, verdana, courier, monospace; border-right: silver 1px solid; width: 97.5%; border-bottom: silver 1px solid; color: black; overflow: auto; padding-bottom: 4px; direction: ltr; text-align: left; padding-top: 4px; padding-left: 4px; margin: 20px 0px 10px; border-left: silver 1px solid; line-height: 10pt; padding-right: 4px; background-color: #f4f4f4">
-  <div class="codeSnippet" style="padding-bottom: 0px; padding-top: 0px; padding-left: 0px; padding-right: 0px">
-    <pre style="margin: 0em; background-color: white"><span style="color: #0000ff">public</span> <span style="color: #0000ff">enum</span> TextBoxFocusSelectType</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    None = 0, </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    SelectAll = 1,</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    SetCursorToTheEnd = 2</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"><span style="color: #008000">/// UI Behavior to set how to select text in TextBox on Focused.</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> TextBoxSelectOnFocusBehavior : Behavior&lt;TextBox&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #0000ff">public</span> TextBoxSelectOnFocusBehavior()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        Type = TextBoxFocusSelectType.None;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #008000">/// Set behavior of how to select text in &lt;see cref=&quot;AssociatedObject&quot;/&gt;.</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #008000">/// By default &lt;value&gt;TextBoxFocusSelectType.None&lt;/value&gt;.</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> TextBoxFocusSelectType Type</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        get;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        set;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">void</span> OnAttached()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">base</span>.OnAttached();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        AssociatedObject.GotFocus += AssociatedObject_GotFocus;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">void</span> OnDetaching()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        <span style="color: #0000ff">base</span>.OnDetaching();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        AssociatedObject.GotFocus -= AssociatedObject_GotFocus;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> AssociatedObject_GotFocus(<span style="color: #0000ff">object</span> sender, RoutedEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (Type == TextBoxFocusSelectType.SelectAll)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            AssociatedObject.SelectAll();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">else</span> <span style="color: #0000ff">if</span> (Type == TextBoxFocusSelectType.SetCursorToTheEnd)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            AssociatedObject.Select(AssociatedObject.Text.Length, 0);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public enum TextBoxFocusSelectType
+{
+    None = 0, 
+    SelectAll = 1,
+    SetCursorToTheEnd = 2
+}/// &lt;summary&gt;
+/// UI Behavior to set how to select text in TextBox on Focused.
+/// &lt;/summary&gt;
+public class TextBoxSelectOnFocusBehavior : Behavior&lt;TextBox&gt;
+{    public TextBoxSelectOnFocusBehavior()
+    {
+        Type = TextBoxFocusSelectType.None;
+    }    /// &lt;summary&gt;
+    /// Set behavior of how to select text in &lt;see cref=&quot;AssociatedObject&quot;/&gt;.
+    /// By default &lt;value&gt;TextBoxFocusSelectType.None&lt;/value&gt;.
+    /// &lt;/summary&gt;
+    public TextBoxFocusSelectType Type
+    {
+        get;
+        set;
+    }    protected override void OnAttached()
+    {        base.OnAttached();
+ 
+        AssociatedObject.GotFocus += AssociatedObject_GotFocus;
+    }    protected override void OnDetaching()
+    {        base.OnDetaching();
+ 
+        AssociatedObject.GotFocus -= AssociatedObject_GotFocus;
+    }    void AssociatedObject_GotFocus(object sender, RoutedEventArgs e)
+    {        if (Type == TextBoxFocusSelectType.SelectAll)
+        {
+            AssociatedObject.SelectAll();
+        }        else if (Type == TextBoxFocusSelectType.SetCursorToTheEnd)
+        {
+            AssociatedObject.Select(AssociatedObject.Text.Length, 0);
+        }
+    }
+}
+</code></pre>
 
 <p>To use it just add it to TextBox:</p>
 
-<div class="codeSnippetWrapper" style="cursor: text; font-size: 9pt; border-top: silver 1px solid; font-family: tahoma, verdana, courier, monospace; border-right: silver 1px solid; width: 97.5%; border-bottom: silver 1px solid; color: black; overflow: auto; padding-bottom: 4px; direction: ltr; text-align: left; padding-top: 4px; padding-left: 4px; margin: 20px 0px 10px; border-left: silver 1px solid; line-height: 10pt; padding-right: 4px; background-color: #f4f4f4">
-  <div class="codeSnippet" style="padding-bottom: 0px; padding-top: 0px; padding-left: 0px; padding-right: 0px">
-    <pre style="margin: 0em; background-color: white"><span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBox</span> <span style="color: #ff0000">MaxLength</span><span style="color: #0000ff">=&quot;255&quot;</span> <span style="color: #ff0000">Text</span><span style="color: #0000ff">=&quot;{Binding Path=DisplayName, Mode=TwoWay}&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">     <span style="color: #ff0000">xmlns:interactivity</span><span style="color: #0000ff">=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">     <span style="color: #ff0000">xmlns:oBehaviors</span><span style="color: #0000ff">=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">interactivity:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">oBehaviors:FocusOnLoadedBehavior</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">oBehaviors:TextBoxSelectOnFocusBehavior</span> <span style="color: #ff0000">Type</span><span style="color: #0000ff">=&quot;SetCursorToTheEnd&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">interactivity:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">TextBox</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;TextBox MaxLength=&quot;255&quot; Text=&quot;{Binding Path=DisplayName, Mode=TwoWay}&quot; 
+     xmlns:interactivity=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;
+     xmlns:oBehaviors=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;&gt;
+    &lt;interactivity:Interaction.Behaviors&gt;
+        &lt;oBehaviors:FocusOnLoadedBehavior /&gt;
+        &lt;oBehaviors:TextBoxSelectOnFocusBehavior Type=&quot;SetCursorToTheEnd&quot; /&gt;
+    &lt;/interactivity:Interaction.Behaviors&gt;
+&lt;/TextBox&gt;
+</code></pre>
 
 <h2>TextBoxInputRegexFilterBehavior</h2>
 
 <p>The last behavior for today TextBoxInputRegexFilterBehavior, which allows you to filter input text. Actually this behavior can add some unobviousness behavior to your application: user sees some button, but when he presses it he doesn’t see any changes. So you should use it very careful. One place where I used it: I need to get integer values from user, but TextBox has minimum InputScope=”Number” which has digits and dot (or comma, it depends on your device language). I saw in one of the apps that one developer created his own keyboard to get rid of this problem. I didn’t like it, and of course I don’t want to use validators for Windows Phone applications, we have very small screen for validators. So I’ve wrote next behavior:</p>
 
-<div class="codeSnippetWrapper" style="cursor: text; font-size: 9pt; border-top: silver 1px solid; font-family: tahoma, verdana, courier, monospace; border-right: silver 1px solid; width: 97.5%; border-bottom: silver 1px solid; color: black; overflow: auto; padding-bottom: 4px; direction: ltr; text-align: left; padding-top: 4px; padding-left: 4px; margin: 20px 0px 10px; border-left: silver 1px solid; line-height: 10pt; padding-right: 4px; background-color: #f4f4f4">
-  <div class="codeSnippet" style="padding-bottom: 0px; padding-top: 0px; padding-left: 0px; padding-right: 0px">
-    <pre style="margin: 0em; background-color: white"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #008000">/// UI behavior for &lt;see cref=&quot;TextBox&quot;/&gt; to filter input text with special RegularExpression</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"><span style="color: #008000">/// &lt;/summary&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> TextBoxInputRegexFilterBehavior : Behavior&lt;TextBox&gt;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> Regex _regex;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">string</span> _originalText;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">int</span> _originalSelectionStart;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">private</span> <span style="color: #0000ff">int</span> _originalSelectionLength;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> RegularExpression </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        get { <span style="color: #0000ff">return</span> _regex.ToString(); } </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        set </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">            <span style="color: #0000ff">if</span> (<span style="color: #0000ff">string</span>.IsNullOrEmpty(<span style="color: #0000ff">value</span>))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">                _regex = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">            <span style="color: #0000ff">else</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">                _regex = <span style="color: #0000ff">new</span> Regex(<span style="color: #0000ff">value</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        } </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">void</span> OnAttached()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">base</span>.OnAttached();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        AssociatedObject.TextInputStart += AssociatedObject_TextInputStart;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        AssociatedObject.TextChanged += AssociatedObject_TextChanged;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">void</span> OnDetaching()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">base</span>.OnDetaching();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        AssociatedObject.TextInputStart -= AssociatedObject_TextInputStart;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        AssociatedObject.TextChanged -= AssociatedObject_TextChanged;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> AssociatedObject_TextInputStart(<span style="color: #0000ff">object</span> sender, TextCompositionEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (_regex != <span style="color: #0000ff">null</span> &amp;&amp; e.Text != <span style="color: #0000ff">null</span> &amp;&amp; !(e.Text.Length == 1 &amp;&amp; Char.IsControl(e.Text[0])))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (!_regex.IsMatch(e.Text))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">            {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                _originalText = AssociatedObject.Text;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">                _originalSelectionStart = AssociatedObject.SelectionStart;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                _originalSelectionLength = AssociatedObject.SelectionLength;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">            }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> AssociatedObject_TextChanged(<span style="color: #0000ff">object</span> sender, TextChangedEventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        <span style="color: #0000ff">if</span> (_originalText != <span style="color: #0000ff">null</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">            <span style="color: #0000ff">string</span> text = _originalText;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            _originalText = <span style="color: #0000ff">null</span>;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">            AssociatedObject.Text = text;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            AssociatedObject.Select(_originalSelectionStart, _originalSelectionLength);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>/// &lt;summary&gt;
+/// UI behavior for &lt;see cref=&quot;TextBox&quot;/&gt; to filter input text with special RegularExpression
+/// &lt;/summary&gt;
+public class TextBoxInputRegexFilterBehavior : Behavior&lt;TextBox&gt;
+{    private Regex _regex;
+    private string _originalText;
+    private int _originalSelectionStart;
+    private int _originalSelectionLength;
+    public string RegularExpression 
+    {        get { return _regex.ToString(); } 
+        set 
+        {            if (string.IsNullOrEmpty(value))
+            {                _regex = null;
+            }            else
+            {                _regex = new Regex(value);
+            }
+        } 
+    }    protected override void OnAttached()
+    {        base.OnAttached();
+ 
+        AssociatedObject.TextInputStart += AssociatedObject_TextInputStart;
+        AssociatedObject.TextChanged += AssociatedObject_TextChanged;
+    }    protected override void OnDetaching()
+    {        base.OnDetaching();
+ 
+        AssociatedObject.TextInputStart -= AssociatedObject_TextInputStart;
+        AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
+    }    void AssociatedObject_TextInputStart(object sender, TextCompositionEventArgs e)
+    {        if (_regex != null &amp;&amp; e.Text != null &amp;&amp; !(e.Text.Length == 1 &amp;&amp; Char.IsControl(e.Text[0])))
+        {            if (!_regex.IsMatch(e.Text))
+            {
+                _originalText = AssociatedObject.Text;
+                _originalSelectionStart = AssociatedObject.SelectionStart;
+                _originalSelectionLength = AssociatedObject.SelectionLength;
+            }
+        }
+    }    public void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
+    {        if (_originalText != null)
+        {            string text = _originalText;
+            _originalText = null;
+            AssociatedObject.Text = text;
+            AssociatedObject.Select(_originalSelectionStart, _originalSelectionLength);
+        }
+    }
+}
+</code></pre>
 
 <p>To use it:</p>
 
-<div class="codeSnippetWrapper" style="cursor: text; font-size: 9pt; border-top: silver 1px solid; font-family: tahoma, verdana, courier, monospace; border-right: silver 1px solid; width: 97.5%; border-bottom: silver 1px solid; color: black; overflow: auto; padding-bottom: 4px; direction: ltr; text-align: left; padding-top: 4px; padding-left: 4px; margin: 20px 0px 10px; border-left: silver 1px solid; line-height: 10pt; padding-right: 4px; background-color: #f4f4f4">
-  <div class="codeSnippet" style="padding-bottom: 0px; padding-top: 0px; padding-left: 0px; padding-right: 0px">
-    <pre style="margin: 0em; background-color: white"><span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBox</span> <span style="color: #ff0000">Text</span><span style="color: #0000ff">=&quot;{Binding Path=Value, Mode=TwoWay}&quot;</span> <span style="color: #ff0000">MaxLength</span><span style="color: #0000ff">=&quot;3&quot;</span> <span style="color: #ff0000">Width</span><span style="color: #0000ff">=&quot;100&quot;</span> <span style="color: #ff0000">InputScope</span><span style="color: #0000ff">=&quot;Number&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #ff0000">xmlns:interactivity</span><span style="color: #0000ff">=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        <span style="color: #ff0000">xmlns:oBehaviors</span><span style="color: #0000ff">=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">interactivity:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">oBehaviors:TextBoxSelectOnFocusBehavior</span> <span style="color: #ff0000">Type</span><span style="color: #0000ff">=&quot;SelectAll&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">oBehaviors:TextBoxInputRegexFilterBehavior</span> <span style="color: #ff0000">RegularExpression</span><span style="color: #0000ff">=&quot;[0-9]+&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em; background-color: white">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">interactivity:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">TextBox</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;TextBox Text=&quot;{Binding Path=Value, Mode=TwoWay}&quot; MaxLength=&quot;3&quot; Width=&quot;100&quot; InputScope=&quot;Number&quot; 
+        xmlns:interactivity=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;
+        xmlns:oBehaviors=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;&gt;
+    &lt;interactivity:Interaction.Behaviors&gt;
+        &lt;oBehaviors:TextBoxSelectOnFocusBehavior Type=&quot;SelectAll&quot; /&gt;
+        &lt;oBehaviors:TextBoxInputRegexFilterBehavior RegularExpression=&quot;[0-9]+&quot; /&gt;
+    &lt;/interactivity:Interaction.Behaviors&gt;
+&lt;/TextBox&gt;
+</code></pre>
 
 <p>In next topics I will show you some other behaviors which I use for my Windows Phone applications. And don’t forget to read section <a href="http://msdn.microsoft.com/en-us/library/dd440765.aspx">Expression Blend SDK for Windows Phone</a> on MSDN!</p>

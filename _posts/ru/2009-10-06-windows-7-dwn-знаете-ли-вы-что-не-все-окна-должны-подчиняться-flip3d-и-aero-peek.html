@@ -8,20 +8,62 @@ alias: ru/blog/show/161
 ---
 <p>Вы, наверняка, знаете, что в Vista и Windows 7 существует функция <a href="http://www.microsoft.com/windows/windows-vista/features/flip-3d.aspx">Flip3D</a>, а в Windows 7 еще и <a href="http://windows.microsoft.com/en-us/windows7/products/features/aero-peek">Aero Peek</a>. </p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Aero Peek" border="0" alt="Aero Peek" src="/library/images/01/0000060.jpeg" width="400" height="298" /> <img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Flip3D" border="0" alt="Flip3D" src="/library/images/01/0000061.jpeg" width="400" height="264" /> </p>  <p>Но вы, наверняка, не знаете, что можно заставить ваше окно (приложение) не подчиняться правилам для всех окон в данных возможностях Windows. Для этого следует изучить <a href="http://msdn.microsoft.com/en-us/library/aa969540%28VS.85%29.aspx">Desktop Window Manager API</a>. </p>  <p>Итак, с чего начать? Как всегда, если мы пишем приложение на .net (WinForms или WPF), нам нужно проимпортировать необходимые методы. Стоит заметить, что в случае WinForms получить HWND окна очень просто, для этого есть свойство <a href="http://msdn.microsoft.com/en-us/library/system.windows.forms.control.handle(VS.80).aspx" target="_blank">Form::Handle</a>, в случае же WPF можно воспользоваться классом <a href="http://msdn.microsoft.com/en-us/library/system.windows.interop.windowinterophelper.aspx" target="_blank">WindowInteropHelper</a>, так чтобы получить HWND главного окна можно написать так:</p>  
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">IntPtr hwnd = <span style="color: #0000ff;">new</span> WindowInteropHelper(Application.Current.MainWindow).Handle;</pre><!--CRLF--></div></div>
+<pre><code>IntPtr hwnd = new WindowInteropHelper(Application.Current.MainWindow).Handle;</code></pre>
 
 <p>Вернемся теперь к необходимым функциям. Первая функция на которую стоит обратить внимание – это <a href="http://msdn.microsoft.com/en-us/library/aa969518(VS.85).aspx" target="_blank">DwmIsCompositionEnabled</a>, она нам позволяет определить включен ли Aero Glass на компьютере:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">partial</span> <span style="color: #0000ff;">class</span> FormSample : Form</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    [DllImport(<span style="color: #006080;">"dwmapi.dll"</span>, PreserveSig = <span style="color: #0000ff;">false</span>)]</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">extern</span> <span style="color: #0000ff;">bool</span> DwmIsCompositionEnabled();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> FormSample()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        InitializeComponent();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">if</span> (Environment.OSVersion.Version.Major &lt; 6)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">// Dwm не работает, старая версия Windows</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span> (!DwmIsCompositionEnabled())</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">// Aero Glass и Aero 3D отключены (не поддерживаются) </span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">else</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">// Aero Glass и Aero 3D работают</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>public partial class FormSample : Form
+{
+    [DllImport("dwmapi.dll", PreserveSig = false)]
+    public static extern bool DwmIsCompositionEnabled();
+ 
+    public FormSample()
+    {
+        InitializeComponent();
+ 
+        if (Environment.OSVersion.Version.Major &lt; 6)
+        {
+            // Dwm не работает, старая версия Windows
+        }
+        else if (!DwmIsCompositionEnabled())
+        {
+            // Aero Glass и Aero 3D отключены (не поддерживаются) 
+        }
+        else
+        {
+            // Aero Glass и Aero 3D работают
+        }
+    }
+}</code></pre>
 
 <p>Отлично, теперь мы знаем когда можно “играться” с Dwm, следующая функция, которая поможет нам работать с Dwn – это <a href="http://msdn.microsoft.com/en-us/library/aa969524(VS.85).aspx" target="_blank">DwmSetWindowAttribute</a>. Это уже основная функция, при помощи которой мы можем управлять нашим окном и говорить системе как его следует отображать.</p>
 
 <p>Например, действие первое. Задача, мы хотим сделать такое приложение, которое отображается даже тогда, когда пользователь включает режим Aero Peek (действие, похожее на гаджет). Представьте на вашем мониторе куча запущенных окон, вам лень искать необходимое окно при помощи WinKey+Tab, а хочется увидеть нужные окна при помощи WinKey+Space – это может быть и обычный мессенджер, и какой-то ваш профайлер, при помощи которого вы следите за работой чего либо, ну и многое другое. Так, например, вот в этой статье “<em><a href="http://huddledmasses.org/fun-with-pinvoke-and-aero-peek/" target="_blank">Joel 'Jaykul' Bennett - Fun with PInvoke and Aero Peek</a></em>“ описывается как можно сделать это с популярным мессенджером Miranda (с этой статьи меня и заинтересовал Dwn и какие возможности он еще предоставляет). Правда в данной статье используются флаги DwmNCRenderingPolicy, которые на самом деле пригодны для установления значений при использовании флага DWMWA_NCRENDERING_POLICY, а не DWMWA_EXCLUDED_FROM_PEEK. Для обычной формы это можно сделать так:</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">partial</span> <span style="color: #0000ff;">class</span> FormSample : Form</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    [Flags]</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">enum</span> DwmWindowAttribute</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        ExcludedFromPeek = 12</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    [DllImport(<span style="color: #006080;">"dwmapi.dll"</span>, PreserveSig = <span style="color: #0000ff;">false</span>)]</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">extern</span> <span style="color: #0000ff;">int</span> DwmSetWindowAttribute(IntPtr hwnd, <span style="color: #0000ff;">int</span> attr, <span style="color: #0000ff;">ref</span> <span style="color: #0000ff;">int</span> attrValue, <span style="color: #0000ff;">int</span> attrSize);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> RemoveFromAeroPeek(IntPtr hwnd)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">int</span> attrValue = 1; <span style="color: #008000;">// TRUE</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        DwmSetWindowAttribute(hwnd, (<span style="color: #0000ff;">int</span>)DwmWindowAttribute.ExcludedFromPeek, <span style="color: #0000ff;">ref</span> attrValue, <span style="color: #0000ff;">sizeof</span>(<span style="color: #0000ff;">int</span>));</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> FormSample()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        InitializeComponent();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #008000;">// Делаем видимым при Aero Peek</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        RemoveFromAeroPeek(Handle);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>public partial class FormSample : Form
+{
+    [Flags]
+    public enum DwmWindowAttribute
+    {
+        ExcludedFromPeek = 12
+    }
+ 
+    [DllImport("dwmapi.dll", PreserveSig = false)]
+    public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+ 
+    public static void RemoveFromAeroPeek(IntPtr hwnd)
+    {
+        int attrValue = 1; // TRUE
+        DwmSetWindowAttribute(hwnd, (int)DwmWindowAttribute.ExcludedFromPeek, ref attrValue, sizeof(int));
+    }
+ 
+    public FormSample()
+    {
+        InitializeComponent();
+        // Делаем видимым при Aero Peek
+        RemoveFromAeroPeek(Handle);
+    }
+}</code></pre>
 
 <p>Результат будет таким (это чтобы было более понятно о чем я вообще пишу):</p>
 
@@ -29,8 +71,36 @@ alias: ru/blog/show/161
 
 <p>Так же можно заставить свое окно не подчиняться правилам Aero 3D (это когда используем WinKey+Tab для переключения между окнами). Для этого нужно рассмотреть атрибут <a href="http://msdn.microsoft.com/en-us/library/aa969528(VS.85).aspx" target="_blank">DWMWA_FLIP3D_POLICY</a>, для него можно установить значения “Обычное поведение”, “Показывать поверх 3D”, “Показывать за 3D”, правда у меня работало либо “обычное поведение”, либо “показывать за 3D”, поверх не получилось сделать.</p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    [Flags]</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">enum</span> DwmWindowAttribute</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        Flip3DPolicy = 8</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">// Flip 3D policies</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">enum</span> Flip3DPolicy</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        Default = 0,</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        ExcludeBelow,</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        ExcludeAbove</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    [DllImport(<span style="color: #006080;">"dwmapi.dll"</span>, PreserveSig = <span style="color: #0000ff;">false</span>)]</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">extern</span> <span style="color: #0000ff;">int</span> DwmSetWindowAttribute(IntPtr hwnd, <span style="color: #0000ff;">int</span> attr, <span style="color: #0000ff;">ref</span> <span style="color: #0000ff;">int</span> attrValue, <span style="color: #0000ff;">int</span> attrSize);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> SetFlip3DPolicy(IntPtr hwnd)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">int</span> attrValue = (<span style="color: #0000ff;">int</span>)Flip3DPolicy.ExcludeBelow; </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        DwmSetWindowAttribute(hwnd, (<span style="color: #0000ff;">int</span>)DwmWindowAttribute.Flip3DPolicy, <span style="color: #0000ff;">ref</span> attrValue, <span style="color: #0000ff;">sizeof</span>(<span style="color: #0000ff;">int</span>));</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> </pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">public</span> FormSample()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        InitializeComponent();</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        SetFlip3DPolicy(Handle);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>{
+    [Flags]
+    public enum DwmWindowAttribute
+    {
+        Flip3DPolicy = 8
+    }
+ 
+    // Flip 3D policies
+    public enum Flip3DPolicy
+    {
+        Default = 0,
+        ExcludeBelow,
+        ExcludeAbove
+    }
+ 
+    [DllImport("dwmapi.dll", PreserveSig = false)]
+    public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+ 
+    public static void SetFlip3DPolicy(IntPtr hwnd)
+    {
+        int attrValue = (int)Flip3DPolicy.ExcludeBelow; 
+        DwmSetWindowAttribute(hwnd, (int)DwmWindowAttribute.Flip3DPolicy, ref attrValue, sizeof(int));
+    }
+ 
+    public FormSample()
+    {
+        InitializeComponent();
+        SetFlip3DPolicy(Handle);
+    }
+}</code></pre>
 
 <p>Результат следующий:</p>
 
@@ -38,4 +108,4 @@ alias: ru/blog/show/161
 
 <p>Как это можно использовать – уже сложнее представить. Ну…, мое дело рассказать :) Удачи!</p>
 <p>
-<a rev="vote-for" href="http://progg.ru/outcoldman-Windows-7-Desktop-Window-Manager-%D0%B7%D0%BD%D0%B0%D0%B5%D1%82%D0%B5-%D0%BB%D0%B8-%D0%B2%D1%8B-%D1%87%D1%82%D0%BE-%D0%BD%D0%B5-%D0%B2%D1%81%D0%B5-%D0%BE%D0%BA%D0%BD%D0%B0-%D0%B4%D0%BE%D0%BB%D0%B6%D0%BD%D1%8B-%D0%BF%D0%BE%D0%B4%D1%87%D0%B8%D0%BD%D1%8F%D1%82%D1%8C%D1%81%D1%8F-Flip3D-%D0%B8-Ae"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.livejournal.com%2F41096.html" style="border:0px"/></a></p>
+</p>

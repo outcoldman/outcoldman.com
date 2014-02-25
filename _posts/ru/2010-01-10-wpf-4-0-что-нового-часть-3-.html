@@ -8,8 +8,9 @@ alias: ru/blog/show/170
 ---
 <p>Продолжу серию постов о нововведениях в WPF 4. </p>   <h4>Bindable Run</h4>  <p>Из нового в WPF 4 можно сказать еще о том, что у элемента Run теперь свойство Text можно биндить, переделали из обычного CLR свойства. Мелочь, но с проблемой один раз я встретился, которая описана тут <a href="http://blogs.msdn.com/llobo/archive/2009/11/04/new-wpf-features-bindable-run.aspx" target="_blank">New WPF Features: Bindable Run</a>. </p>  <h4>Custom Dictionary</h4>  <p>В WPF, как вы знаете, есть поддержка проверки правописания SpellCheck. А может и не знаете, потому что поддерживаются только 4 языка: английский, немецкий, испанский и французский, и расширить это никак нельзя. В WPF 4.0 появилась возможность заводить Custom Dictionary, чтобы добавить всяческие слова, вроде lol, в лексикон проверки. Но опять же, сделать проверку русского языка при помощи этого нельзя, даже если вы забьете всевозможные русские слова в такой словарь, то изначально вам WPF скажет, что данный язык не поддерживается. Не понимаю я такой подход, почему бы не сделать механизм открытым, для самостоятельного расширения возможностей SpellCheck, умелые руки давно бы прикрутили словари от OpenOffice, я был бы первым. Более подробная информация об этом тут: <a href="http://blogs.msdn.com/text/archive/2009/10/02/custom-dictionaries.aspx" target="_blank">Custom Dictionaries</a>.</p>  <h1>Текст</h1>  <h4>CaretBrush и SelectionBrush</h4>  <p>Теперь у каретки и для выделения можно задать кисти:</p> 
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">TextBox</span> <span style="color: #ff0000;">FontSize</span><span style="color: #0000ff;">="24"</span> <span style="color: #ff0000;">CaretBrush</span><span style="color: #0000ff;">="Green"</span> <span style="color: #ff0000;">SelectionOpacity</span><span style="color: #0000ff;">="0.1"</span> <span style="color: #ff0000;">SelectionBrush</span><span style="color: #0000ff;">="Red"</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    Hello, Hello, Hello</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">TextBox</span><span style="color: #0000ff;">&gt;</span></pre><!--CRLF--></div></div>
+<pre><code>&lt;TextBox FontSize="24" CaretBrush="Green" SelectionOpacity="0.1" SelectionBrush="Red"&gt;
+    Hello, Hello, Hello
+&lt;/TextBox&gt;</code></pre>
 
 <p>И получить что-то вроде</p>
 
@@ -37,5 +38,5 @@ alias: ru/blog/show/170
 
 <p>Auto – выставляет ClearType, если он не отключен. Более подробную информацию о тексте можно посмотреть тут: <a href="http://blogs.msdn.com/text/archive/2009/08/24/wpf-4-0-text-stack-improvements.aspx" target="_blank">WPF 4.0 Text Stack Improvements</a>.</p>
 <p>
-<a rev="vote-for" href="http://progg.ru/outcoldman-WPF-40-%D0%A7%D1%82%D0%BE-%D0%BD%D0%BE%D0%B2%D0%BE%D0%B3%D0%BE-%D0%A7%D0%B0%D1%81%D1%82%D1%8C-3"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.livejournal.com%2F45926.html" style="border:0px"/></a>
+
 </p>

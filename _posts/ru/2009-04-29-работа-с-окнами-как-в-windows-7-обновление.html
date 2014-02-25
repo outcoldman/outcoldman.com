@@ -18,33 +18,77 @@ alias: ru/blog/show/141
 
 <p>Сначала пару слов о проблеме с Chrome. Я ее не обнаружил. Версия хрома у меня 2.0.160.0, пробовал в Vista. Но все же я сделал <a href="http://code.google.com/p/keysextender/downloads/detail?name=VistaKeysExtender_r12 (chrome edition).zip">отдельную сборку</a>, в которой в методе проверке окна на IsResizableWindow добавил такую проверку</p> 
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">StringBuilder sb = <span style="color: #0000ff;">new</span> StringBuilder(100);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">if</span> (WAWindows.GetClassName(window, sb, sb.Capacity) != IntPtr.Zero</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> &amp;&amp; sb.ToString().StartsWith(<span style="color: #006080;">"Chrome_"</span>))</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"> <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span>;</pre><!--CRLF--></div></div>
+<pre><code>StringBuilder sb = new StringBuilder(100);
+if (WAWindows.GetClassName(window, sb, sb.Capacity) != IntPtr.Zero
+ &amp;&amp; sb.ToString().StartsWith("Chrome_"))
+ return true;</code></pre>
 
 <p>Вроде должно работать.</p>   
 
 <p>Теперь о перемещении окна между экранами. Задача оказалась не такой уж сложной. Первое что нужно сделать, это определить на какой монитор все таки пользователь желает переместить окно, тут мне пришлось сделать в лоб, пробежаться по всем экранам, и те которые соприкасаются (сторона соприкосновения зависит от нажатой клавиши) туда и отслылать, вот код нахождения экрана:</p> 
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> Screen GetScreenToMove(Screen screen, Keys keys)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">foreach</span> (Screen scr <span style="color: #0000ff;">in</span> Screen.AllScreens)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">if</span> (!scr.Equals(screen))</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">      <span style="color: #0000ff;">switch</span> (keys)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">      {</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">case</span> Keys.Left:</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">          <span style="color: #0000ff;">if</span> (scr.WorkingArea.Right == screen.WorkingArea.Left</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            &amp;&amp; scr.WorkingArea.Top == scr.WorkingArea.Top)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> scr;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">break</span>;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">case</span> Keys.Right:</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">          <span style="color: #0000ff;">if</span> (scr.WorkingArea.Left == screen.WorkingArea.Right</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            &amp;&amp; scr.WorkingArea.Top == scr.WorkingArea.Top)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> scr;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">          <span style="color: #0000ff;">break</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">case</span> Keys.Down:</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">          <span style="color: #0000ff;">if</span> (scr.WorkingArea.Top == screen.WorkingArea.Bottom</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            &amp;&amp; scr.WorkingArea.Left == scr.WorkingArea.Left)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> scr;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">          <span style="color: #0000ff;">break</span>;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">case</span> Keys.Up:</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">          <span style="color: #0000ff;">if</span> (scr.WorkingArea.Bottom == screen.WorkingArea.Top</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            &amp;&amp; scr.WorkingArea.Left == scr.WorkingArea.Left)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> scr;</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">          <span style="color: #0000ff;">break</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">      }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">null</span>;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>private static Screen GetScreenToMove(Screen screen, Keys keys)
+{
+  foreach (Screen scr in Screen.AllScreens)
+  {
+    if (!scr.Equals(screen))
+    {
+      switch (keys)
+      {
+        case Keys.Left:
+          if (scr.WorkingArea.Right == screen.WorkingArea.Left
+            &amp;&amp; scr.WorkingArea.Top == scr.WorkingArea.Top)
+            return scr;
+            break;
+        case Keys.Right:
+          if (scr.WorkingArea.Left == screen.WorkingArea.Right
+            &amp;&amp; scr.WorkingArea.Top == scr.WorkingArea.Top)
+            return scr;
+          break;
+        case Keys.Down:
+          if (scr.WorkingArea.Top == screen.WorkingArea.Bottom
+            &amp;&amp; scr.WorkingArea.Left == scr.WorkingArea.Left)
+            return scr;
+          break;
+        case Keys.Up:
+          if (scr.WorkingArea.Bottom == screen.WorkingArea.Top
+            &amp;&amp; scr.WorkingArea.Left == scr.WorkingArea.Left)
+            return scr;
+          break;
+      }
+    }
+  }
+  return null;
+}</code></pre>
 
 <p>
 Дальше же нужно просто отправить окно в выбранный экран, отправляю я окно с учетом пропорций, то есть: если окно занимало 50%&nbsp;от экрана, оно и на новом экране будет столько же занимать. </p>   <p>Но возникла проблема с FullScreen приложениями, а именно,&nbsp;если, к примеру, фильм развернуть на весь экран и попытаться перебросить это окно на другой экран - ничего не происходило, оказалось данное окно не определяется как имеющее WsSizeBox, потому пришлось их распозновать следующим способом (тут может кто то подскажет что то более граммотное):</p>   
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">bool</span> IsFullScreenWindow(WAWindows.Rect rect, Screen scr)</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">return</span> rect.Left == scr.Bounds.Left &amp;&amp; rect.Top == scr.Bounds.Top</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">      &amp;&amp; rect.Width == scr.Bounds.Width &amp;&amp; rect.Height == scr.Bounds.Height;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>private static bool IsFullScreenWindow(WAWindows.Rect rect, Screen scr)
+{
+  return rect.Left == scr.Bounds.Left &amp;&amp; rect.Top == scr.Bounds.Top
+      &amp;&amp; rect.Width == scr.Bounds.Width &amp;&amp; rect.Height == scr.Bounds.Height;
+}</code></pre>
 
 <p>
 Еще один интересный факт, что когда я перемещал FullScreen окна по экранам, то в какой то момент они просто теряются, я понял, что окно остается на старом экране, а размеры и позиция я задаю ему нового экрана. Решение: при установлении размеров мне приходится сначала установить размеры на пару пикселей в ширину и в высоту меньше экрана (чтобы окно разполагалось точно только на этом экране),&nbsp;а потом восстанавливать до FullScreen размеров, выглядит это, примерно, так</p>   
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">// Fix for full screen windows</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">if</span> (isFullScreenWindow)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  WAWindows.SetWindowPos(window, WAWindows.HwndTop, x + 1, y + 1, cx - 2, cy - 2, WAWindows.SwpShowWindow);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&nbsp;</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">WAWindows.SetWindowPos(window, WAWindows.HwndTop, x, y, cx, cy, WAWindows.SwpShowWindow);</pre><!--CRLF--></div></div>
+<pre><code>// Fix for full screen windows
+if (isFullScreenWindow)
+  WAWindows.SetWindowPos(window, WAWindows.HwndTop, x + 1, y + 1, cx - 2, cy - 2, WAWindows.SwpShowWindow);
+&nbsp;
+WAWindows.SetWindowPos(window, WAWindows.HwndTop, x, y, cx, cy, WAWindows.SwpShowWindow);</code></pre>
 
 <p>
 Еще один неприятный момент был, что когда окно на одном экране максимизированное, его перемещаем на другой экран, а потом восстанавливаем в Normal, то оно летит на предыдущий экран, потому как там его и максимизировали и окно запомнило тот размер и расположение, потому пришлось для таких случаев написать такой FIX:</p>  
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #008000;">// Fixed problem with restore on other screen</span></pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">Screen newScreen = Screen.FromHandle(window);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">if</span> (!newScreen.Equals(screen))</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">  <span style="color: #0000ff;">if</span> (WAWindows.GetWindowRect(window, <span style="color: #0000ff;">out</span> rect))</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    MoveToNewScreen(window, newScreen, screen, rect, isResizableWindow, <span style="color: #0000ff;">false</span>);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+<pre><code>// Fixed problem with restore on other screen
+Screen newScreen = Screen.FromHandle(window);
+if (!newScreen.Equals(screen))
+{
+  if (WAWindows.GetWindowRect(window, out rect))
+    MoveToNewScreen(window, newScreen, screen, rect, isResizableWindow, false);
+}</code></pre>
 
 <p>Это вроде все неприятные моменты с которыми я столкнулся. Если есть предложения или замечания, то с удовольствием их выслушаю.</p>  
 

@@ -16,11 +16,8 @@ alias: ru/blog/show/222
 
 <p>Я пошел дальше, открыл файл веб-проекта в редакторе и отыскал ссылку на импорт задач, в которой я и ожидал описание того как правильно вызвать задачу:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">Import</span> <span style="color: #ff0000">Project</span><span style="color: #0000ff">=&quot;$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;Import Project=&quot;$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets&quot; /&gt;
+</code></pre>
 
 <p>$(MSBuildExtensionsPath32) в моем случае был “<i>C:\Program Files (x86)\MSBuild\</i>”, там я нашел файл <i>Microsoft.WebApplication.targets</i>, а так же файл <i>Microsoft.WebApplication.Build.Tasks.Dll</i>, который привлек мое внимание больше. Вооружившись программой .Net Reflector, открыл этот файл и, проанализировав, нашел, что все задачи наследуются от типа Task, значит, по плану, мне просто нужно было бы найти нужную задачу. </p>
 
@@ -30,155 +27,54 @@ alias: ru/blog/show/222
 
 <p>Итак, создал новый проект – консольное приложение и начал исследовать, как мне запустить данную задачу. Как оказалось все достаточно просто, нужно было реализовать два интерфейса. Первый: IBuildEngine, у него вызывается несколько методов для записи лога выполнения задачи, и пару свойств, смысла которых я не понял, и реализовал просто как затычки. Второй интерфейс - это ITaskItem. Кстати, хороший пример, как программировать не нужно. Подразумевает собой некоторую гибридную сущность, которая может нести в себе кучу информации, а может практически ничего не содержать в себе, как в моем случае: из кучи методов и свойств реализуем всего одно свойство ItemSpec, в котором будем хранить путь до файла. Вот в общем то и все, можно вызывать задачу:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">TransformXml transformXml = <span style="color: #0000ff">new</span> TransformXml</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                    BuildEngine = <span style="color: #0000ff">new</span> CurrentBuildEngine(),</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                    Destination = <span style="color: #0000ff">new</span> TaskItem(destinationFilePath),</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                    Source = <span style="color: #0000ff">new</span> TaskItem(sourceFilePath),</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                    Transform = <span style="color: #0000ff">new</span> TaskItem(transformFile)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                };</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">transformXml.Execute();</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>TransformXml transformXml = new TransformXml
+                                {                                    BuildEngine = new CurrentBuildEngine(),
+                                    Destination = new TaskItem(destinationFilePath),
+                                    Source = new TaskItem(sourceFilePath),
+                                    Transform = new TaskItem(transformFile)
+                                };
+transformXml.Execute();
+</code></pre>
 
 <p>Дальше я причесал немного код, добавил тест, пример и выложил все на <a href="http://ctt.codeplex.com">CodePlex</a>, мало ли будет кому-то полезно. Думаю, вообще хорошо бы добавить еще поддержку параметров в файле трансформации, правда код MS править не хочется, который производит XDT трансформацию, а вот прекомпиляцию данного файла можно как-то сделать. Приблизительно идею описал в этой задаче <a href="http://ctt.codeplex.com/workitem/17">Support parameters at Transform file</a>.</p>
 
 <p>Ну и на последок пример. Файл source.config, который хотим изменить:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup1&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test1&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;True&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test2&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;600&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup2&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test3&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;True&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&#160;&lt;configuration&gt;
+&#160;    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;True&quot; /&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;600&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;True&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
 
 <p>Файл transform.config, при помощи которого будем менять исходный файл:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configuration</span> <span style="color: #ff0000">xmlns:xdt</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/XML-Document-Transform&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup1&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test2&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;601&quot;</span> <span style="color: #ff0000">xdt:Transform</span><span style="color: #0000ff">=&quot;Replace&quot;</span>  <span style="color: #ff0000">xdt:Locator</span><span style="color: #0000ff">=&quot;Match(key)&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;configuration xmlns:xdt=&quot;http://schemas.microsoft.com/XML-Document-Transform&quot;&gt;
+    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;601&quot; xdt:Transform=&quot;Replace&quot;  xdt:Locator=&quot;Match(key)&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
 
 <p>Запускаем приложение из командной строки</p>
 
@@ -188,77 +84,25 @@ alias: ru/blog/show/222
 
 <p>Получаем результат destination.config:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup1&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test1&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;True&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test2&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;601&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">group</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;TestGroup2&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">value</span> <span style="color: #ff0000">key</span><span style="color: #0000ff">=&quot;Test3&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;True&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">values</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">group</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">groups</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">custom</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">configuration</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&#160;&lt;configuration&gt;
+&#160;    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;True&quot; /&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;601&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;True&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
 
 <p>Скачать исходный код или бинарник можно отсюда <a href="http://ctt.codeplex.com/">http://ctt.codeplex.com/</a>.</p>
 

@@ -12,29 +12,12 @@ alias: ru/blog/show/205
 
 <p>Второе, чем понравилась книжка - это грамотная <a href="http://oreilly.com/catalog/9780596800956/">раскидка по темам</a>. Я, кстати, не стал воротить нос от главы C# Basics, прочитал и ее, а мало ли. Даже там можно уже набрать интересных этюдов. Например, все знают что в C# 4.0 появились <a href="/ru/blog/show/143">именованные и необязательные параметры в методах</a>, но вот приходила ли в голову кому-нибудь такая конструкция?</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">void</span> Foo(<span style="color: #0000ff">int</span> x, <span style="color: #0000ff">int</span> y) { Console.WriteLine (x + <span style="color: #006080">&quot;, &quot;</span> + y); }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">void</span> OtherFoo()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">int</span> a = 0;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  Foo(y: ++a, x: --a);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>void Foo(int x, int y) { Console.WriteLine (x + &quot;, &quot; + y); }
+&#160;void OtherFoo()
+{  int a = 0;
+  Foo(y: ++a, x: --a);
+}
+</code></pre>
 
 <p>Что выполнится первым ++a или --a и что будет на экране? Такими интересными (но, правда, не нужными на первый взгляд) примерами книга полна. Минус в книге, правда в том, что если бы это был Рихтер, то после мы бы увидели пару страниц с MSIL кодом, подробными объяснениями, здесь же мы чаще видим что это так, потому что это так. Оно и не удивительно, посмотрите сколько тем в этой книге освещено:</p>
 

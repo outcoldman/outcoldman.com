@@ -10,87 +10,41 @@ alias: ru/blog/show/197
 
 <p>Задался я этим вопросом не просто так, а потому что решил сделать поддержку временных зон на своем сайте. Мой случай – это ASP.NET MVC приложение и MS SQL Server. Первое, с чего я начал: изучение заголовков запросов к серверу, в них никак не передается информация о том, какая временная зона у посетителя. Потому поиграть на сервере с региональными настройками и методами DateTime.ToLocalTime и DateTime.ToUniversalTime просто не получится для реализации поддержки временных зон. Хотя, конечно, последний нам пригодится. Если у вас уже приложение одно время крутилось с локальным серверным временем, то сначала просто меняете все даты на сервере, в базе данных на UTC (считай тоже самое, что время по Гринвичу) для этого зная серверные текущие настройки и какая временная зона стоит на сервере берем и пишем update для таблиц с датами, примерно, следующего содержания:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">update</span> dbo.MyTable <span style="color: #0000ff">set</span> [<span style="color: #0000ff">Date</span>] = dateadd(<span style="color: #0000ff">hour</span>, -4, [<span style="color: #0000ff">Date</span>])</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>update dbo.MyTable set [Date] = dateadd(hour, -4, [Date])
+</code></pre>
 
 <p>У меня взято –4, так как на время исправления московское время было UTC+4 (летнее время). Я не стал делать поддержку перехода с летнего времени на зимнее и обратно, так как тут больше труда чем пользы. Дальше в коде, везде где вы берете текущее время необходимо будет заменить getdate() на getutcdate() – это в скриптах TSQL, а на сервере к конструкции DateTime.Now (или Today) добавить ToUniversalTime(), то есть получится DateTime.Now.ToUniversalTime(), таким вот чудесным образом на сервере мы будем оперировать с датами только в зоне UTC. </p>
 
 <p>Дальше дело в клиенте, необходимо на клиенте отображать его правильное время. Получить количество часов, которые отделяют пользователя от UTC можно при помощи Javascript функции у объекта типа даты getTimezoneOffset(), она возвращает разницу в минутах. На сервере я стал рендерить все даты в формате “dd.MM.yyyy HH:mm” – этого мне было более чем достаточно (точнее нигде других форматов не требовалось). Все даты поместил в элементы с css классом .utcdate, даты которые не были выделены в отдельные заголовки (h1,h2,h3…) поместил в span и т.д., то есть на сервере у меня код рендерился, примерно, так:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">&lt;h3 class=<span style="color: #006080">&quot;utcdate&quot;</span>&gt;&lt;%= Model.BlogPost.Date.ToString(<span style="color: #006080">&quot;dd.MM.yyyy HH:mm&quot;</span>)%&gt;&lt;/h3&gt;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;h3 class=&quot;utcdate&quot;&gt;&lt;%= Model.BlogPost.Date.ToString(&quot;dd.MM.yyyy HH:mm&quot;)%&gt;&lt;/h3&gt;
+</code></pre>
 
 <p>А css класс определил так:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">.utcdate {display: none; }</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>.utcdate {display: none; }
+</code></pre>
 
 <p>Изначально участки с датами не видны, сделано это, например, для всеми любимого Internet Explorer, в котором видно значительно, когда при помощи Javascript меняют одну дату на другую, в других браузерах загрузка происходит шустрее с рендерингом и практически не замечаешь что раньше стоят другие даты.</p>
 
 <p>Дальше пишем Javascript:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">function</span> utcToLocal(u) {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">var</span> l = <span style="color: #0000ff">new</span> Date(u.substring(6, 10), u.substring(3, 5)-1, u.substring(0, 2), u.substring(11, 13), u.substring(14, 16));</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">var</span> d = <span style="color: #0000ff">new</span> Date(l.getTime() + (-l.getTimezoneOffset() * 60 * 1000));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">return</span> wZ(d.getDate()) + <span style="color: #006080">'.'</span> + wZ(d.getMonth()+1) + <span style="color: #006080">'.'</span> + d.getFullYear() + <span style="color: #006080">' '</span> + wZ(d.getHours()) + <span style="color: #006080">':'</span> + wZ(d.getMinutes());</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">function</span> wZ(x) { <span style="color: #0000ff">if</span> (x &lt;;= 9) <span style="color: #0000ff">return</span> <span style="color: #006080">'0'</span> + x; <span style="color: #0000ff">return</span> x; }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">function</span> doCurrentDate() {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    $(<span style="color: #006080">&quot;.utcdate&quot;</span>).each(<span style="color: #0000ff">function</span> () {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> ($(<span style="color: #0000ff">this</span>).css(<span style="color: #006080">&quot;display&quot;</span>) != <span style="color: #006080">&quot;inline&quot;</span>) {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">this</span>.innerHTML = utcToLocal(<span style="color: #0000ff">this</span>.innerHTML);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            $(<span style="color: #0000ff">this</span>).css(<span style="color: #006080">&quot;display&quot;</span>, <span style="color: #006080">&quot;inline&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    });</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">$(document).ready(<span style="color: #0000ff">function</span> () {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    doCurrentDate();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">});</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>function utcToLocal(u) {
+    var l = new Date(u.substring(6, 10), u.substring(3, 5)-1, u.substring(0, 2), u.substring(11, 13), u.substring(14, 16));
+    var d = new Date(l.getTime() + (-l.getTimezoneOffset() * 60 * 1000));
+    return wZ(d.getDate()) + '.' + wZ(d.getMonth()+1) + '.' + d.getFullYear() + ' ' + wZ(d.getHours()) + ':' + wZ(d.getMinutes());
+}function wZ(x) { if (x &lt;;= 9) return '0' + x; return x; }
+function doCurrentDate() {
+    $(&quot;.utcdate&quot;).each(function () {
+        if ($(this).css(&quot;display&quot;) != &quot;inline&quot;) {
+            this.innerHTML = utcToLocal(this.innerHTML);
+            $(this).css(&quot;display&quot;, &quot;inline&quot;);
+        }
+    });
+}$(document).ready(function () {
+    doCurrentDate();
+});
+</code></pre>
 
 <p>Признаюсь, что я не профессионал в Javascript, потому может найдутся те, кто меня поправят и скажут как лучше сделать. Здесь используется jQuery, переписать данные функции без использования его будет посложнее, так как тут все компактно при помощи его селекторов. Итак, что же делает это скрипт? Последние 3 строки на состояние загрузки всего документа вызывают функцию doCurrentDate(), которая находит все элементы с указанным классом utcdate и для каждого выполняет: если у стиля не поменяно отображение с none на inline, то при помощи функции utcToLocal меняем дату и выставляем свойству стиля display значение inline. </p>
 
@@ -102,12 +56,9 @@ alias: ru/blog/show/197
 
 <p>Кстати, было бы, по-моему, очень удобно, если в формат HTML 5 добавили бы поддержку преобразования дат. Вроде, пишешь такой html код:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; font-size: normal; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">date</span><span style="color: #0000ff">&gt;</span>03.04.2010T00:38:00+04:00<span style="color: #0000ff">&lt;/</span><span style="color: #800000">date</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;date&gt;03.04.2010T00:38:00+04:00&lt;/date&gt;
+</code></pre>
 
 <p>А браузер преобразовывает в локальное время. А так же как-нибудь иметь возможность форматировать даты, какой-нибудь атрибут format, который имеет несколько заготовленных форматов. Или может быть такое уже есть?</p>
 
-<div><a rev="vote-for" href="http://progg.ru/outcoldman-%D0%A0%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0-%D0%B2%D0%B5%D0%B1-%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B9-%D1%81-%D0%BF%D0%BE%D0%B4%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D0%BE%D0%B9-%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D1%85-%D0%B7%D0%BE%D0%BD"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.ru%2Fru%2Fblog%2Fshow%2F197" style="border:0px"/></a></div>
+<div></div>

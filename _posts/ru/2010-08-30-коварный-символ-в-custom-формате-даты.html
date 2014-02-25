@@ -6,67 +6,29 @@ categories: ru
 tags: [.NET, C#, DateTime, Custom Format, CultureInfo]
 alias: ru/blog/show/233
 ---
-<p>Вопрос, какую директорию создаст этот код?</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">string</span> sole = DateTime.Today.ToString(<span style="color: #006080">&quot;yyyy/MM/dd&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">string</span> path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, sole);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> (!Directory.Exists(path))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    Directory.CreateDirectory(path);</pre>
-<!--CRLF--></div>
-</div>
+<p>Вопрос, какую директорию создаст этот код?</p>  <pre><code>string sole = DateTime.Today.ToString(&quot;yyyy/MM/dd&quot;);
+string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, sole);
+if (!Directory.Exists(path))
+    Directory.CreateDirectory(path);
+</code></pre>
 
 
 
 <p>Вчера для меня было шоком, что, вроде, логично ожидать директорию вроде “…/2010/08/29”,&#160; а я получил “…/2010.08.29”. Запускаем этот код:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">CultureInfo[] cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">foreach</span> (var cultureInfo <span style="color: #0000ff">in</span> cultureInfos)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    Thread.CurrentThread.CurrentCulture = cultureInfo;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    Thread.CurrentThread.CurrentUICulture = cultureInfo;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">string</span> sole = DateTime.Today.ToString(<span style="color: #006080">&quot;yyyy/MM/dd&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">string</span> path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, sole);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    Console.WriteLine(path);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">Console.ReadKey();</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>CultureInfo[] cultureInfos = CultureInfo.GetCultures(CultureTypes.AllCultures);
+&#160;foreach (var cultureInfo in cultureInfos)
+{
+    Thread.CurrentThread.CurrentCulture = cultureInfo;
+    Thread.CurrentThread.CurrentUICulture = cultureInfo;
+&#160;    string sole = DateTime.Today.ToString(&quot;yyyy/MM/dd&quot;);
+    string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, sole);
+&#160;
+    Console.WriteLine(path);
+}
+&#160;
+Console.ReadKey();
+</code></pre>
 
 <p>И смотрим:</p>
 

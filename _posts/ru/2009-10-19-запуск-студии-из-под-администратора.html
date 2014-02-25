@@ -8,7 +8,6 @@ alias: ru/blog/show/163
 ---
 <p>Вообще работать в <strong>Visual Studio</strong> не из под администратора (<strong>Run as administrator</strong>) невозможно – часто сталкиваешься с проблемами, что не хватает прав подцепиться к какому-нибудь процессу для отладки кода, либо не хватает прав на создание сайта в IIS. Потому первым делом возникает проблема с тем, что необходимо поставить галочку на ярлыке запуска студии на вкладке <em>Compatibility</em> – <strong>Run as administrator</strong>. После этого возникает другая проблема – не открывается студия по двойному клику на файле .sln (<strong>solution</strong>). Все дело в том, что данный файл просит открыть не саму студию, а мастер – <strong>VSLauncher</strong> (<em>visual studio version selector</em>), который определяет, какую версию <strong>Visual Studio</strong> вам запустить, потому нужно выставить <strong>Run as administrator</strong> приложению VSLauncher по пути:</p>  
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">C:\Program Files (x86)\Common Files\microsoft shared\MSEnv\VSLauncher.exe</pre><!--CRLF--></div></div>
+<pre><code>C:\Program Files (x86)\Common Files\microsoft shared\MSEnv\VSLauncher.exe</code></pre>
 
 

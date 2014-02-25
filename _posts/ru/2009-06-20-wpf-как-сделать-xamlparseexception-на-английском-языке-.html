@@ -12,11 +12,11 @@ alias: ru/blog/show/146
 
 <p>Вытекающая проблема очевидная: если встретить ошибку на русском языке, то найти ее решение в интернете сложнее, в отличии от ошибки на английском. Изначально, я был удивлен <strike>какого</strike> почему у меня ошибки стали отображаться на русском языке. Посмотрел внимательно на установленные обновления в своей системе: убедился, что у меня не стоит Language Pack для Framework SP1. Проверив, что ошибки типа NullReferenceException (эту ошибку проще всего вызвать) отображается нормально по-английски, я понял, что кроется проблема где-то глубже. Решение, как оказалось в установке CultureInfo основному потоку (thread) нашего приложения:</p>  
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
-<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">CultureInfo ci = <span style="color: #0000ff;">new</span> CultureInfo(<span style="color: #006080;">"en-US"</span>); </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">Thread.CurrentThread.CurrentCulture = ci;</pre><!--CRLF--></div></div>
+<pre><code>CultureInfo ci = new CultureInfo("en-US"); 
+Thread.CurrentThread.CurrentCulture = ci;</code></pre>
 
 <p>Если вам CurrentCulture важен, то, по крайней мере, на время отыскания ошибки в интернете можно менять его.</p>  
 
 <p>P.S. Еще по теме русскоязычного ПО могу добавить, что мне не нравятся переведенные продукты, так вот посмотрев на MS Office 2007 и его диалог печати: на английском есть checkbox &quot;Manual Duplex&quot;, а на русский переводят &quot;Двухстороння печать&quot;, выкидывая основное слово Manual (ручная). То есть если у вас принтер поддерживает двухстороннюю печать, вы ставите данную галку и видите, что почему то вам вручную приходится переворачивать страницы.</p>
 <p>
-<a rev="vote-for" href="http://progg.ru/outcoldman-WPF-%D0%9A%D0%B0%D0%BA-%D1%81%D0%B4%D0%B5%D0%BB%D0%B0%D1%82%D1%8C-XamlParseException-%D0%BD%D0%B0-%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%BE%D0%BC-%D1%8F%D0%B7%D1%8B%D0%BA%D0%B5"><img alt="Progg it" src="http://progg.ru/image.axd?url=http%3A%2F%2Foutcoldman.livejournal.com%2F26988.html" style="border:0px"/></a></p>
+</p>

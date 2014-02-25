@@ -35,287 +35,105 @@ alias: ru/blog/show/1
 <p>Теперь приступим к подписыванию данных. Создаем ASP.NET веб-сайт, на страничку Default.aspx кладем следующие контролы: </p>
 
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">&lt;!--сюда пишем данные,которые будем подписывать--&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">asp:TextBox</span> <span style="color: #ff0000;">runat</span><span style="color: #0000ff;">=&quot;server&quot;</span> <span style="color: #ff0000;">ID</span><span style="color: #0000ff;">=&quot;tbDataText&quot;</span> <span style="color: #ff0000;">Width</span><span style="color: #0000ff;">=&quot;400px&quot;</span><span style="color: #0000ff;">/&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">&lt;!--кнопка, которая выполняет функцию подписи данных--&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">asp:Button</span> <span style="color: #ff0000;">runat</span><span style="color: #0000ff;">=&quot;server&quot;</span> <span style="color: #ff0000;">ID</span><span style="color: #0000ff;">=&quot;btnSignData&quot;</span> <span style="color: #ff0000;">Text</span><span style="color: #0000ff;">=&quot;Подписать данные&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #ff0000;">OnClientClick</span><span style="color: #0000ff;">=&quot;if (SignData() == false) return false;&quot;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #ff0000;">onclick</span><span style="color: #0000ff;">=&quot;btnSignData_Click&quot;</span> <span style="color: #0000ff;">/&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">&lt;!--сюда записываем данные--&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">asp:TextBox</span> <span style="color: #ff0000;">runat</span><span style="color: #0000ff;">=&quot;server&quot;</span> <span style="color: #ff0000;">ID</span><span style="color: #0000ff;">=&quot;tbSignedData&quot;</span> <span style="color: #ff0000;">TextMode</span><span style="color: #0000ff;">=&quot;MultiLine&quot;</span> <span style="color: #ff0000;">Width</span><span style="color: #0000ff;">=&quot;600px&quot;</span> <span style="color: #ff0000;">Rows</span><span style="color: #0000ff;">=&quot;24&quot;</span> <span style="color: #0000ff;">/&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">&lt;!--сюда выводим сообщения после подписи данных--&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">asp:Label</span> <span style="color: #ff0000;">runat</span><span style="color: #0000ff;">=&quot;server&quot;</span> <span style="color: #ff0000;">ID</span><span style="color: #0000ff;">=&quot;lblData&quot;</span> <span style="color: #0000ff;">/&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">div</span><span style="color: #0000ff;">&gt;</span> </pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;div&gt; 
+    &lt;!--сюда пишем данные,которые будем подписывать--&gt; 
+    &lt;asp:TextBox runat=&quot;server&quot; ID=&quot;tbDataText&quot; Width=&quot;400px&quot;/&gt; 
+&lt;/div&gt; 
+&lt;div&gt; 
+    &lt;!--кнопка, которая выполняет функцию подписи данных--&gt; 
+    &lt;asp:Button runat=&quot;server&quot; ID=&quot;btnSignData&quot; Text=&quot;Подписать данные&quot; 
+            OnClientClick=&quot;if (SignData() == false) return false;&quot; 
+            onclick=&quot;btnSignData_Click&quot; /&gt; 
+&lt;/div&gt; 
+&lt;div&gt; 
+    &lt;!--сюда записываем данные--&gt; 
+    &lt;asp:TextBox runat=&quot;server&quot; ID=&quot;tbSignedData&quot; TextMode=&quot;MultiLine&quot; Width=&quot;600px&quot; Rows=&quot;24&quot; /&gt; 
+&lt;/div&gt; 
+&lt;div&gt; 
+    &lt;!--сюда выводим сообщения после подписи данных--&gt; 
+    &lt;asp:Label runat=&quot;server&quot; ID=&quot;lblData&quot; /&gt; 
+&lt;/div&gt; </code></pre>
 
 <p>
   Кнопка btnSignData сначала вызывает javascript функцию SignData() со следующим кодом: 
 </p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">function</span> SignData() {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">// Необходимые константы </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">var</span> CAPICOM_STORE_OPEN_READ_ONLY = 0;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">var</span> CAPICOM_CURRENT_USER_STORE = 2;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">// проверяем, что поддерживаются ActiveXObject (Internet Explorer) </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">if</span> (window.ActiveXObject) {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">try</span> {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">// Подписываемые данные </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">var</span> tbDataText = document.getElementById(<span style="color: #006080;">'&lt;%= tbDataText.ClientID %&gt;'</span>);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">//Создаем необходимые объекты ActiveX </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">var</span> CertStore = <span style="color: #0000ff;">new</span> ActiveXObject(<span style="color: #006080;">&quot;CAPICOM.Store&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">var</span> Signer = <span style="color: #0000ff;">new</span> ActiveXObject(<span style="color: #006080;">&quot;CAPICOM.Signer&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">var</span> SignedAuth = <span style="color: #0000ff;">new</span> ActiveXObject(<span style="color: #006080;">&quot;CAPICOM.SignedData&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">//Открываем хранилище сертификатов пользователя только для чтения </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            CertStore.Open(CAPICOM_CURRENT_USER_STORE, <span style="color: #006080;">&quot;MY&quot;</span>, CAPICOM_STORE_OPEN_READ_ONLY);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">//Выводим пользователю окно выбора сертификата </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">try</span> {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">var</span> certificate = CertStore.Certificates.Select(<span style="color: #006080;">&quot;Выберите сертификат для подписи документа.&quot;</span>, </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                        <span style="color: #006080;">&quot;Выберите один из сертификатов&quot;</span>, <span style="color: #0000ff;">false</span>);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">catch</span> (e) {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #008000;">// Пользователь не выбрал сертификат </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">false</span>;</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">//Подписываемые данные </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            SignedAuth.Content = <span style="color: #006080;">&quot;Дата подписи: &quot;</span> + (<span style="color: #0000ff;">new</span> Date()) + <span style="color: #006080;">&quot;, Данные: &quot;</span> + tbDataText.value;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">//Выбранный сертификат </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Signer.Certificate = certificate.Item(1);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">//Сюда запишем данные (можно писать в hidden поле, тут сделано для примера) </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">var</span> lblData = document.getElementById(<span style="color: #006080;">'&lt;%= tbSignedData.ClientID %&gt;'</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">// Подписываем </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            lblData.value = SignedAuth.Sign(Signer, <span style="color: #0000ff;">false</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        } <span style="color: #0000ff;">catch</span> (e) {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            alert(<span style="color: #006080;">'Невозможно подписать данные. Убедитесь что браузером разрешно использование ActiveX. '</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                + <span style="color: #006080;">' Добавьте сайт в Trusted Sites.'</span>);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">false</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">true</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">else</span> {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        alert(<span style="color: #006080;">'Используйте Internet Explorer для просмотра данного сайта'</span>);</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">return</span> <span style="color: #0000ff;">false</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">} </pre>
-<!--CRLF--></div>
-</div>
+<pre><code>function SignData() {
+    // Необходимые константы 
+    var CAPICOM_STORE_OPEN_READ_ONLY = 0;
+    var CAPICOM_CURRENT_USER_STORE = 2;
+    // проверяем, что поддерживаются ActiveXObject (Internet Explorer) 
+    if (window.ActiveXObject) {
+        try {
+            // Подписываемые данные 
+            var tbDataText = document.getElementById('&lt;%= tbDataText.ClientID %&gt;');
+            //Создаем необходимые объекты ActiveX 
+            var CertStore = new ActiveXObject(&quot;CAPICOM.Store&quot;);
+            var Signer = new ActiveXObject(&quot;CAPICOM.Signer&quot;);
+            var SignedAuth = new ActiveXObject(&quot;CAPICOM.SignedData&quot;);
+            //Открываем хранилище сертификатов пользователя только для чтения 
+            CertStore.Open(CAPICOM_CURRENT_USER_STORE, &quot;MY&quot;, CAPICOM_STORE_OPEN_READ_ONLY);
+            //Выводим пользователю окно выбора сертификата 
+            try {
+                var certificate = CertStore.Certificates.Select(&quot;Выберите сертификат для подписи документа.&quot;, 
+                        &quot;Выберите один из сертификатов&quot;, false);
+            }
+            catch (e) {
+                // Пользователь не выбрал сертификат 
+                return false;
+            }
+            //Подписываемые данные 
+            SignedAuth.Content = &quot;Дата подписи: &quot; + (new Date()) + &quot;, Данные: &quot; + tbDataText.value;
+            //Выбранный сертификат 
+            Signer.Certificate = certificate.Item(1);
+            //Сюда запишем данные (можно писать в hidden поле, тут сделано для примера) 
+            var lblData = document.getElementById('&lt;%= tbSignedData.ClientID %&gt;');
+            // Подписываем 
+            lblData.value = SignedAuth.Sign(Signer, false);
+        } catch (e) {
+            alert('Невозможно подписать данные. Убедитесь что браузером разрешно использование ActiveX. ' 
+                + ' Добавьте сайт в Trusted Sites.');
+            return false;
+        }
+        return true;
+    }
+    else {
+        alert('Используйте Internet Explorer для просмотра данного сайта');
+        return false;
+    }
+} </code></pre>
 
 <p>
   Данный скрипт как раз и подписывает данные на стороне клиента. Он работает только в IE, во время работы скрипта он может ругаться, требовать прав на запуск ActiveX объектов, самое простое добавить данный сайт в зону Trusted Sites. </p>
 
   <p>На стороне сервера можем выполнять следующий код при нажатии на кнопку: </p>
 
-<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
-  <div id="codeSnippet" >
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">protected</span> <span style="color: #0000ff;">void</span> btnSignData_Click(<span style="color: #0000ff;">object</span> sender, EventArgs e)</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    StringBuilder sb = <span style="color: #0000ff;">new</span> StringBuilder();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">// Смотрим, что подписано  </span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    SignedCms cms = <span style="color: #0000ff;">new</span> SignedCms();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    cms.Decode(Convert.FromBase64String(tbSignedData.Text));</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">// Проверяем подпись  </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    cms.CheckSignature(<span style="color: #0000ff;">false</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">// Что подписано  </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    sb.AppendLine(Encoding.Unicode.GetString(cms.ContentInfo.Content));</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">//Сравним сертификат, которым были подписаны данные, и клиентский сертификат   </span></pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">if</span> (Request.IsSecureConnection &amp;&amp; Request.ClientCertificate.IsPresent)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        X509Certificate2 cert = <span style="color: #0000ff;">new</span> X509Certificate2(Request.ClientCertificate.Certificate);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">if</span> (cms.SignerInfos.Count &gt; 0 &amp;&amp; <span style="color: #0000ff;">string</span>.Compare(cms.SignerInfos[0].Certificate.SerialNumber, cert.SerialNumber) == 0</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            &amp;&amp; <span style="color: #0000ff;">string</span>.Compare(cms.SignerInfos[0].Certificate.Issuer, cert.Issuer) == 0)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            sb.AppendLine(<span style="color: #006080;">&quot;&lt;br/&gt;Данные подписаны клиентским сертификатом&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">else</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            sb.AppendLine(<span style="color: #006080;">&quot;&lt;br/&gt;Данные подписаны отличным от клиентского сертификатом&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    lblData.Text = sb.ToString();</pre>
-<!--CRLF-->
-
-    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>protected void btnSignData_Click(object sender, EventArgs e)
+{
+    StringBuilder sb = new StringBuilder();
+    // Смотрим, что подписано  
+    SignedCms cms = new SignedCms();
+    cms.Decode(Convert.FromBase64String(tbSignedData.Text));
+    // Проверяем подпись  
+    cms.CheckSignature(false);
+    // Что подписано  
+    sb.AppendLine(Encoding.Unicode.GetString(cms.ContentInfo.Content));
+    //Сравним сертификат, которым были подписаны данные, и клиентский сертификат   
+    if (Request.IsSecureConnection &amp;&amp; Request.ClientCertificate.IsPresent)
+    {
+        X509Certificate2 cert = new X509Certificate2(Request.ClientCertificate.Certificate);
+        if (cms.SignerInfos.Count &gt; 0 &amp;&amp; string.Compare(cms.SignerInfos[0].Certificate.SerialNumber, cert.SerialNumber) == 0
+            &amp;&amp; string.Compare(cms.SignerInfos[0].Certificate.Issuer, cert.Issuer) == 0)
+        {
+            sb.AppendLine(&quot;&lt;br/&gt;Данные подписаны клиентским сертификатом&quot;);
+        }
+        else
+        {
+            sb.AppendLine(&quot;&lt;br/&gt;Данные подписаны отличным от клиентского сертификатом&quot;);
+        }
+    }
+    lblData.Text = sb.ToString();
+}</code></pre>
 
 <p>Для выполнения данного кода может потребоваться установить reference на библиотеку System.Security, включающую namespace System.Security.Cryptography. </p>
 

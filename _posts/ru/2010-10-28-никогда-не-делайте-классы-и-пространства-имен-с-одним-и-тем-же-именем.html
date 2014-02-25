@@ -6,42 +6,15 @@ categories: ru
 tags: [Silverlight, C#, WPF, XAML, Bug]
 alias: ru/blog/show/252
 ---
-<p>Был у нас team leader (дальше просто лид). Тогда нас всех еще набирали на работу в компанию, где я сейчас работаю. Тогда намечалось создание нового продукта. Тогда нас брали, чтобы мы реализовали этот продукт. Перед тем как нас брали лид сделал правильную вещь, он остановился на модульной архитектуре, выбрал Prism, создал несколько модулей на клиенте, а на сервере под них сервисы. Раздал каждому разработчику по модулю (они практически были все независимы) и ждал результата. Очень все было верно, разработчики знали друг друга плохо, мы писали потихоньку код и знакомились. </p>    <p>Мне тогда достался, предположим, модуль под названием ModuleTwo:</p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture0" border="0" alt="Capture0" src="/Library/2010/10/26/Capture0_37875721.png" width="231" height="219" /></p>  <p>И так получилось, что наш лид назвал сам модуль (а следовательно его основной namespace) именем ModuleTwo, а так же добавил файл ModuleTwo.cs с классом ModuleTwo, который занимался регистрацией своего модуля:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">using</span> System;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">namespace</span> ModuleTwo</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> ModuleTwo : BaseLibrary.IModuleBase</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> RegisterModule()</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotImplementedException();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<p>Был у нас team leader (дальше просто лид). Тогда нас всех еще набирали на работу в компанию, где я сейчас работаю. Тогда намечалось создание нового продукта. Тогда нас брали, чтобы мы реализовали этот продукт. Перед тем как нас брали лид сделал правильную вещь, он остановился на модульной архитектуре, выбрал Prism, создал несколько модулей на клиенте, а на сервере под них сервисы. Раздал каждому разработчику по модулю (они практически были все независимы) и ждал результата. Очень все было верно, разработчики знали друг друга плохо, мы писали потихоньку код и знакомились. </p>    <p>Мне тогда достался, предположим, модуль под названием ModuleTwo:</p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture0" border="0" alt="Capture0" src="/Library/2010/10/26/Capture0_37875721.png" width="231" height="219" /></p>  <p>И так получилось, что наш лид назвал сам модуль (а следовательно его основной namespace) именем ModuleTwo, а так же добавил файл ModuleTwo.cs с классом ModuleTwo, который занимался регистрацией своего модуля:</p>  <pre><code>using System;
+&#160;namespace ModuleTwo
+{    public class ModuleTwo : BaseLibrary.IModuleBase
+    {        public void RegisterModule()
+        {            throw new NotImplementedException();
+        }
+    }
+}
+</code></pre>
 
 <p>Конечно, в глаза сразу бросается одинаковые имена пространства имен и класса, хочется исправить. Но, в тот момент мне нечего было предъявить. На этой базе уже была создана архитектура, модули подгружались в зависимости от того, что прописано в базе. В общем, просто так поменять имя класса не получилось бы, на этом уже многое было завязано. Потому, претензию “не нравится” я предъявить не мог, а что-то дельное придумать не смог. Я накидал представления и модели представления и получилось, примерно, следующее:</p>
 
@@ -49,109 +22,38 @@ alias: ru/blog/show/252
 
 <p>ViewModel в DataContext я устанавливал при помощи такой конструкции:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl</span> <span style="color: #ff0000">x:Class</span><span style="color: #0000ff">=&quot;ModuleTwo.Views.SampleView&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">             <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">             <span style="color: #ff0000">xmlns:x</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">             <span style="color: #ff0000">xmlns:ViewModels</span><span style="color: #0000ff">=&quot;clr-namespace:ModuleTwo.ViewModels&quot;</span> <span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">ViewModels:SampleViewModel</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #008000">&lt;!-- ... --&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;UserControl x:Class=&quot;ModuleTwo.Views.SampleView&quot;
+             xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+             xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+             xmlns:ViewModels=&quot;clr-namespace:ModuleTwo.ViewModels&quot; &gt;
+&#160;    &lt;UserControl.DataContext&gt;
+        &lt;ViewModels:SampleViewModel /&gt;
+    &lt;/UserControl.DataContext&gt;
+&#160;    &lt;!-- ... --&gt;
+&#160;&lt;/UserControl&gt;
+</code></pre>
 
 <p>Реально, полгода жили с тем, что пространства имен и модули имели одно и тоже имя, никаких проблем не всплывало, пока мне не потребовалось ViewModel объекту дать имя, чтобы на него ссылаться в байдинге:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl</span> <span style="color: #ff0000">x:Class</span><span style="color: #0000ff">=&quot;ModuleTwo.Views.SampleView&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">             <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">             <span style="color: #ff0000">xmlns:x</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">             <span style="color: #ff0000">xmlns:ViewModels</span><span style="color: #0000ff">=&quot;clr-namespace:ModuleTwo.ViewModels&quot;</span> <span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">ViewModels:SampleViewModel</span> <span style="color: #ff0000">x:Name</span><span style="color: #0000ff">=&quot;ViewModel&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">ListBox</span> <span style="color: #ff0000">ItemsSource</span><span style="color: #0000ff">=&quot;{Binding Path=ItemsCollection}&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">ListBox.ItemTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">DataTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBlock</span> <span style="color: #ff0000">Text</span><span style="color: #0000ff">=&quot;{Binding Path=Name}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                    <span style="color: #0000ff">&lt;</span><span style="color: #800000">Button</span> <span style="color: #ff0000">Command</span><span style="color: #0000ff">=&quot;{Binding Path=SomeCommand, ElementName=ViewModel}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;/</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">DataTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">ListBox.ItemTemplate</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">ListBox</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;UserControl x:Class=&quot;ModuleTwo.Views.SampleView&quot;
+             xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+             xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+             xmlns:ViewModels=&quot;clr-namespace:ModuleTwo.ViewModels&quot; &gt;
+    &lt;UserControl.DataContext&gt;
+        &lt;ViewModels:SampleViewModel x:Name=&quot;ViewModel&quot; /&gt;
+    &lt;/UserControl.DataContext&gt;
+&#160;    &lt;ListBox ItemsSource=&quot;{Binding Path=ItemsCollection}&quot;&gt;
+        &lt;ListBox.ItemTemplate&gt;
+            &lt;DataTemplate&gt;
+                &lt;StackPanel&gt;
+                    &lt;TextBlock Text=&quot;{Binding Path=Name}&quot; /&gt;
+                    &lt;Button Command=&quot;{Binding Path=SomeCommand, ElementName=ViewModel}&quot; /&gt;
+                &lt;/StackPanel&gt;
+            &lt;/DataTemplate&gt;
+        &lt;/ListBox.ItemTemplate&gt;
+    &lt;/ListBox&gt;
+&lt;/UserControl&gt;
+</code></pre>
 
 <p>Вот тут-то и появилась ошибка компиляции:</p>
 
@@ -161,15 +63,8 @@ alias: ru/blog/show/252
 
 <p>Все дело в том, что класс <em>SampleView.xaml.cs</em> будет содержать поле:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #cc6633">#line</span> 6 <span style="color: #006080">&quot;..\..\..\Views\SampleView.xaml&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute(<span style="color: #006080">&quot;Microsoft.Performance&quot;</span>, <span style="color: #006080">&quot;CA1823:AvoidUnusedPrivateFields&quot;</span>)]</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">internal</span> ModuleTwo.ViewModels.SampleViewModel ViewModel;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>#line 6 &quot;..\..\..\Views\SampleView.xaml&quot;
+[System.Diagnostics.CodeAnalysis.SuppressMessageAttribute(&quot;Microsoft.Performance&quot;, &quot;CA1823:AvoidUnusedPrivateFields&quot;)]
+internal ModuleTwo.ViewModels.SampleViewModel ViewModel;
+</code></pre>
 С которым у компилятора и будут проблемы. А так как код этого класса генерируется VS, то я даже не знаю как повлиять на эту проблему. Можно, конечно, устанавливать все через <em>Resources</em> и <em>StaticResource</em> (пример на WPF, но я столкнулся на Silverlight, там DynamicResources нет). Можно потрудиться с Binding и решить все через другие элементы. Но я все-таки решил, что это как раз и есть предлог для того (вторым предлогом было то, что поменялся лид), чтобы покончить с путаницей пространств имен и имен модулей. Поменял имена классам, пришлось, конечно, и в архитектуре, в метаданных покопаться, но проблема решена окончательно.&#160;&#160; <p>Были ли случаи у вас, когда видите какую-то неправильную вещь, чувствуете, что скорее всего проблемы будут, но пока не знаете какие? А потом их встречаете?</p>

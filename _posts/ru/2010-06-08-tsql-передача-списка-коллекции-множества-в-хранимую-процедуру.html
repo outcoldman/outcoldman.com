@@ -98,131 +98,35 @@ alias: ru/blog/show/204
 
 <p>То есть у нас есть запрос выводящий нам список товаров, и есть возможность отфильтровать его по категориям или по фирмам, причем фильтровать конечно же будем по идентификаторам. Задача ясна. Как же теперь ее решать? Самый просто способ, который используют Junior программисты – это склейка SQL инструкции в коде C#, примерно, это может выглядеть так</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">List&lt;<span style="color: #0000ff">int</span>&gt; categories = <span style="color: #0000ff">new</span> List&lt;<span style="color: #0000ff">int</span>&gt;() { 1, 2, 3 };</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">StringBuilder sbSql = <span style="color: #0000ff">new</span> StringBuilder();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">sbSql.Append(</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #006080">@&quot;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    from Item i</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      inner join Firm f on i.FirmId = f.FirmId</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      inner join Category c on i.CategoryId = c.CategoryId</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    where c.CategoryId in (&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> (categories.Count &gt; 0)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> i = 0; i &lt; categories.Count; i ++)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (i != 0)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      sbSql.Append(<span style="color: #006080">&quot;,&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    sbSql.Append(categories[i]);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">else</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  sbSql.Append(<span style="color: #006080">&quot;-1&quot;</span>); <span style="color: #008000">// It is for empty result when no one category selected</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">sbSql.Append(<span style="color: #006080">&quot;)&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">string</span> sqlQuery = sbSql.ToString();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">DataTable table = <span style="color: #0000ff">new</span> DataTable();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">using</span> (SqlConnection connection = <span style="color: #0000ff">new</span> SqlConnection(<span style="color: #006080">&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;</span>))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  connection.Open();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">using</span> (SqlCommand command = <span style="color: #0000ff">new</span> SqlCommand(sqlQuery, connection))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">using</span> (SqlDataAdapter dataAdapter = <span style="color: #0000ff">new</span> SqlDataAdapter(command))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      dataAdapter.Fill(table);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #008000">//TODO: Working with table</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>List&lt;int&gt; categories = new List&lt;int&gt;() { 1, 2, 3 };
+&#160;StringBuilder sbSql = new StringBuilder();
+sbSql.Append(  @&quot;
+    select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+    from Item i
+      inner join Firm f on i.FirmId = f.FirmId
+      inner join Category c on i.CategoryId = c.CategoryId    where c.CategoryId in (&quot;);
+if (categories.Count &gt; 0)
+{  for (int i = 0; i &lt; categories.Count; i ++)
+  {    if (i != 0)
+      sbSql.Append(&quot;,&quot;);
+    sbSql.Append(categories[i]);
+  }
+}else
+{  sbSql.Append(&quot;-1&quot;); // It is for empty result when no one category selected
+}sbSql.Append(&quot;)&quot;);
+&#160;string sqlQuery = sbSql.ToString();
+&#160;DataTable table = new DataTable();
+using (SqlConnection connection = new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+{
+  connection.Open();  using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+  {    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+    {
+      dataAdapter.Fill(table);
+    }
+  }
+}
+&#160;//TODO: Working with table
+</code></pre>
 
 <p>Для того, чтобы писать поменьше кода будем фильтровать только по категориям. В приведенном коде первая строка – это список идентификаторов категорий, которые выбрал пользователь (выбранные checkbox'ы), само собой нам нет необходимости хранить имена категорий, для фильтрации хватит и идентификаторов. Проблемы этого решения очевидны – в некоторых случаях подверженность SQL-инъекциям (например, в случае строк-идентификаторов, которые мы получаем с веб-формы - пользователь с легкостью может их подменить), не очень приятное сопровождение кода, при достаточно большом количестве категорий в фильтре строка запроса будет быстро расти. И еще одна проблема – такой код невозможно поместить в хранимую процедуру (можно конечно клеить запрос и на SQL сервере). Это решение можно назвать Решение 0, так как оно применяется либо из-за лени, либо потому что так быстро.</p>
 
@@ -230,228 +134,66 @@ alias: ru/blog/show/204
 
 <p>Все остальные варианты будут использоваться в связке с хранимыми процедурами. Первый вариант – это передача параметра – строки, которая состоит из списка идентификаторов, разделенных запятой, например так <em>‘1,2,3,4,’</em>. Первое, что нужно сделать - это создать функцию, которая будет из этой строки создавать таблицу и возвращать ее, назовем данную функцию Split:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> object_id(<span style="color: #006080">'Split'</span>) <span style="color: #0000ff">is</span> <span style="color: #0000ff">not</span> <span style="color: #0000ff">null</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">drop</span> <span style="color: #0000ff">function</span> split</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">create</span> <span style="color: #0000ff">function</span> dbo.Split</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">(</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    @String <span style="color: #0000ff">int</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">returns</span> @SplittedValues <span style="color: #0000ff">table</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">(</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    Id <span style="color: #0000ff">varchar</span>(50) <span style="color: #0000ff">primary</span> <span style="color: #0000ff">key</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">as</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">begin</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">declare</span> @SplitLength <span style="color: #0000ff">int</span>, @Delimiter <span style="color: #0000ff">varchar</span>(5)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">set</span> @Delimiter = <span style="color: #006080">','</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">while</span> len(@String) &gt; 0</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">begin</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">select</span> @SplitLength = (<span style="color: #0000ff">case</span> charindex(@Delimiter,@String) <span style="color: #0000ff">when</span> 0 <span style="color: #0000ff">then</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            len(@String) <span style="color: #0000ff">else</span> charindex(@Delimiter,@String) -1 <span style="color: #0000ff">end</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        insert <span style="color: #0000ff">into</span> @SplittedValues</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">select</span> <span style="color: #0000ff">cast</span>(<span style="color: #0000ff">substring</span>(@String,1,@SplitLength) <span style="color: #0000ff">as</span> <span style="color: #0000ff">int</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">select</span> @String = (<span style="color: #0000ff">case</span> (len(@String) - @SplitLength) <span style="color: #0000ff">when</span> 0 <span style="color: #0000ff">then</span>  <span style="color: #006080">''</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">else</span> <span style="color: #0000ff">right</span>(@String, len(@String) - @SplitLength - 1) <span style="color: #0000ff">end</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">end</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">return</span>  </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">end</span> </pre>
-<!--CRLF--></div>
-</div>
+<pre><code>if object_id('Split') is not null 
+    drop function split
+go
+&#160;create function dbo.Split
+(    @String int
+)returns @SplittedValues table
+(    Id varchar(50) primary key
+)as
+begin
+    declare @SplitLength int, @Delimiter varchar(5)
+    set @Delimiter = ','
+    while len(@String) &gt; 0
+    begin 
+        select @SplitLength = (case charindex(@Delimiter,@String) when 0 then
+            len(@String) else charindex(@Delimiter,@String) -1 end)
+&#160;        insert into @SplittedValues
+        select cast(substring(@String,1,@SplitLength) as int)
+        select @String = (case (len(@String) - @SplitLength) when 0 then  ''
+            else right(@String, len(@String) - @SplitLength - 1) end)
+    end 
+return  
+end 
+</code></pre>
 
 <p>Теперь мы можем использовать эту функцию в нашей хранимой процедуре для поиска продуктов</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> object_id(<span style="color: #006080">'FindItems'</span>) <span style="color: #0000ff">is</span> <span style="color: #0000ff">not</span> <span style="color: #0000ff">null</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">drop</span> <span style="color: #0000ff">proc</span> FindItems</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">set</span> ansi_nulls <span style="color: #0000ff">on</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">go</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">set</span> quoted_identifier <span style="color: #0000ff">on</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">create</span> <span style="color: #0000ff">proc</span> FindItems</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">(</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    @categories <span style="color: #0000ff">varchar</span>(<span style="color: #0000ff">max</span>)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">as</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">begin</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">select</span> i.Name <span style="color: #0000ff">as</span> ItemName, f.Name <span style="color: #0000ff">as</span> FirmName, c.Name <span style="color: #0000ff">as</span> CategoryName </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">from</span> Item i</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> Firm f <span style="color: #0000ff">on</span> i.FirmId = f.FirmId</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> Category c <span style="color: #0000ff">on</span> i.CategoryId = c.CategoryId</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> dbo.Split(@categories) cf <span style="color: #0000ff">on</span> c.CategoryId = cf.Id</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">end</span> </pre>
-<!--CRLF--></div>
-</div>
+<pre><code>if object_id('FindItems') is not null 
+    drop proc FindItems
+go
+&#160;set ansi_nulls on
+go 
+set quoted_identifier on
+go
+&#160;create proc FindItems
+(    @categories varchar(max)
+)as
+begin
+  select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+  from Item i
+    inner join Firm f on i.FirmId = f.FirmId
+    inner join Category c on i.CategoryId = c.CategoryId
+    inner join dbo.Split(@categories) cf on c.CategoryId = cf.Id
+end 
+</code></pre>
 
 <p>Ну и соответственно C# код, при помощи которого мы сможем получить список продуктов:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">List&lt;<span style="color: #0000ff">int</span>&gt; categories = <span style="color: #0000ff">new</span> List&lt;<span style="color: #0000ff">int</span>&gt;() { 1, 2, 3 };</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">DataTable <span style="color: #0000ff">table</span> = <span style="color: #0000ff">new</span> DataTable();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">using</span> (SqlConnection <span style="color: #0000ff">connection</span> = <span style="color: #0000ff">new</span> SqlConnection(&quot;<span style="color: #0000ff">Data</span> Source=(<span style="color: #0000ff">local</span>);Initial <span style="color: #0000ff">Catalog</span>=TableParameters;Integrated Security=SSPI;&quot;))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">connection</span>.<span style="color: #0000ff">Open</span>();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">using</span> (SqlCommand command = <span style="color: #0000ff">new</span> SqlCommand(&quot;FindItems&quot;, <span style="color: #0000ff">connection</span>) { CommandType = CommandType.StoredProcedure })</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    command.<span style="color: #0000ff">Parameters</span>.AddWithValue(&quot;@categories&quot;, string.<span style="color: #0000ff">Join</span>(&quot;,&quot;, categories));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">using</span> (SqlDataAdapter dataAdapter = <span style="color: #0000ff">new</span> SqlDataAdapter(command))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      dataAdapter.Fill(<span style="color: #0000ff">table</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">//TODO: Working <span style="color: #0000ff">with</span> table</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>List&lt;int&gt; categories = new List&lt;int&gt;() { 1, 2, 3 };
+&#160;DataTable table = new DataTable();
+using (SqlConnection connection = new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+{  connection.Open();
+  using (SqlCommand command = new SqlCommand(&quot;FindItems&quot;, connection) { CommandType = CommandType.StoredProcedure })
+  {    command.Parameters.AddWithValue(&quot;@categories&quot;, string.Join(&quot;,&quot;, categories));
+    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+    {      dataAdapter.Fill(table);
+    }
+  }
+}
+&#160;//TODO: Working with table
+</code></pre>
 
 
 <p>Недостатки данного подхода так же очевидны, если это будут строки с возможными запятыми или объекты с композитными ключами то с данным подходом будут трудности. Но в простых случаях он более чем достоин внимания и используется повсеместно.</p>
@@ -460,355 +202,100 @@ alias: ru/blog/show/204
 
 <p>Проблемы, которые были в Решение 1 можно решить при помощи Bulk Insert – эта процедура будет копировать из серверного кода C# из объекта DataTable в экземпляр SQL приложения во временную таблицу данные, с которыми мы потом сможем работать. Давайте сначала перепишем нашу процедуру FindItems</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> object_id(<span style="color: #006080">'FindItems'</span>) <span style="color: #0000ff">is</span> <span style="color: #0000ff">not</span> <span style="color: #0000ff">null</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">drop</span> <span style="color: #0000ff">proc</span> FindItems</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">set</span> ansi_nulls <span style="color: #0000ff">on</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">go</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">set</span> quoted_identifier <span style="color: #0000ff">on</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">create</span> <span style="color: #0000ff">proc</span> FindItems</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">as</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">begin</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> object_id(<span style="color: #006080">'tempdb..#FilterCategory'</span>) <span style="color: #0000ff">is</span> <span style="color: #0000ff">null</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">begin</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">raiserror</span>(<span style="color: #006080">'#FilterCategory(id int) should be created'</span>, 16, 1)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">return</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">end</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">select</span> i.Name <span style="color: #0000ff">as</span> ItemName, f.Name <span style="color: #0000ff">as</span> FirmName, c.Name <span style="color: #0000ff">as</span> CategoryName </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">from</span> Item i</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> Firm f <span style="color: #0000ff">on</span> i.FirmId = f.FirmId</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> Category c <span style="color: #0000ff">on</span> i.CategoryId = c.CategoryId</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> #FilterCategory cf <span style="color: #0000ff">on</span> c.CategoryId = cf.Id</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">end</span> </pre>
-<!--CRLF--></div>
-</div>
+<pre><code>if object_id('FindItems') is not null 
+    drop proc FindItems
+go
+&#160;set ansi_nulls on
+go 
+set quoted_identifier on
+go
+&#160;create proc FindItems
+as
+begin
+    if object_id('tempdb..#FilterCategory') is null 
+    begin
+        raiserror('#FilterCategory(id int) should be created', 16, 1)
+        return
+    end
+    select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+    from Item i
+        inner join Firm f on i.FirmId = f.FirmId
+        inner join Category c on i.CategoryId = c.CategoryId
+        inner join #FilterCategory cf on c.CategoryId = cf.Id
+end 
+</code></pre>
 
 <p>Теперь эта процедура будет ожидать, что перед тем как ее будут использовать создадут временную табличку #FilterCategory, которую она уже будет использовать. Кода на C# нам придется писать побольше чем в прошлый, давайте создадим отдельный класс-репозиторий ItemsRepository</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> ItemsRepository</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> DataTable FindItems(List&lt;<span style="color: #0000ff">int</span>&gt; categories)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    DataTable tbCategories = <span style="color: #0000ff">new</span> DataTable(<span style="color: #006080">&quot;FilterCategory&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    tbCategories.Columns.Add(<span style="color: #006080">&quot;Id&quot;</span>, <span style="color: #0000ff">typeof</span> (<span style="color: #0000ff">int</span>));</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    categories.ForEach(x =&gt; tbCategories.Rows.Add(x));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">using</span> (</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      SqlConnection connection =</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">new</span> SqlConnection(<span style="color: #006080">&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;</span>))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      connection.Open();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">using</span> (SqlTransaction transaction = connection.BeginTransaction())</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">try</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          <span style="color: #0000ff">string</span> tableName = <span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;tempdb..#{0}&quot;</span>, tbCategories.TableName);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          CreateTableOnSqlServer(connection, transaction, tbCategories, tableName);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          CopyDataToSqlServer(connection, transaction, tbCategories, tableName);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          DataTable result = <span style="color: #0000ff">new</span> DataTable();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          <span style="color: #0000ff">using</span> (SqlCommand command = <span style="color: #0000ff">new</span> SqlCommand(<span style="color: #006080">&quot;FindItems&quot;</span>, connection, transaction)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                        {CommandType = CommandType.StoredProcedure})</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">using</span> (SqlDataAdapter dataAdapter = <span style="color: #0000ff">new</span> SqlDataAdapter(command))</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">              dataAdapter.Fill(result);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          transaction.Commit();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          <span style="color: #0000ff">return</span> result;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">catch</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          transaction.Rollback();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          <span style="color: #0000ff">throw</span>;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> CopyDataToSqlServer(SqlConnection connection, SqlTransaction transaction, DataTable table,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                          <span style="color: #0000ff">string</span> tableName)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">using</span> (SqlBulkCopy bulkCopy = <span style="color: #0000ff">new</span> SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                    {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                      DestinationTableName = tableName</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                                    })</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      bulkCopy.WriteToServer(table);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> CreateTableOnSqlServer(SqlConnection connection, SqlTransaction transaction, DataTable table,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                                             <span style="color: #0000ff">string</span> tableName)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    StringBuilder sb = <span style="color: #0000ff">new</span> StringBuilder();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    sb.AppendFormat(<span style="color: #006080">&quot;create table {0}(&quot;</span>, tableName);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">foreach</span> (DataColumn column <span style="color: #0000ff">in</span> table.Columns)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      sb.AppendFormat(<span style="color: #006080">&quot;{0} {1} {2}&quot;</span>,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                      table.Columns.IndexOf(column) == 0 ? <span style="color: #0000ff">string</span>.Empty : <span style="color: #006080">&quot;,&quot;</span>,</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">                      column.ColumnName, GetSqlType(column.DataType));</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    sb.Append(<span style="color: #006080">&quot;)&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">using</span> (SqlCommand command = <span style="color: #0000ff">new</span> SqlCommand(sb.ToString(), connection, transaction))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      command.ExecuteNonQuery();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #0000ff">private</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">string</span> GetSqlType(Type type)</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span> (<span style="color: #0000ff">string</span>))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">return</span> <span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;{0}(max)&quot;</span>, SqlDbType.VarChar);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">else</span> <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span> (<span style="color: #0000ff">int</span>))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">return</span> SqlDbType.Int.ToString();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">else</span> <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span> (<span style="color: #0000ff">bool</span>))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">return</span> SqlDbType.Bit.ToString();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">else</span> <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span> (DateTime))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">return</span> SqlDbType.DateTime.ToString();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">else</span> <span style="color: #0000ff">if</span> (type == <span style="color: #0000ff">typeof</span> (Single))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">return</span> SqlDbType.Float.ToString();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">else</span> <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotImplementedException();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">}</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>public class ItemsRepository
+{  public static DataTable FindItems(List&lt;int&gt; categories)
+  {    DataTable tbCategories = new DataTable(&quot;FilterCategory&quot;);
+    tbCategories.Columns.Add(&quot;Id&quot;, typeof (int));
+    categories.ForEach(x =&gt; tbCategories.Rows.Add(x));
+&#160;    using (
+      SqlConnection connection =        new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+    {
+      connection.Open();      using (SqlTransaction transaction = connection.BeginTransaction())
+      {        try
+        {          string tableName = string.Format(&quot;tempdb..#{0}&quot;, tbCategories.TableName);
+&#160;
+          CreateTableOnSqlServer(connection, transaction, tbCategories, tableName);
+          CopyDataToSqlServer(connection, transaction, tbCategories, tableName);
+&#160;          DataTable result = new DataTable();
+          using (SqlCommand command = new SqlCommand(&quot;FindItems&quot;, connection, transaction)
+                                        {CommandType = CommandType.StoredProcedure})
+          {            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+            {
+              dataAdapter.Fill(result);
+            }
+          }
+          transaction.Commit();          return result;
+        }        catch
+        {
+          transaction.Rollback();          throw;
+        }
+      }
+    }
+  }
+&#160;  private static void CopyDataToSqlServer(SqlConnection connection, SqlTransaction transaction, DataTable table,
+                                          string tableName)
+  {    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction)
+                                    {
+                                      DestinationTableName = tableName
+                                    })
+    {
+      bulkCopy.WriteToServer(table);
+    }
+  }
+&#160;  private static void CreateTableOnSqlServer(SqlConnection connection, SqlTransaction transaction, DataTable table,
+                                             string tableName)
+  {    StringBuilder sb = new StringBuilder();
+&#160;    sb.AppendFormat(&quot;create table {0}(&quot;, tableName);
+    foreach (DataColumn column in table.Columns)
+    {      sb.AppendFormat(&quot;{0} {1} {2}&quot;,
+                      table.Columns.IndexOf(column) == 0 ? string.Empty : &quot;,&quot;,
+                      column.ColumnName, GetSqlType(column.DataType));
+    }    sb.Append(&quot;)&quot;);
+&#160;    using (SqlCommand command = new SqlCommand(sb.ToString(), connection, transaction))
+    {
+      command.ExecuteNonQuery();
+    }
+  }
+&#160;  private static string GetSqlType(Type type)
+  {    if (type == typeof (string))
+      return string.Format(&quot;{0}(max)&quot;, SqlDbType.VarChar);
+    else if (type == typeof (int))
+      return SqlDbType.Int.ToString();
+    else if (type == typeof (bool))
+      return SqlDbType.Bit.ToString();
+    else if (type == typeof (DateTime))
+      return SqlDbType.DateTime.ToString();
+    else if (type == typeof (Single))
+      return SqlDbType.Float.ToString();
+    else throw new NotImplementedException();
+  }
+}
+</code></pre>
 
 
 <p>Метод FindItems создает объект DataTable, записывает в него список идентификаторов категорий, по которым хотим отфильтровать, дальше метод открывает новую транзакцию, создает на сервере временную табличку #FilterCategories, копирует содержимое DataTable в эту таблицу и вызывает хранимую процедуру FindItems. Замечу, что временные таблицы tempdb..#&lt;TableName&gt; живут только в определенном Scope, в нашем случае это транзакция (потому если несколько пользователей вызовут этот метод в один момент, то ничего страшного не будет и они друг другу не помешают), и потому что таблица живет только на время жизни транзакции, то и удалится она при завершении транзакции (правда, все равно рекомендуют удалять временные таблицы самим именно тогда, когда она уже вам не нужна). </p>
@@ -817,226 +304,75 @@ alias: ru/blog/show/204
 
 <p>Давайте найдем минусы данного подхода. Минус “больше кода” сразу выбрасываем, так как это все можно зарефакторить и вынести в специальные классы во внутренний фреймворк и забыть. Другие минусы – это лишние создания временных таблиц, ну и соответственно лишние запросы к базе данных. Так же могут быть проблемы, если внутри одной хранимой процедуры запускаете другую, которая может сама создает временную таблицу с таким же именем, либо когда происходит рекурсивный вызов. Еще недостаток данного подхода в тестировании самой процедуры, в смысле в работе с ней из Management Studio, нужно постоянно писать скрипт для создания временной таблицы (а это еще нужно вспомнить какая у нее структура, да как называется).</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">create</span> <span style="color: #0000ff">table</span> #FilterCategory(id <span style="color: #0000ff">int</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">insert <span style="color: #0000ff">into</span> #FilterCategory ( id ) <span style="color: #0000ff">values</span>  ( 1  )</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">insert <span style="color: #0000ff">into</span> #FilterCategory ( id ) <span style="color: #0000ff">values</span>  ( 2 )</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">insert <span style="color: #0000ff">into</span> #FilterCategory ( id ) <span style="color: #0000ff">values</span>  ( 3  )</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">insert <span style="color: #0000ff">into</span> #FilterCategory ( id ) <span style="color: #0000ff">values</span>  ( 4  )</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">exec</span> FindItems</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">drop</span> <span style="color: #0000ff">table</span>  #FilterCategory</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>create table #FilterCategory(id int)
+insert into #FilterCategory ( id ) values  ( 1  )
+insert into #FilterCategory ( id ) values  ( 2 )
+insert into #FilterCategory ( id ) values  ( 3  )
+insert into #FilterCategory ( id ) values  ( 4  )
+&#160;exec FindItems
+&#160;drop table  #FilterCategory
+</code></pre>
 
 <h2>Решение 3. Table-Valued Parameters (Database Engine)</h2>
 
 <p>И последнее решение – это использование table-valued parameters (о которых к сожалению я узнал не так давно, надо внимательнее смотреть <em>What’s new </em>в новых версиях продуктов, которые мы используем). Этот подход очень похож на BULK-INSERT, только немного упрощает его. Использовать его можно с базами данных MS SQL 2008 и выше. Опять переписываем процедуру FindItems, не забываем создать тип-таблицу Identifiers</p>
 
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> object_id(<span style="color: #006080">'FindItems'</span>) <span style="color: #0000ff">is</span> <span style="color: #0000ff">not</span> <span style="color: #0000ff">null</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">drop</span> <span style="color: #0000ff">proc</span> FindItems</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> <span style="color: #0000ff">exists</span>(<span style="color: #0000ff">select</span> * <span style="color: #0000ff">from</span> sys.types <span style="color: #0000ff">where</span> name = <span style="color: #006080">'Identifiers'</span>)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">drop</span> type Identifiers</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">create</span> type Identifiers <span style="color: #0000ff">AS</span> <span style="color: #0000ff">TABLE</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">( id <span style="color: #0000ff">int</span> <span style="color: #0000ff">primary</span> <span style="color: #0000ff">key</span>);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">set</span> ansi_nulls <span style="color: #0000ff">on</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">go</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">set</span> quoted_identifier <span style="color: #0000ff">on</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">create</span> <span style="color: #0000ff">proc</span> FindItems</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">(</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    @categories Identifiers readonly</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">as</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">begin</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">select</span> i.Name <span style="color: #0000ff">as</span> ItemName, f.Name <span style="color: #0000ff">as</span> FirmName, c.Name <span style="color: #0000ff">as</span> CategoryName </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">from</span> Item i</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> Firm f <span style="color: #0000ff">on</span> i.FirmId = f.FirmId</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> Category c <span style="color: #0000ff">on</span> i.CategoryId = c.CategoryId</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">inner</span> <span style="color: #0000ff">join</span> @categories cf <span style="color: #0000ff">on</span> c.CategoryId = cf.Id</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">end</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">go</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>if object_id('FindItems') is not null 
+    drop proc FindItems
+go
+&#160;if exists(select * from sys.types where name = 'Identifiers')
+    drop type Identifiers
+go
+&#160;create type Identifiers AS TABLE 
+( id int primary key);
+go
+&#160;set ansi_nulls on
+go 
+set quoted_identifier on
+go
+&#160;create proc FindItems
+(
+    @categories Identifiers readonly
+)as
+begin
+    select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+    from Item i
+        inner join Firm f on i.FirmId = f.FirmId
+        inner join Category c on i.CategoryId = c.CategoryId
+        inner join @categories cf on c.CategoryId = cf.Id
+end 
+go
+</code></pre>
 
 <p>Ну и переписываем теперь серверный код</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em">List&lt;<span style="color: #0000ff">int</span>&gt; categories = <span style="color: #0000ff">new</span> List&lt;<span style="color: #0000ff">int</span>&gt;() { 1, 2, 3 };</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">DataTable tbCategories = <span style="color: #0000ff">new</span> DataTable(<span style="color: #006080">&quot;FilterCategory&quot;</span>);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">tbCategories.Columns.Add(<span style="color: #006080">&quot;Id&quot;</span>, <span style="color: #0000ff">typeof</span>(<span style="color: #0000ff">int</span>));</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">categories.ForEach(x =&gt; tbCategories.Rows.Add(x));</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">DataTable table = <span style="color: #0000ff">new</span> DataTable();</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">using</span> (SqlConnection connection = <span style="color: #0000ff">new</span> SqlConnection(<span style="color: #006080">&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;</span>))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">{</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  connection.Open();</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">using</span> (SqlCommand command = <span style="color: #0000ff">new</span> SqlCommand(<span style="color: #006080">&quot;FindItems&quot;</span>, connection) { CommandType = CommandType.StoredProcedure })</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  {</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    command.Parameters.AddWithValue(<span style="color: #006080">&quot;@categories&quot;</span>, tbCategories);</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">using</span> (SqlDataAdapter dataAdapter = <span style="color: #0000ff">new</span> SqlDataAdapter(command))</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    {</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      dataAdapter.Fill(table);</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    }</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  }</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">}</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>List&lt;int&gt; categories = new List&lt;int&gt;() { 1, 2, 3 };
+&#160;DataTable tbCategories = new DataTable(&quot;FilterCategory&quot;);
+tbCategories.Columns.Add(&quot;Id&quot;, typeof(int));
+categories.ForEach(x =&gt; tbCategories.Rows.Add(x));
+&#160;DataTable table = new DataTable();
+using (SqlConnection connection = new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+{
+  connection.Open();  using (SqlCommand command = new SqlCommand(&quot;FindItems&quot;, connection) { CommandType = CommandType.StoredProcedure })
+  {    command.Parameters.AddWithValue(&quot;@categories&quot;, tbCategories);
+    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+    {
+      dataAdapter.Fill(table);
+    }
+  }
+}
+&#160;
+</code></pre>
 
 <p>Он стал намного проще, чем был с Bulk Insert и работать в Management Studio с процедурой стало чуть-чуть попроще</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">declare</span> @categories Identifiers</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">insert <span style="color: #0000ff">into</span> @categories ( id ) <span style="color: #0000ff">values</span>  ( 1  )</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">insert <span style="color: #0000ff">into</span> @categories ( id ) <span style="color: #0000ff">values</span>  ( 2 )</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">insert <span style="color: #0000ff">into</span> @categories ( id ) <span style="color: #0000ff">values</span>  ( 3  )</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">insert <span style="color: #0000ff">into</span> @categories ( id ) <span style="color: #0000ff">values</span>  ( 4  )</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">exec</span> FindItems @categories</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>declare @categories Identifiers
+&#160;insert into @categories ( id ) values  ( 1  )
+insert into @categories ( id ) values  ( 2 )
+insert into @categories ( id ) values  ( 3  )
+insert into @categories ( id ) values  ( 4  )
+&#160;exec FindItems @categories
+</code></pre>
 
 <p>У table-valued parameters есть некоторые ограничения, вроде того, что данные параметры всегда должны быть readonly. По поводу производительности в сравнении с Bulk Insert в этой статье <a href="http://msdn.microsoft.com/en-us/library/bb510489.aspx">Table-Valued Parameters (Database Engine)</a> приводится таблица, в которой поясняется когда лучше использовать table-valued parameters, а когда Bulk Insert. А в целом когда какой подход выбирать – решать вам.</p>

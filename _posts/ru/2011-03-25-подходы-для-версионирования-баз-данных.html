@@ -6,51 +6,22 @@ categories: ru
 tags: [TSQL, SQL Server, CCNet, Continuous Integration, Database]
 alias: ru/blog/show/283
 ---
-<p>У нас достаточно молодая сейчас команда, времени особо нет на эксперименты, развитие проекта идет семимильными шагами. Попробовали несколько подходов для хранения/версионирования баз данных. Хотел бы с вами поделиться проблемами, которые мы встречали, а так же нашими решениями. Ну и с удовольствием выслушаю ваши комментарии, предложения, рекомендации.</p>    <h2>Подход #0 неоправданный</h2>  <p>Самый первый подход избранный нами – это совсем не хранить версии. То есть хранить в репозитории только скрипты создания базы данных с нуля. Один из вариантов – это использование Database Project, который существует в Visual Studio, еще можно использоватьSolution, который есть в Management Studio, благо у Management Studio также есть интеграция с Team Foundation Server 2010 (для этого нужно установить <a href="http://visualstudiogallery.msdn.microsoft.com/bce06506-be38-47a1-9f29-d3937d3d88d6/">Team Foundation Server MSSCCI Provider 2010</a>). Если не использовать эти проекты, есть еще и самый простой вариант, с которого мы начинали – это просто хранить самописные скрипты создания сущностей баз данных. Минусы самописных скриптов очевидны, сложно проверить работоспособность скриптов (хотя бы опечатки в названии таблиц) без выполнения скриптов, возможны случаи забывания “положить” последние изменения с базами данных в скрипты. Ведь все равно работа основная идет с Management Studio, по крайней мере, так делаем мы: изменяем все в Management Studio, потому что нам так проще, а потом уже обновляем скрипты. </p>  <p>Database project, который идет в составе Visual Studio 2010, немного облегчил нам жизнь. Легко, при помощи Schema Comparison можно обновить файлы Database Project сравнив ее с живой базой данных. Schema Comparison в Visual Studio позволяет сравнивать как две базы данных, так и базу данных с Database Project. В целом очень удобно. Вносишь изменения в базу данных, делаешь Comparison, потом чекинишь изменения в TFS. </p>  <p>Так же мы добавили в nant скрипт автоматический деплой последней версии базы данных на тестовую базу данных (она постоянно пересоздавалась с нуля), где у нас потом выполняются тесты. То есть проект так же постоянно билдится и тестируется. Вот как в nant выглядит этот target:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">   <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">target</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;deploy-database&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">exec</span> <span style="color: #ff0000">program</span><span style="color: #0000ff">=&quot;C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319\msbuild.exe&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">arg</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">path</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">pathelement</span> <span style="color: #ff0000">file</span><span style="color: #0000ff">=&quot;Database\Database.dbproj&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">path</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">arg</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">arg</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;/t:Deploy&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">arg</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;/p:UserSandboxSettings=false&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">arg</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;/p:TargetDatabase=${database}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">arg</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;/p:TargetConnectionString=&amp;quot;Data Source=dbserver;User ID=dbuser;Password=dbuserpassword&amp;quot;&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">arg</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;/p:DeployToDatabase=true&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">arg</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;/logger:&amp;quot;C:\Program Files (x86)\CruiseControl.NET\server\ThoughtWorks.CruiseControl.MsBuild.dll&amp;quot;&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">exec</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">target</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<p>У нас достаточно молодая сейчас команда, времени особо нет на эксперименты, развитие проекта идет семимильными шагами. Попробовали несколько подходов для хранения/версионирования баз данных. Хотел бы с вами поделиться проблемами, которые мы встречали, а так же нашими решениями. Ну и с удовольствием выслушаю ваши комментарии, предложения, рекомендации.</p>    <h2>Подход #0 неоправданный</h2>  <p>Самый первый подход избранный нами – это совсем не хранить версии. То есть хранить в репозитории только скрипты создания базы данных с нуля. Один из вариантов – это использование Database Project, который существует в Visual Studio, еще можно использоватьSolution, который есть в Management Studio, благо у Management Studio также есть интеграция с Team Foundation Server 2010 (для этого нужно установить <a href="http://visualstudiogallery.msdn.microsoft.com/bce06506-be38-47a1-9f29-d3937d3d88d6/">Team Foundation Server MSSCCI Provider 2010</a>). Если не использовать эти проекты, есть еще и самый простой вариант, с которого мы начинали – это просто хранить самописные скрипты создания сущностей баз данных. Минусы самописных скриптов очевидны, сложно проверить работоспособность скриптов (хотя бы опечатки в названии таблиц) без выполнения скриптов, возможны случаи забывания “положить” последние изменения с базами данных в скрипты. Ведь все равно работа основная идет с Management Studio, по крайней мере, так делаем мы: изменяем все в Management Studio, потому что нам так проще, а потом уже обновляем скрипты. </p>  <p>Database project, который идет в составе Visual Studio 2010, немного облегчил нам жизнь. Легко, при помощи Schema Comparison можно обновить файлы Database Project сравнив ее с живой базой данных. Schema Comparison в Visual Studio позволяет сравнивать как две базы данных, так и базу данных с Database Project. В целом очень удобно. Вносишь изменения в базу данных, делаешь Comparison, потом чекинишь изменения в TFS. </p>  <p>Так же мы добавили в nant скрипт автоматический деплой последней версии базы данных на тестовую базу данных (она постоянно пересоздавалась с нуля), где у нас потом выполняются тесты. То есть проект так же постоянно билдится и тестируется. Вот как в nant выглядит этот target:</p>  <pre><code>&lt;target name=&quot;deploy-database&quot;&gt;
+    &lt;exec program=&quot;C:\WINDOWS\Microsoft.NET\Framework\v4.0.30319\msbuild.exe&quot;&gt;
+        &lt;arg&gt;
+            &lt;path&gt;
+                &lt;pathelement file=&quot;Database\Database.dbproj&quot;/&gt;
+            &lt;/path&gt;
+        &lt;/arg&gt;
+        &lt;arg value=&quot;/t:Deploy&quot; /&gt;
+        &lt;arg value=&quot;/p:UserSandboxSettings=false&quot; /&gt;
+        &lt;arg value=&quot;/p:TargetDatabase=${database}&quot; /&gt;
+        &lt;arg value=&quot;/p:TargetConnectionString=&amp;quot;Data Source=dbserver;User ID=dbuser;Password=dbuserpassword&amp;quot;&quot; /&gt;
+        &lt;arg value=&quot;/p:DeployToDatabase=true&quot; /&gt;
+        &lt;arg value=&quot;/logger:&amp;quot;C:\Program Files (x86)\CruiseControl.NET\server\ThoughtWorks.CruiseControl.MsBuild.dll&amp;quot;&quot; /&gt;
+    &lt;/exec&gt;
+&lt;/target&gt;
+</code></pre>
 
 <p>Кстати, кто не пользуется nant’ом – рекомендую, достаточно удобно в нем даже локально прописать какие-то действия, вроде запуск всех тестов или сборки проекта, чтобы быстренько запускать их из командной строки, даже не запуская студию. </p>
 
@@ -77,29 +48,14 @@ alias: ru/blog/show/283
 
 <p>К тому подходу так же рекомендуется делать все скрипты перезапускаемыми (спорный тоже момент, а нужно ли). То есть, если вы добавляете таблицу, то делаете это так</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> object_id(<span style="color: #006080">'Users'</span>) <span style="color: #0000ff">is</span> <span style="color: #0000ff">not</span> <span style="color: #0000ff">null</span> </pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em"><span style="color: #0000ff">begin</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">create</span> <span style="color: #0000ff">table</span> Users(</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        Id <span style="color: #0000ff">int</span> <span style="color: #0000ff">primary</span> <span style="color: #0000ff">key</span>,</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        Name <span style="color: #0000ff">varchar</span>(255)</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    ) </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">end</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>if object_id('Users') is not null 
+begin
+    create table Users(
+        Id int primary key,
+        Name varchar(255)
+    ) 
+end
+</code></pre>
 
 <p>В случае повторного запуска скрипта не будет никаких ошибок, так как таблица уже создана. Этот подход хорош, например, в случае, когда вы при помощи Management Studio делаете изменения, сохраняя их, а также генерируете скрипт, чтобы положить его в репозиторий (все же знают, что можно генерировать скипты изменений таблиц и т.п.?). В общем, вы добавите изменения в Management Studio, добавите разработку в проекте, чтобы это все работало, и потом одни чекином запишите это все в репозиторий. Хороший вариант, если при билде (на continuous integration сервере) эти скрипты накатятся еще раз на базу данных (или на тестовую базу данных), чтобы не забылось, а так же чтобы проверить работоспособность скрипта. </p>
 
@@ -113,143 +69,46 @@ alias: ru/blog/show/283
 
 <p>Итак, давайте рассмотрим на примере, что дает нам LiquiBase. </p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;?</span><span style="color: #800000">xml</span> <span style="color: #ff0000">version</span><span style="color: #0000ff">=&quot;1.0&quot;</span> <span style="color: #ff0000">encoding</span><span style="color: #0000ff">=&quot;UTF-8&quot;</span>?<span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">databaseChangeLog</span> <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;http://www.liquibase.org/xml/ns/dbchangelog/1.7&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">  <span style="color: #ff0000">xmlns:xsi</span><span style="color: #0000ff">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">  <span style="color: #ff0000">xsi:schemaLocation</span><span style="color: #0000ff">=&quot;http://www.liquibase.org/xml/ns/dbchangelog/1.7</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">changeSet</span> <span style="color: #ff0000">id</span><span style="color: #0000ff">=&quot;1&quot;</span> <span style="color: #ff0000">author</span><span style="color: #0000ff">=&quot;betsey&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">createTable</span> <span style="color: #ff0000">tableName</span><span style="color: #0000ff">=&quot;distributor&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;id&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;int&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          <span style="color: #0000ff">&lt;</span><span style="color: #800000">constraints</span> <span style="color: #ff0000">primaryKey</span><span style="color: #0000ff">=&quot;true&quot;</span> <span style="color: #ff0000">nullable</span><span style="color: #0000ff">=&quot;false&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">column</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;name&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;varchar(255)&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">          <span style="color: #0000ff">&lt;</span><span style="color: #800000">constraints</span> <span style="color: #ff0000">nullable</span><span style="color: #0000ff">=&quot;false&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">column</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;address&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;varchar(255)&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">          <span style="color: #0000ff">&lt;</span><span style="color: #800000">constraints</span> <span style="color: #ff0000">nullable</span><span style="color: #0000ff">=&quot;true&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">column</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;active&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;boolean&quot;</span> <span style="color: #ff0000">defaultValue</span><span style="color: #0000ff">=&quot;1&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">createTable</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">changeSet</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">changeSet</span> <span style="color: #ff0000">id</span><span style="color: #0000ff">=&quot;2&quot;</span> <span style="color: #ff0000">author</span><span style="color: #0000ff">=&quot;joe&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">addColumn</span> <span style="color: #ff0000">tableName</span><span style="color: #0000ff">=&quot;distributor&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;phonenumber&quot;</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;varchar(255)&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">addColumn</span><span style="color: #0000ff">&gt;</span> </pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">changeSet</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">changeSet</span> <span style="color: #ff0000">id</span><span style="color: #0000ff">=&quot;3&quot;</span> <span style="color: #ff0000">author</span><span style="color: #0000ff">=&quot;betsey&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">code</span> <span style="color: #ff0000">type</span><span style="color: #0000ff">=&quot;section&quot;</span> <span style="color: #ff0000">width</span><span style="color: #0000ff">=&quot;100%&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">insert</span> <span style="color: #ff0000">tableName</span><span style="color: #0000ff">=&quot;distributor&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;id&quot;</span> <span style="color: #ff0000">valueNumeric</span><span style="color: #0000ff">=&quot;3&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;name&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;Manassas Beer Company&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">insert</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">insert</span> <span style="color: #ff0000">tableName</span><span style="color: #0000ff">=&quot;distributor&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;id&quot;</span> <span style="color: #ff0000">valueNumeric</span><span style="color: #0000ff">=&quot;4&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">column</span> <span style="color: #ff0000">name</span><span style="color: #0000ff">=&quot;name&quot;</span> <span style="color: #ff0000">value</span><span style="color: #0000ff">=&quot;Harrisonburg Beer Distributors&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;/</span><span style="color: #800000">insert</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">changeSet</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">changeSet</span> <span style="color: #ff0000">id</span><span style="color: #0000ff">=&quot;4&quot;</span> <span style="color: #ff0000">author</span><span style="color: #0000ff">=&quot;joe&quot;</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">      <span style="color: #0000ff">&lt;</span><span style="color: #800000">sqlFile</span> <span style="color: #ff0000">path</span><span style="color: #0000ff">=&quot;insert-distributor-data.sql&quot;</span><span style="color: #0000ff">/&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">changeSet</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF-->
-
-    <pre style="margin: 0em">&#160;</pre>
-<!--CRLF-->
-
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">databaseChangeLog</span><span style="color: #0000ff">&gt;</span></pre>
-<!--CRLF--></div>
-</div>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&#160;&lt;databaseChangeLog xmlns=&quot;http://www.liquibase.org/xml/ns/dbchangelog/1.7&quot;
+  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+  xsi:schemaLocation=&quot;http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd&quot;&gt;
+&#160;    &lt;changeSet id=&quot;1&quot; author=&quot;betsey&quot;&gt;
+      &lt;createTable tableName=&quot;distributor&quot;&gt;
+        &lt;column name=&quot;id&quot; type=&quot;int&quot;&gt;
+          &lt;constraints primaryKey=&quot;true&quot; nullable=&quot;false&quot;/&gt;
+        &lt;/column&gt;
+        &lt;column name=&quot;name&quot; type=&quot;varchar(255)&quot;&gt;
+          &lt;constraints nullable=&quot;false&quot;/&gt;
+        &lt;/column&gt;
+        &lt;column name=&quot;address&quot; type=&quot;varchar(255)&quot;&gt;
+          &lt;constraints nullable=&quot;true&quot;/&gt;
+        &lt;/column&gt;
+        &lt;column name=&quot;active&quot; type=&quot;boolean&quot; defaultValue=&quot;1&quot;/&gt;
+      &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+&#160;    &lt;changeSet id=&quot;2&quot; author=&quot;joe&quot;&gt;
+      &lt;addColumn tableName=&quot;distributor&quot;&gt;
+        &lt;column name=&quot;phonenumber&quot; type=&quot;varchar(255)&quot;/&gt;
+      &lt;/addColumn&gt; 
+    &lt;/changeSet&gt;
+&#160;    &lt;changeSet id=&quot;3&quot; author=&quot;betsey&quot;&gt;
+      &lt;code type=&quot;section&quot; width=&quot;100%&quot;&gt;
+      &lt;insert tableName=&quot;distributor&quot;&gt;
+        &lt;column name=&quot;id&quot; valueNumeric=&quot;3&quot;/&gt;
+        &lt;column name=&quot;name&quot; value=&quot;Manassas Beer Company&quot;/&gt;
+      &lt;/insert&gt;
+      &lt;insert tableName=&quot;distributor&quot;&gt;
+        &lt;column name=&quot;id&quot; valueNumeric=&quot;4&quot;/&gt;
+        &lt;column name=&quot;name&quot; value=&quot;Harrisonburg Beer Distributors&quot;/&gt;
+      &lt;/insert&gt;
+    &lt;/changeSet&gt;
+&#160;    &lt;changeSet id=&quot;4&quot; author=&quot;joe&quot;&gt;
+      &lt;sqlFile path=&quot;insert-distributor-data.sql&quot;/&gt;
+    &lt;/changeSet&gt;
+&#160;&lt;/databaseChangeLog&gt;
+</code></pre>
 
 <p>Идея LiquiBase в том, что существует один xml файл в котором друг за другом прописываются ChangeSet (в нем, конечно же, могут быть include других changeset файлов), у каждого ChangeSet (изменения) есть идентификатор. Для изменения схемы базы данных не нужно писать SQL код, а необходимо использовать XML описание изменения. Так, например, первое изменение у нас - это создание таблицы, второе - это добавление колонки к созданной таблице, третье изменение – это вставка данных, третье – это опять же вставка данных, но только она у нас описана стандартным SQL синтаксисом в файле insert-distributor-data.sql. </p>
 
@@ -279,11 +138,8 @@ alias: ru/blog/show/283
 
 <p>И, на последок, расскажу еще одну историю. Работали как-то два Боба в компании, которая разрабатывала систему, вроде ebay для проведения аукциона. Только разрабатывала она эту систему для какой-то сторонней фирмы. И вот звонит Майкл из этой фирмы и просит мол, я вот зарегистрировал аукцион, а участники проспали торги, и они закончились ни с чем, давайте в БД поменяем просто статус у аукциона на рабочий и сместим дату начала аукциона, чтобы они могли нормально поторговаться, а то заполнять все эти поля заново очень не охота, да и платить за новый аукцион нужно. Бобы то конечно сначала отнекивались и говорили, что по живой системе такое делать нельзя, а Майкл предложил им хорошую компенсацию, да такую, что на все Бобовские доводы сразу же нашлись антидоводы самими Бобами. Сидит один Боб за монитором и пишет SQL:</p>
 
-<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
-  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
-    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">update</span> Auction <span style="color: #0000ff">set</span> Status = <span style="color: #006080">'Active'</span> <span style="color: #0000ff">and</span> StartDate = getdate()</pre>
-<!--CRLF--></div>
-</div>
+<pre><code>update Auction set Status = 'Active' and StartDate = getdate()
+</code></pre>
 
 <p>Спрашивает у второго “ну как, все нормально, запускаем?”, второй Боб глянул пристально и говорит “вроде так, запускай.” После запуска сразу же в один голос слышится “Shiiit!!!”, как только увидели </p>
 
