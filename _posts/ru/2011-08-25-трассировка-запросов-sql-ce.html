@@ -1,0 +1,87 @@
+---
+layout: post
+title: "Трассировка запросов SQL CE"
+date: 2011-08-25 06:05:19
+categories: ru
+tags: [Visual Studio 2010, SQL Server Compact, SQL Server CE 4, Profiling]
+alias: ru/blog/show/297
+---
+<p>SQL Compact Edition – это действительно отличное решение для разработчиков использующих .NET платформу. SQL CE можно использовать и как хранилище для небольших веб проектов (как мой сайт <a href="http://outcoldman.com">http://outcoldman.com</a>), так и для Windows приложений (WinForms, WPF). А особенно с ORM от Microsoft, Entity Framework 4.1, приложения можно разрабатывать очень легко и быстро. Правда, у этого решения есть небольшие проблемы с набором инструментов, поставляемых с ним. Так, например, непонятно как профилировать SQL запросы. </p>    <p>Одно из решений – это встраивать трассировку в код вашего приложения. Один из способов – это использовать <a href="http://msdn.microsoft.com/en-us/library/bb896155.aspx" target="_blank">STATISTICS XML</a>, но его еще нужно умудриться заставить работать с Entity Framework. Другой способ – это получать SQL запросы от самого Entity Framework – как это делать, и можно ли это сделать, именно для связки EF4.1 + SQL CE 4.0 – я, честно, не знаю. </p>  <p>Я вам хочу показать более простой способ профилирования приложений, точнее трассировки запросов к SQL CE базе данных. Для этого вам, правда, нужно быть обладателем Visual Studio 2010 минимум Premium редакции, если я не ошибаюсь. Чтобы попробовать то, что я опишу – вы можете скачать мое небольшое консольное приложение с assembla – <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SqlCeNorthwindSample" target="_blank">SqlCeNorthwindSample</a>. Все NuGet пакеты прописаны в packages.config, но они не загружены в репозиторий, потому не забудьте убедиться, что они у вас установились. </p>  <p>В моем случае приложение выглядит следующим образом:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">   <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">class</span> Program</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> Main(<span style="color: #0000ff">string</span>[] args)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">var</span> storage = <span style="color: #0000ff">new</span> Storage(<span style="color: #006080">&quot;Northwind.sdf&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">using</span> (<span style="color: #0000ff">var</span> context = <span style="color: #0000ff">new</span> StorageContext(storage))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">foreach</span> (Customer customer <span style="color: #0000ff">in</span> context.Customers)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                Console.WriteLine(customer.CustomerID);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Console.ReadKey();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Мы хотим определить, какие SQL запрос(ы) строит Entity Framework для того, чтобы получить список Customers. Да и вообще, какие запросы выполняются нашим приложением. Для того, чтобы начать новую сессию профилирования мы можем воспользоваться помощником, открыв его при помощи меню “Analyze –&gt; Launch Performance Wizard…”. Если такого меню у вас нет, значит ваша редакция Visual Studio не включает средства анализа. </p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="wizard1" border="0" alt="wizard1" src="/Library/2011/08/25/wizard1_23473EEB.png" width="662" height="567" /></p>
+
+<p>В помощнике, на первом шаге, я рекомендую выбрать метод Instrumentation, так как это самый подходящий метод для анализа приложения, когда нас интересует затраченное время на выполнение запросов, доступа к файлам, и т.п. </p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="wizard2" border="0" alt="wizard2" src="/Library/2011/08/25/wizard2_4C222E27.png" width="666" height="576" /></p>
+
+<p>На втором шаге выбираем проект, который мы будем профилировать – в моем случае – это NorthwindSample. </p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="wizard3" border="0" alt="wizard3" src="/Library/2011/08/25/wizard3_6FFADFB4.png" width="664" height="574" /></p>
+
+<p>И на последнем шаге уберите галочку с Launch profiling after the wizard finishes, так как нам нужно будет установить дополнительные настройки для сессии профилирования.</p>
+
+<p>После того, как вы закончите работу с помощником у вас должна открыться панель Performace Explorer (если нет, то найдите ее в Analyze-&gt;Windows). В этой панели хранятся все ваши сконфигурированные сессии. Там же должна быть ваша новая сконфигурированная сессия. Там вы найдете под Targets ваше приложение NorthwindSample (в моем случае), вот нужно открыть его Properties через контекстное меню, и установить в настройках Enable Tier Interaction Profiling. </p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="performance" border="0" alt="performance" src="/Library/2011/08/25/performance_45CB31CC.png" width="904" height="504" /></p>
+
+<p>После этого профилировщик будет собирать не только информацию о вызовах методов нашего приложения, но и так же собирать информацию о всех запросах к базе данных, проходящих через ADO.NET, что нам и нужно. </p>
+
+<p>Запустить приложение с включенным профилировщиком можно, например, из меню Debug –&gt; Start Performance Session, либо из тулбара панели Performance Explorer. После того, как приложение отработает, будет открыт отчет, в котором можно будет переключиться на Tier Interactions View и посмотреть все запросы, выполненные вашим процессом. </p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="report" border="0" alt="report" src="/Library/2011/08/25/report_3A71F7C2.png" width="861" height="392" /></p>
+
+<p>Более детально посмотреть текст каждой команды можно двойным щелчком мыши на каждой строке в окне Database connection details. </p>
+
+<p>Удачного профилирования!</p>

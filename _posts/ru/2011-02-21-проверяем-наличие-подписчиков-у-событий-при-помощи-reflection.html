@@ -1,0 +1,968 @@
+---
+layout: post
+title: "Проверяем наличие подписчиков у событий при помощи Reflection"
+date: 2011-02-21 10:22:00
+categories: ru
+tags: [Silverlight, .NET, WCF, Reflection]
+alias: ru/blog/show/274
+---
+<p>Передо мной встала задача, нужно было бы собрать все события объекта и подписаться на них (подписать определенный метод), только в том случае, если на это событие не подписан кто-то еще. Я могу даже больше сказать, делал я это для классов-оберток, которые генерирует Visual Studio на Add Reference Service…. Используем мы их по стандартному, как и все, наверное. Используем в коде не сами классы-обертки, которые генерирует Visual Studio, а используем свои реализации, которые нам предоставляют возможность тестировать наши модели, подставляя Mock и Stub объекты вместо самих реализаций. Давайте лучше покажу на примере. </p>  <p>Заголовок для этой заметки достаточно сложно было придумать. Проверка наличия подписчиков – это все-таки малая сердцевина того, что я тут описываю, но я думаю это просто самая интересная часть. В целом, я тут описываю вариант обработки результатов от методов сервисов в Silverlight приложении. </p>    <p>Пускай на сервере есть самый обычный WCF Service, в котором есть всего один метод:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> MyService : IMyService</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">bool</span> DoWork(<span style="color: #0000ff">string</span> str)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotImplementedException();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>В Silverlight проекте мы сделаем Reference на этот сервис. Visual Studio сгенерирует нам класс обертку. Напишем небольшой базовый метод для всех клиентских классов-оберток для сервисов:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">abstract</span> <span style="color: #0000ff">class</span> ServiceBase&lt;TClient&gt; <span style="color: #0000ff">where</span> TClient : <span style="color: #0000ff">class</span>, <span style="color: #0000ff">new</span>()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">protected</span> ServiceBase()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Client = <span style="color: #0000ff">new</span> TClient();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> TClient Client { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">void</span> ProcessResult&lt;T&gt;(AsyncCompletedEventArgs eventArgs, T result)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Action&lt;AsyncResult&lt;T&gt;&gt; action = eventArgs.UserState <span style="color: #0000ff">as</span> Action&lt;AsyncResult&lt;T&gt;&gt;;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (action == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;Unexpected type in UserState.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        action(<span style="color: #0000ff">new</span> AsyncResult&lt;T&gt;() { Result = result });</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">void</span> ProcessResult(AsyncCompletedEventArgs eventArgs)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Action&lt;AsyncResult&gt; actionVoidResponce = eventArgs.UserState <span style="color: #0000ff">as</span> Action&lt;AsyncResult&gt;;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (actionVoidResponce == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;Unexpected type in UserState.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        actionVoidResponce(<span style="color: #0000ff">new</span> AsyncResult());</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">void</span> ProcessError&lt;T&gt;(AsyncCompletedEventArgs eventArgs)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Action&lt;AsyncResult&lt;T&gt;&gt; action = eventArgs.UserState <span style="color: #0000ff">as</span> Action&lt;AsyncResult&lt;T&gt;&gt;;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (action == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;Unexpected type in UserState.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        action(<span style="color: #0000ff">new</span> AsyncResult&lt;T&gt;() { Exception = eventArgs.Error });</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">protected</span> <span style="color: #0000ff">void</span> ProcessError(AsyncCompletedEventArgs eventArgs)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Action&lt;AsyncResult&gt; actionVoidResponce = eventArgs.UserState <span style="color: #0000ff">as</span> Action&lt;AsyncResult&gt;;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (actionVoidResponce == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;Unexpected type in UserState.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        actionVoidResponce(<span style="color: #0000ff">new</span> AsyncResult() { Exception = eventArgs.Error });</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Где AsyncResult – это небольшой класс, при помощи которого мы будем передавать результат выполнения метода:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> AsyncResult&lt;T&gt; : AsyncResult</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> T Result { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> AsyncResult</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">bool</span> IsFault</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        get { <span style="color: #0000ff">return</span> Exception != <span style="color: #0000ff">null</span>; }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> Exception Exception { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Ну и теперь наш пример MyService, для него сделаем интерфейс IMyServiceProxy и класс MyServiceProxy, который реализует этот интерфейс:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">interface</span> IMyServiceProxy</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">void</span> DoWorkAsync(<span style="color: #0000ff">string</span> str, Action&lt;AsyncResult&lt;<span style="color: #0000ff">bool</span>&gt;&gt; callback);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> MyServiceProxy : ServiceBase&lt;MyServiceClient.MyServiceClient&gt;, IMyServiceProxy</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> MyServiceProxy()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Client.DoWorkCompleted += ClientDoWorkCompleted;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> DoWorkAsync(<span style="color: #0000ff">string</span> str, Action&lt;AsyncResult&lt;<span style="color: #0000ff">bool</span>&gt;&gt; callback)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Client.DoWorkAsync(str, callback);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">void</span> ClientDoWorkCompleted(<span style="color: #0000ff">object</span> sender, DoWorkCompletedEventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (e.Error != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            ProcessError&lt;<span style="color: #0000ff">bool</span>&gt;(e);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            ProcessResult&lt;<span style="color: #0000ff">bool</span>&gt;(e, e.Result);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>У каждого асинхронного вызова метода есть возможность передавать userState, переменную любого типа (object), обычно куда все и передают callback функцию, этим мы и воспользовались. Дальше очень просто используется эта реализация:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">void</span> Button_Click(<span style="color: #0000ff">object</span> sender, RoutedEventArgs e)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    IMyServiceProxy proxy = IoC.Instance.Resolve&lt;IMyServiceProxy&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    proxy.DoWorkAsync(<span style="color: #006080">&quot;Test&quot;</span>, (result) =&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                  {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                      <span style="color: #0000ff">if</span> (result.IsFault)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                      {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                          MessageBox.Show(<span style="color: #006080">&quot;Fault&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                      }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                      <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                      {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                        MessageBox.Show(result.Result.ToString());</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                      }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                  });</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Соответственно в IoC реализация MyServiceProxy должна быть зарегистрирована для типа IMyServiceProxy.</p>
+
+<p>Но, у этого способа есть большие недостатки, необходимо на каждый метод сервиса писать метод-обертку Completed, причем она всегда одинаковая, за исключением того, что в аргументах разные типы у свойств Result. Иногда выставишь не верные generic параметры, причем если это ProcessError, то об этом может быть даже никогда и не узнаешь. У меня, соответственно, родилась идея, что было бы хорошо при помощи Reflection пройтись по классам оберткам, которые генерирует Visual Studio, собрать все события, и если подписки на это событие еще нет, тогда подписаться и выполнить тоже самое, что делает метод ClientDoWorkCompleted из примера. Проверять нет ли подписок я решил потому, что иногда, в некоторых случаях своя реализация для Completed все-таки нужна. </p>
+
+<p>Итак, начал я разбираться (заодно и в твиттере <a href="http://twitter.com/outcoldman/status/32385889942376448">озвучил</a> проблему, услышал несколько “никак”, но не сдался), как можно проверить есть ли подписчики у события, если мы пишем внутри класса, у которого есть событие, то сделать это достаточно просто:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> Foo</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">event</span> Action FooEvent;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">bool</span> HaSubscribers()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> FooEvent == <span style="color: #0000ff">null</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>А вот если вне его, то проверить так нельзя:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Method" border="0" alt="Method" src="/Library/2011/02/06/Method_271E9A85.png" width="753" height="87" /></p>
+
+<p>Что ж, нужно посмотреть через Reflector и разобраться, что к чему:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="reflector" border="0" alt="reflector" src="/Library/2011/02/06/reflector_25F98B99.png" width="232" height="221" /></p>
+
+<p>Ага, дальше можно и не изучать, все понятно. Генерируется свойство и поле. Вот для того, чтобы узнать есть ли подписчики, нужно обратиться к полю. Как оказалось, в .NET это сделать очень просто при помощи Reflection:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">Foo foo = <span style="color: #0000ff">new</span> Foo();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">var eventInfo = foo.GetType().GetField(<span style="color: #006080">&quot;FooEvent&quot;</span>, BindingFlags.Instance | BindingFlags.NonPublic);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">Console.WriteLine(eventInfo.GetValue(foo) == <span style="color: #0000ff">null</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">foo.FooEvent += () =&gt; Console.WriteLine(<span style="color: #006080">&quot;boom!&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">Console.WriteLine(eventInfo.GetValue(foo) == <span style="color: #0000ff">null</span>);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Чуть позже того, как я нашел решение, получил <a href="http://twitter.com/controlflow/status/32399188843040768">ответ</a> и в твиттере к своему вопросу (кстати, у <a href="http://twitter.com/controlflow">@controlflow</a> достаточно интересный <a href="http://controlflow.tumblr.com/">блог</a>). Но как оказалось с Silverlight такой фокус не пройдет, там более жесткий security по отношению к Reflection, и обращаться так просто к private полям и методам <a href="http://msdn.microsoft.com/en-us/library/stfy7tfc(VS.95).aspx">не разрешено</a>. Погуглил и набрел на статью <a href="http://blogs.infosupport.com/blogs/willemm/archive/2009/02/02/Accessing-private-methods-in-silverlight.aspx">Accessing private methods in silverlight</a>, как оказалось вызывать private свойства и методы возможно, но только через DynamicMethod (на MSDN даже есть <a href="http://msdn.microsoft.com/en-us/library/ms228976(VS.95).aspx">пример</a>, как это сделать). Пока я гуглил и пытался реализовать это в Silverlight, <a href="http://twitter.com/controlflow">@controlflow</a> опередил меня и предоставил <a href="http://twitter.com/controlflow/status/32404444360478720">решение для Silverlight</a> (Кто спрашивал зачем нужен твиттер?). В общем, идею получил, приступил к реализации. Для того, чтобы не завязываться на имена методов через строки, я решил написать также MethodExtract метод, который из лямбда выражения мог бы вырывать MethodInfo, получилось очень просто:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">class</span> MethodSupport</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> MethodInfo ExtractMethod&lt;T&gt;(Expression&lt;T&gt; methodExpression)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (methodExpression == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;methodExpression&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        MethodCallExpression methodCallExpression = methodExpression.Body <span style="color: #0000ff">as</span> MethodCallExpression;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (methodCallExpression == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentException(<span style="color: #006080">@&quot;Parameter should be a method call expression&quot;</span>, <span style="color: #006080">&quot;methodExpression&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        MethodInfo methodInfo = methodCallExpression.Method;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (methodInfo.IsGenericMethod &amp;&amp; !methodInfo.IsGenericMethodDefinition)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            methodInfo = methodInfo.GetGenericMethodDefinition();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> methodInfo;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Причем, так как у меня часто используются generic методы, то я добавил проверку и на этот случай. В methodExpression лямбда выражение приходит с конкретной реализацией generic метода, то есть все типы уже определены, но мне необходимо было получить именно определения generic методов (GetGenericMethodDefinition()), чтобы на их основе сделать методы с другими определениями типов. </p>
+
+<p>Так же я написал класс EventSupport, у которого есть два метода, первый проверяет наличие подписчиков, второй подписывает на определенный eventInfo определенный methodInfo:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">class</span> EventSupport</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">bool</span> IsEventFieldIsNull(<span style="color: #0000ff">object</span> obj, EventInfo eventInfo)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (obj == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;obj&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (eventInfo == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;eventInfo&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Type type = obj.GetType();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        FieldInfo delegField = type.GetField(eventInfo.Name, BindingFlags.NonPublic | BindingFlags.Instance);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (delegField == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #0000ff">string</span>.Format(<span style="color: #006080">&quot;Can't get field for current event '{0}'.&quot;</span>, eventInfo));</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Expression body = Expression.Equal(Expression.Field(Expression.Constant(obj), delegField), Expression.Constant(<span style="color: #0000ff">null</span>));</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Func&lt;<span style="color: #0000ff">bool</span>&gt; getter = Expression.Lambda&lt;Func&lt;<span style="color: #0000ff">bool</span>&gt;&gt;(body).Compile();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">return</span> getter();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">static</span> <span style="color: #0000ff">void</span> Subscribe(<span style="color: #0000ff">object</span> sender, EventInfo eventInfo, <span style="color: #0000ff">object</span> receiver, MethodInfo methodInfo)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (sender == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;sender&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (eventInfo == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;eventInfo&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (receiver == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;receiver&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">if</span> (methodInfo == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> ArgumentNullException(<span style="color: #006080">&quot;methodInfo&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Type handlerType = eventInfo.EventHandlerType;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        ParameterInfo[] eventParams = handlerType.GetMethod(<span style="color: #006080">&quot;Invoke&quot;</span>).GetParameters();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        ParameterExpression[] parameters = eventParams.Select(p =&gt; Expression.Parameter(p.ParameterType)).ToArray();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Expression body = Expression.Call(Expression.Constant(receiver), methodInfo, parameters);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Delegate compiledMethod = Expression.Lambda(body, parameters).Compile();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Delegate handler = Delegate.CreateDelegate(handlerType, compiledMethod, <span style="color: #006080">&quot;Invoke&quot;</span>, <span style="color: #0000ff">false</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        eventInfo.AddEventHandler(sender, handler);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Для начала рассмотрим метод IsEventFieldIsNull (проверка на подписчиков), мы берем FieldInfo у типа объекта с именем полностью совпадающим с EventInfo (так делает .NET), затем при помощи Expression мы описываем метод, вроде <em>bool Expression() { return obj.eventInfoField == null; }</em>: у константы, нашего obj (<em>Expression.Constant(obj)</em>), обращаемся к полю, которое взяли до этого, и сравниваем это значение с константой null. Компилируем метод и вызываем. </p>
+
+<p>Второй метод Subscribe немного посложнее, и сделал я его только потому, что захотелось иметь внешний метод Subscribe, а в случае, если у нас MethodInfo опять имеет уровень доступа private/protected (или даже internal), то чтобы нам к нему иметь доступ, нам нужно так же использовать DynamicMethod, на этот раз мы создаем метод, в который передаются параметры, такие как определены у типа делегата Event, и соответственно вызываем этот MethodInfo с этими параметрами внутри нашего метода, ну и подписываем наш новый метод на событие. </p>
+
+<p>Переходим теперь к реализации, которая у нас будет в базовом классе ServiceBase&lt;TClient&gt;. Я туда добавил два поля:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">readonly</span> MethodInfo _mInfoProcessResult;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">readonly</span> MethodInfo _mInfoProcessError;</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Это информация о методах ProcessResult&lt;T&gt; и ProcessError&lt;T&gt; (просто чтобы не искать их на каждый вызов),&#160; ну и добавил в конструктор инициализацию этих полей при помощи описанного выше ExtractMethod метода:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">_mInfoProcessResult =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    MethodSupport.ExtractMethod&lt;Action&lt;AsyncCompletedEventArgs, <span style="color: #0000ff">object</span>&gt;&gt;((args, obj) =&gt; ProcessResult&lt;<span style="color: #0000ff">object</span>&gt;(args, obj));</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">_mInfoProcessError =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    MethodSupport.ExtractMethod&lt;Action&lt;AsyncCompletedEventArgs&gt;&gt;((args) =&gt; ProcessError&lt;<span style="color: #0000ff">object</span>&gt;(args));</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Дальше пишу метод, который берет все события (фильтрует по имени, заканчивающимся на Completed, исключая Open и Close Completed) и подписывается:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">protected</span> <span style="color: #0000ff">void</span> SubscribeEventHandlers()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    MethodInfo mInfoCompletedMethod =</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        MethodSupport.ExtractMethod&lt;Action&lt;<span style="color: #0000ff">object</span>, AsyncCompletedEventArgs&gt;&gt;((obj, args) =&gt; OnCompletedHandler(obj, args));</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    Type clientType = Client.GetType();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">foreach</span> (var eventInfo <span style="color: #0000ff">in</span> clientType.GetEvents().Where(x =&gt; x.Name.EndsWith(<span style="color: #006080">&quot;Completed&quot;</span>) &amp;&amp; x.Name != <span style="color: #006080">&quot;OpenCompleted&quot;</span> &amp;&amp; x.Name != <span style="color: #006080">&quot;CloseCompleted&quot;</span>))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (EventSupport.IsEventFieldIsNull(Client, eventInfo))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            EventSupport.Subscribe(Client, eventInfo, <span style="color: #0000ff">this</span>, mInfoCompletedMethod);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>В самом начале метода беру информацию о методе OnCompletedHandler, который и будет у меня все обрабатывать:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">protected</span> <span style="color: #0000ff">void</span> OnCompletedHandler(<span style="color: #0000ff">object</span> sender, AsyncCompletedEventArgs eventArgs)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    Type eventArgsType = eventArgs.GetType();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (eventArgs.UserState != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        Type userStateType = eventArgs.UserState.GetType();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (!userStateType.IsGenericType</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            || userStateType.GetGenericTypeDefinition() != <span style="color: #0000ff">typeof</span>(Action&lt;&gt;)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            || userStateType.GetGenericArguments().Length != 1)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;UserState should be null or Action&lt;AsyncResult&lt;T&gt;&gt; or Action&lt;AsyncResult&gt;.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Type asyncResponceType = userStateType.GetGenericArguments()[0];</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        PropertyInfo propertyInfo = eventArgsType.GetProperty(<span style="color: #006080">&quot;Result&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #008000">//It is Void Response</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (asyncResponceType == <span style="color: #0000ff">typeof</span>(AsyncResult))</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (propertyInfo != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;Call void response for response with defined Result type.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (eventArgs.Error == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                ProcessResult(eventArgs);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                ProcessError(eventArgs);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #008000">// Response with result</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #008000">// Check that it is AsyncResult&lt;T&gt; type</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (!userStateType.IsGenericType</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            || asyncResponceType.GetGenericTypeDefinition() != <span style="color: #0000ff">typeof</span>(AsyncResult&lt;&gt;)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            || asyncResponceType.GetGenericArguments().Length != 1)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;UserState should be null or Action&lt;AsyncResult&lt;T&gt;&gt; or Action&lt;AsyncResult&gt;.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            Type argument = asyncResponceType.GetGenericArguments()[0];</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">if</span> (propertyInfo == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;Call not void response for response with void result.&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">if</span> (eventArgs.Error == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                _mInfoProcessResult.MakeGenericMethod(argument).Invoke(<span style="color: #0000ff">this</span>,</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                                                       <span style="color: #0000ff">new</span>[] {eventArgs, propertyInfo.GetValue(eventArgs, <span style="color: #0000ff">null</span>)});</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">else</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                _mInfoProcessError.MakeGenericMethod(argument).Invoke(<span style="color: #0000ff">this</span>, <span style="color: #0000ff">new</span> <span style="color: #0000ff">object</span>[] { eventArgs });</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>В этом методе мы сначала проверяем наличие UserState, затем проверяем, что это callback которого мы ожидаем (типа Action&lt;&gt;), дальше проверка, какой именно ответ мы ожидаем Void или с определенным результатом, если с Void то методы можно вызвать напрямую, а вот если с результатом, то опять проверяем что тип это Action&lt;AsyncResult&lt;T&gt;&gt;, берем этот тип T, строим при помощи его generic методы и вызываем определенный метод (ProcessResult или ProcessError). </p>
+
+<p>Ну а MyServiceProxy пример теперь переписывается очень просто:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> MyServiceProxy : ServiceBase&lt;MyServiceClient.MyServiceClient&gt;, IMyServiceProxy</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> MyServiceProxy()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        SubscribeEventHandlers();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">void</span> DoWorkAsync(<span style="color: #0000ff">string</span> str, Action&lt;AsyncResult&lt;<span style="color: #0000ff">bool</span>&gt;&gt; callback)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Client.DoWorkAsync(str, callback);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Вот и все. Если хочется иметь все-таки какую-то специальную обработку на Completed, то нужно просто перед вызовом метода SubscribeEventHandlers произвести ее. Пример со всем исходным кодом как всегда можно скачать с <a href="https://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SlSubscribeOnCompleted?rev=13">assembla</a>. </p>

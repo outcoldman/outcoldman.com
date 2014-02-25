@@ -1,0 +1,22 @@
+---
+layout: post
+title: "Sublime Text: subl command under windows command line"
+date: 2014-01-06 18:13:40
+categories: en
+tags: [Windows, Command Line, subl, Sublime Text, CLI]
+alias: en/blog/show/346
+---
+<p>Strange that <a href="http://www.sublimetext.com/docs/3/index.html">Sublime Text documentation</a> does not include manual about how to make <em>subl</em> command available on Windows in command line environment. One of the reasons can be that Sublime Text does not have so many users on Windows as on Mac OS, or maybe because not so many Windows developers use command line on Windows. </p>
+<p>Anyway, below is my way of doing it. I just place <strong>subl.cmd</strong> file under <em>%WINDIR%</em> (which is <em>C:\Windows</em> by default).</p>
+
+{% gist 8286933 %}
+
+<p>After that you can use some of the default commands, like </p>
+
+<pre><code>@echo Open new instance of Sublime Text
+subl -n
+@echo Open current folder in new instance of Sublime Text
+subl . -n
+@echo Open file filename.txt in current instance of Sublime Text
+subl filename.txt
+</code></pre>

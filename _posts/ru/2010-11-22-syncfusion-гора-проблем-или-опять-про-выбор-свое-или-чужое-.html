@@ -1,0 +1,86 @@
+---
+layout: post
+title: "Syncfusion–гора проблем или опять про выбор “свое или чужое”"
+date: 2010-11-22 15:30:00
+categories: ru
+tags: [Developing, Libraries, Bug, Syncfusion]
+alias: ru/blog/show/256
+---
+<p>Как-то я <a href="/ru/blog/show/208" target="_blank">поднимал уже тему</a> про то, стоит ли покупать компоненты или может имеет смысл писать их самому. Хочется пожаловаться, просто накипело. Syncfusion меня очень сильно удивил. Есть у них библиотеки, включающие имя Web, ну, наверняка же, должно подразумеваться, что все классы, контролы должны уметь жить в многопоточной среде. А оказывается нет. В общем, хочу провести антирекламу Syncfusion. Я могу точно сказать – эти библиотеки покупать не стоит. Берут они, наверное, свое, только обилием количества решений, контролов, сред. Но, не стоит это тех денег, а особенно сил, которые нужно будет тратить на решения проблем.</p>    <p>Есть у них, например, библиотека для создания Pdf документов, но вот проблема, следующий код работать не будет.</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">static</span> void Main(string[] args)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    List&lt;Thread&gt; threads = <span style="color: #0000ff">new</span> List&lt;Thread&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">for</span> (<span style="color: #0000ff">int</span> i = 0; i &lt; 2; i++)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        var thread = <span style="color: #0000ff">new</span> Thread((x) =&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                        var report = <span style="color: #0000ff">new</span> ReportClass();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                                    });</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        threads.<span style="color: #0000ff">Add</span>(thread);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        thread.<span style="color: #0000ff">Start</span>();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">while</span> (threads.<span style="color: #0000ff">Any</span>(x =&gt; x.IsAlive))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Thread.Sleep(100);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">class</span> ReportClass</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    private readonly PdfTrueTypeFont _firstPageFooterFont =</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">new</span> PdfTrueTypeFont(<span style="color: #0000ff">new</span> Font(&quot;Arial Narrow&quot;, 8.5f, FontStyle.Italic), <span style="color: #0000ff">true</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Падает в конструкторе PdfTrueTypeFont во втором потоке (первый прорабатывает отлично). Вот и все. Как такое возможно, у меня был шок. И ладно, если бы это был один случай. В этот же день нахожу другую проблему. Есть ChartWebControl, создаем 100 объектов этого типа в разных потоках, вызываем у каждого из них метод <em>ChartWebControl.SaveImage(Stream stream, ImageFormat imageFormat)</em> и получаем в одном из потоков, что объект используется. Вот это событие рандомное, может случиться, а может и не случиться. Оба бага Syncfusion уже приняла.</p>
+
+<p>Как вам? Может быть, проблемы в каждом из контролов, классе. Я не знаю, на сервере мы используем только это. На клиенте (Silverlight) все попроще, там не многопоточная среда. </p>
+
+<p>Зависело бы решение от меня: давно бы выкинул все, что связывает с Syncfusion с таким качеством продукта, но корни вросли уже. Эх, буду бороться дальше. </p>

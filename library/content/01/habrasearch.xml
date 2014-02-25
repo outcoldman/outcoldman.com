@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<openServiceDescription
+    xmlns="http://www.microsoft.com/schemas/openservicedescription/1.0">
+  <homepageUrl>http://outcoldman.habrahabr.ru</homepageUrl>
+  <display>
+    <name>Поиск на habrahabr</name>
+    <icon>http://habrahabr.ru/favicon.ico</icon>
+  </display>
+  <activity category="Find">
+    <activityAction context="selection" >
+      <execute action="http://habrahabr.ru/search/{selection}/">
+        <parameter name="q" value="{selection}" />
+      </execute>
+    </activityAction>
+  </activity>
+</openServiceDescription>

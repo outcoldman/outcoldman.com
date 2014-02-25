@@ -1,0 +1,36 @@
+---
+layout: post
+title: "Впечатления о втором дне MIX’11: Silverlight 5 Beta"
+date: 2011-04-13 20:30:32
+categories: ru
+tags: [Silverlight, XAML, Binding, Silverlight 5]
+alias: ru/blog/show/285
+---
+<p>Буквально несколько часов назад нам анонсировали Silverlight 5 на конференции MIX’11. Даже можно скачать <a href="http://www.silverlight.net/getstarted/silverlight-5-beta/">Silverlight 5 Beta and Tools</a> и попробовать в живую. Я тоже это сделал, ради любопытства.&#160; Поставил на виртуальную машину, попробовал несколько новых фич. Вам, кстати, тоже не рекомендую ставить на рабочую машину, если вы Silverlight разработчик, и сейчас разрабатываете на Silverlight 4. У меня постоянные зависания, повторяется всегда с ChildWindow. Но это все может быть из-за того, что стоит все на виртуальной машине, да еще и на Windows Server 2008 R2 (та виртуалка, на которой мы разрабатывали проект на <a href="/ru/blog/show/284">HackDay</a>). Но я вас предупредил.</p>  <p>Ознакомиться с новыми фичами Silverlight 5 можно (и нужно!) в нескольких местах, например, в блоге <a href="http://timheuer.com/blog/archive/2011/04/13/whats-new-in-silverlight-5-a-guide.aspx">Tim Heuer – Silverlight 5 Beta – A guide to the new features</a>. Еще кто-то кинул в твиттере ссылку на pdf документ, на сайте Silverlight.net <a href="http://i1.silverlight.net/content/downloads/silverlight_5_beta_features.pdf?cdn_id=1">Silverlight 5 Beta Technical Features</a> (как на него попасть – не знаю). </p>    <p>Вкратце из мне понравившегося в Silverlight 5 (то есть то, что я действительно ждал и хотел бы использовать сейчас):</p>  <ul>   <li>У RelativeSource появился Mode=FindAncestor, тот, который уже давно живет в WPF, и которого мне лично не хватало в Silverlight. При помощи его можно указать, какой тип элемента ищем (так же какой по счету, если нужно пропустить несколько), и байндинг пройдется по дереву контролов вверх (по родителям) в поисках контрола с указанным типом. Особенно это полезно в Template описаниях, будем надеяться, что там все будет работать. </li>    <li>У DataTemplate теперь можно задать тип, для которого вы его описываете. Опять же, это хорошо известная фича для WPF разработчиков. Очень полезно. Недавно, например, к TreeView байндил иерархическую коллекцию объектов, среди которых встречаются разные типы, наследуемые от одного базового. Конечно же, каждый тип нужно отображать по-разному, пришлось сделать дополнительные свойства у моделей, и просто в Template прятать некоторые части. В SL5 будет намного проще, нужно описать разные DataTemplate для разных типов. </li>    <li>Теперь есть возможность создавать MarkupExtension. При помощи него&#160; можно сделать лучшее решения для локализации приложения. Он позволяет расширить синтаксис XAML, и можно, например, вместо StaticResource или Binding придумать что-то свое. Как я уже сказал – в основном все используют для локализации. </li>    <li>Теперь можно отлаживать байндинг в Visual Studio. То есть ставить точку останова прямо в XAML коде в местах Binding. Честно признаюсь, фича прикольная, но мне как-то и без нее было хорошо. Я и так могу понять, что Source не тот установлен или типы не совпадают. Мне хватало просмотра Output в Visual Studio. </li> </ul>  <p>И мне не понятны опять какие-то кривые решения Silverlight давно проверенным вещам. Вот сделали они для Silverlight 5 поддержку окон, теперь можно в OOB приложениях создавать окна, но как они сделали, что это:</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">   <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">     <pre style="background-color: white; margin: 0em">Window tearOffWindow = <span style="color: #0000ff">new</span> Window();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">tearOffWindow.Height = 400;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">tearOffWindow.Width = 600;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">tearOffWindow.Top = 24;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">tearOffWindow.Left = 30;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">tearOffWindow.Title = “Stock Console”;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">tearOffWindow.Content = myUIElement; <span style="color: #008000">//Set content to someFrameworkElement</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">tearOffWindow.Visibility = Visibility.Visible; //Display the Window</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Почему нет нормального метода Show? Close то есть. И почему нет поддержки модальных окон? В общем, если это не недоделки SL5 Beta, то я уже знаю несколько новых фич, которые нам стоит ожидать от Silverlight 6 или 7. Спешат с версиями Silverlight, и всегда контролы у них не доделанные, архитектура не доработанная и т.п.</p>
+
+<p>Думаю, что скоро будут опубликованы интересные и подробные статьи о новых фичах Silverlight 5. А вообще, это пока что бета версия, для меня это просто повод посмотреть, задуматься и отложить до выхода более свежей версии. </p>

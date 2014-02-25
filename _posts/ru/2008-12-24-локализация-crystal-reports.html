@@ -1,0 +1,87 @@
+---
+layout: post
+title: "Локализация Crystal Reports"
+date: 2008-12-24 09:58:00
+categories: ru
+tags: [WinForms, .NET, C#, Crystal Reports, Resources, Localization]
+alias: ru/blog/show/124
+---
+<p>Русскоязычная информация о том как можно руссифицировать Crystal Report. Полезна тем, кто использует Crysral Report в русскоязычных программах как основной генератор отчетов.<p>
+
+<p>Тот кто использует Crystal Report знают, что русифицировать интерфейс "на лету" способа нет. Но есть возможность локализовать ресурсы. Создать свою библиотеку с русскими текстами, положить ее в необходимое место и тогда CR сам возьмет ваши ресурсы, при условии указания правильного Culture в вашем приложении.</p>
+
+
+<p>Вот в MSDN есть некая информация об этом:</p>
+
+
+<p><a href="http://msdn.microsoft.com/ru-ru/library/ms227633.aspx" >http://msdn.microsoft.com/ru-ru/library/ms227633.aspx</a></p>
+
+
+<p>А так в основном моя статья это перевод документации, которая размещена по адрессу (в свое время она мне сильно помогла):</p>
+
+
+<p><a href="http://marian.ideaz.sk/crystal/" >http://marian.ideaz.sk/crystal/</a></p>
+
+
+<p>Теперь давайте поподробнее. Я рассматриваю пример как можно локализовать CrystalReportView.</p>
+
+
+<p>Первое что нам необходимо сделать - это найти существующую библиотеку ресурсов, которую мы будем локализовывать. Ну или создать файл ресурсов. </p>
+
+
+<p>Вот как это можно сделать. Находим файл CrystalDecisions.Windows.Forms.dll в папке "C:\Program Files\Common Files\Business Objects\2.7\Managed\" (у вас эта папка может отличаться, все зависит от версии вашего Crystal Report либо от вашей версии Windows). </p>
+
+
+<p>Далее нам необходима программа MSIL Disassembler, которая входит в состав Microsoft .NET Framework SDK v2.0, при ее помощи мы и будем забирать из файла ресурсы. Создайте временную папку, например, c:\temp, положите туда файл CrystalDecisions.Windows.Forms.dll.</p>
+
+
+<p>Далее откройте командную строку (Start-&gt;Run...-&gt;cmd.exe) и выполните в ней последовательно три команды</p>
+
+
+<p><font color="#808080">cd c:\reports</font></p>
+
+
+<p><font color="#808080">"C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\ildasm.exe" CrystalDecisions.Windows.Forms.dll /OUT=CrystalDecisions.Windows.Forms.il /ITEM=</font></p>
+
+
+<p><font color="#808080">"C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\resgen.exe" CrystalDecisions.Windows.Forms.CRViewerSys.resources CrystalDecisions.Windows.Forms.CRViewerSys.resx</font>
+Командную строку пока не закрывайте, она нам еще пригодиться. В папке c:\reports у нас теперь находится множество файлов, можете удалить все кроме двух файлов:</p>
+
+
+<p><font color="#808080">CrystalDecisions.Windows.Forms.CRViewerSys.resources</font></p>
+
+
+<p><font color="#808080">CrystalDecisions.Windows.Forms.CRViewerSys.resx</font></p>
+
+
+<p> </p>
+
+
+<p>Открываем оставшийся файл c расширением resx, в нем содержатся строковые ресурсы от CR. Править этот файл мы можем, например, в MS Visual Studio, но можно открыть его и в блокноте. Переводим все значения, которые стоят в тегах &lt;value&gt;...&lt;/value&gt;, сохраняем.</p>
+
+
+<p>Запускаем в командной строке последовательно команды:</p>
+
+
+<p><font color="#808080">"C:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\resgen.exe" /compile CrystalDecisions.Windows.Forms.CRViewerSys.resx,CrystalDecisions.Windows.Forms.resources</font></p>
+
+
+<p><font color="#808080">"C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\al.exe" /t:lib /embed:CrystalDecisions.Windows.Forms.resources /culture:ru /out:CrystalDecisions.Windows.Forms.custom_resources.dll</font></p>
+
+
+
+<p>Смотрим в папку - видим там файл CrystalDecisions.Windows.Forms.custom_resources.dll - это и есть необходимый нам файл ресурсов, который можно использовать теперь в приложении, использующем Crystal Report. </p>
+
+
+<p>В моем случае у меня есть WinForms приложение, которое находится, к примеру в папке c:\MyApp\. Нам необходимо создать папку ru в папке c:\MyApp\ (корневой папке приложения), кладем туда получившийся файл ресурсов CrystalDecisions.Windows.Forms.custom_resources.dll.</p>
+
+
+<p>Все что остается сделать, это локализовать наше приложение, для этого в коде Main функции добавляем к примеру так:</p>
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
+<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">[STAThread]</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> Main()</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    Application.EnableVisualStyles();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    Application.SetCompatibleTextRenderingDefault(<span style="color: #0000ff;">false</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    InitCulture();</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    Application.Run(<span style="color: #0000ff;">new</span> MyAppForm());</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> InitCulture()</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    System.Threading.Thread.CurrentThread.CurrentUICulture = <span style="color: #0000ff;">new</span> System.Globalization.CultureInfo(<span style="color: #006080;">"ru-RU"</span>);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture(<span style="color: #006080;">"ru"</span>);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+
+
+<p>Дальше мы должны видеть все переведенные нами надписи во Viewer на русском языке. </p>
+
+</cut>

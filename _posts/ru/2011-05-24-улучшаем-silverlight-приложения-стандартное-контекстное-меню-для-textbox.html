@@ -1,0 +1,196 @@
+---
+layout: post
+title: "Улучшаем Silverlight приложения: стандартное контекстное меню для TextBox"
+date: 2011-05-24 11:42:00
+categories: ru
+tags: [Silverlight, XAML, Silverlight 4, Sample, Behavior, Toolkit]
+alias: ru/blog/show/292
+---
+<p>Как часто у меня бывает такое, что в одной руке у меня кружка чая или пряник, а другой рукой я печатаю и вожу мышкой. И вот не могу я одной рукой сразу же нажать Ctrl+C или Ctrl+V (могу конечно, но не удобно, не привычно). Во всех программах, на всех сайтах, у меня есть возможность выделить мышкой текст и скопировать его, а дальше вставить в другое место, а вот TextBox по умолчанию в Silverlight не предоставляет мне такой возможности, и это очень плохо. В особенности для бизнес-приложений. Люди привыкают к стандартным функциям, нельзя их лишать этого. Я говорю об этом меню:</p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="sample" border="0" alt="sample" src="/Library/2011/05/24/sample_411E185C.png" width="355" height="243" /></p>  <p>В Silverlight 4 появилась возможность обрабатывать нажатие правой кнопки мыши, и так же с ним появился контрол ContextMenu (в <a href="http://silverlight.codeplex.com/">Silverlight Toolkit</a>). Следовательно, мы теперь можем обогатить наш интерфейс. </p>  <p>Первое, с чего можно начать, это погуглить и найти что-то вроде такой статьи <a href="http://www.dansoltesz.com/post/2010/05/27/Silverlight-4-textbox-right-click-context-menu-with-cut-copy-and-paste-behavior.aspx">Silverlight 4 textbox right click context menu with cut, copy and paste behavior</a>, которая приведет нас к более доработанному варианту <a href="http://www.codepaste.net/ckwbjm">TextBoxCutCopyPasteBehavior</a>. Его, как показала практика, мне тоже пришлось <strike>не</strike>много доработать. </p>    <p>На самом деле, мне много чего не понравилось в приведенной реализации, и я столкнулся со многими проблемами, используя эту реализацию. Перечислю некоторые из них.</p>  <p>В приведенной реализации зачем-то обрабатывается самостоятельно нажатие правой клавиши мыши для отображения меню, когда все это уже давно реализовано в ContextMenuService. То же самое с привязкой ContextMenu к текущему TextBox, все можно сделать при помощи ContextMenuService. Поэтому создание ContextMenu я изменил на (в методе CreateMenu):</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">   <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">     <pre style="background-color: white; margin: 0em">_contextMenu = ContextMenuService.GetContextMenu(AssociatedObject);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">if</span> (_contextMenu == <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    _contextMenu = <span style="color: #0000ff">new</span> ContextMenu();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    ContextMenuService.SetContextMenu(AssociatedObject, _contextMenu);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Более того, это мне позволило так же в XAML описывать как обычно ContextMenu, а данный Behavior будет просто добавлять в конец свои пункты по работе с текстом. Единственное, создание меню мне пришлось перенести из метода OnAttached в свой метод AssociatedObjectLoaded, который вызывается, соответственно, при вызове Loaded event у TextBox. Сделано это для того, чтобы не зависеть от того, когда было объявлено в XAML ContextMenu до моего Bahavior или после него.</p>
+
+<p>Следующая проблема, в реализации TextBoxCutCopyPasteBehavior – это то, что они сами делают неактивными пункты меню при помощи выставления IsEnabled для каждого MenuItem на время получения фокуса контекстным меню. При этом, там есть ссылка на какой-то баг в Silverlight, поэтому они там еще кучу кода понаписали, чтобы этот баг исправить. В целом молодцы, конечно же: и баг нашли, и решение. Более того, по ссылкам даже можно найти патч для Silverlight Toolkit, который исправляет этот баг. Я же пошел другим путем, просто реализовал все на командах и у меня все заработало без каких либо хаков. Для этого я реализовал несколько базовых команд <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightTextBoxBehavior/SilverlightTextBoxBehavior/Behaviors/StdCommands/CommandBase.cs">CommandBase</a> и <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightTextBoxBehavior/SilverlightTextBoxBehavior/Behaviors/StdCommands/ClipboardCommandBase.cs">ClipboardCommandBase</a>. Вторая просто наследуется от первой и добавляет один метод для обработки исключений SecurityException, который можно получить, если пользователь не разрешил доступ к буферу обмена. В результате команда на вставку из буфера обмена выглядит следующим образом:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">internal</span> <span style="color: #0000ff">class</span> PasteCommand : ClipboardCommandBase</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> PasteCommand(TextBox textBox, IClipboardSecurityExceptionNotify clipboardSecurityExceptionNotify)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        : <span style="color: #0000ff">base</span>(textBox, clipboardSecurityExceptionNotify)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">void</span> Execute()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">try</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            TextBox.SelectedText = Clipboard.GetText();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">catch</span> (SecurityException ex)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            OnClipboardSecurityException(ex, StdCommandActionType.Paste);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        TextBox.Focus();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">override</span> <span style="color: #0000ff">bool</span> CanExecute()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> Clipboard.ContainsText();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Намного проще и читабельнее, чем было. </p>
+
+<p>При создании самого меню, я подписываюсь на событие Opened, при вызове которого я дергаю у всех команд элементов меню, которые создал в этом Behavior, событие CanExecuteChanged. По другому я не смог отлеживать возможность выполнения некоторых команд. Так, например, я не могу отслеживать, менялось ли значение, возвращаемое методом ContainsText у Clipboard, поэтому приходится проверять на каждое открытие меню. Ничего в этом страшного я не вижу, операции не такие уж и затратные. </p>
+
+<p>В результате, чтобы добавить стандартные команды для работы с текстом, нужно просто в XAML для определенного TextBox указать этот самый Behavior:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBox</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">i:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Behaviors:TextBoxStdCommandsBehavior</span>   <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">i:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">TextBox</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Более того, как я и говорил, можно так же добавлять свои пункты меню, расширяя те, которые добавляются при помощи этого Behavior, например, так:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" class="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" class="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBox</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">toolkit:ContextMenuService.ContextMenu</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">toolkit:ContextMenu</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">toolkit:MenuItem</span> <span style="color: #ff0000">Header</span><span style="color: #0000ff">=&quot;Do...&quot;</span> <span style="color: #ff0000">Click</span><span style="color: #0000ff">=&quot;MenuItem_Click&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">toolkit:Separator</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">toolkit:ContextMenu</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">toolkit:ContextMenuService.ContextMenu</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">i:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Behaviors:TextBoxStdCommandsBehavior</span>   <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">i:Interaction.Behaviors</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">TextBox</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Ну и, конечно же, я не мог не украсить все это в итоге иконками. Воспользовавшись Image Library, которая поставляется вместе с Visual Studio (в моем случае 2010, находится архив с картинками в <em>c:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\VS2010ImageLibrary\</em>), я нашел несколько подходящих иконок и приделал их к контекстному меню. </p>
+
+<p>Результат ниже. У обоих TextBox элементов я добавил Behavior, который описывал выше. Так же я добавил свои пункты меню, слева обрабатывая нажатие при помощи события Click, справа при помощи команды,&#160; так же справа я могу управлять тем, можно ли вызывать команду “Do…”. XAML описание этого примера можно посмотреть тут – <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightTextBoxBehavior/SilverlightTextBoxBehavior/MainPage.xaml">MainPage.xaml</a>. </p>
+<object data="data:application/x-silverlight-2," type="application/x-silverlight-2" width="740" height="310">
+		  <param name="source" value="/library/content/03/SLTbStdBehavior/SilverlightTextBoxBehavior.xap" />
+		  <param name="background" value="white" />
+		  <param name="minRuntimeVersion" value="4.0.50826.0" />
+		  <param name="autoUpgrade" value="true" />
+		  <a href="http://go.microsoft.com/fwlink/?LinkID=149156&amp;v=4.0.50826.0" style="text-decoration:none">
+ 			  <img src="http://go.microsoft.com/fwlink/?LinkId=161376" alt="Get Microsoft Silverlight" style="border-style:none" />
+		  </a>
+	    </object>
+
+<p>Конечно же, этот Behavior еще можно доработать. Так можно добавить возможность выбора, как отображать меню: в отдельном контекстном меню, выше или ниже определения, сделанного разработчиком. Сейчас, всегда меню добавляется ниже определения из XAML.</p>
+
+<p>Скачать полностью все исходники можно из <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightTextBoxBehavior">моего репозитория</a> на assembly.com.</p>

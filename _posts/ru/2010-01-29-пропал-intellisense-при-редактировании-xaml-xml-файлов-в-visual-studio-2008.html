@@ -1,0 +1,16 @@
+---
+layout: post
+title: "Пропал IntelliSense при редактировании XAML/XML файлов в Visual Studio 2008"
+date: 2010-01-29 12:22:00
+categories: ru
+tags: [XML, XAML, Visual Studio 2008]
+alias: ru/blog/show/172
+---
+<p>Каким-то чудесным образом пропал <em>IntelliSense</em> при редактировании XML файлов, заметил открыв<em> web.config</em> файл. Первое, что пришло в голову – сделать Repair студии – не помогло, сброс настроек из <em>Tools-&gt;Import and Exports Settings…</em> тоже не дал результатов. В настройках (Tools-&gt;Options) зато увидел, что есть проблемы на вкладках настройки Text Editor-&gt;XML: на последних двух виднеется только текст, что настройки не удалось прочитать. </p>  <p>Немного погуглив, набрел на эту тему на <a href="http://stackoverflow.com">http://stackoverflow.com</a>: <a href="http://stackoverflow.com/questions/859335/visual-studio-2008-xaml-editor-not-working-disappeared">Visual Studio 2008 Xaml Editor not working / disappeared</a></p>  <p>Из консоли вызвал пару раз </p>  
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
+<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">"%ProgramFiles%\Microsoft Visual Studio 9.0\Common7\ide\devenv" /resetSkipPkgs</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">"%ProgramFiles%\Microsoft Visual Studio 9.0\Common7\ide\devenv" /resetsettings</pre><!--CRLF--></div></div>
+
+<p>
+Я запускал cmd из под администратора (Windows 7) и там уже набирал эти команды. Вроде помогло.
+</p>

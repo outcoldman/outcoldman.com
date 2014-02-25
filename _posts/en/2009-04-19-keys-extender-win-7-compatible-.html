@@ -1,0 +1,191 @@
+---
+layout: post
+title: "Keys Extender (Win 7 Compatible)"
+date: 2009-04-19 08:17:00
+categories: en
+tags: [.NET, C#, Windows 7, KeysExtender]
+alias: en/blog/show/122
+---
+<h1>Introduction</h1>
+
+<p>In Windows 7, I really liked an opportunity to change the position of the windows by pressing hotkeys Win + (Left | Right | Up | Bottom): </p>
+
+<ul>
+<li>Win + Left - window attached to the left side </li>
+
+<li>Win + Right - window attached to the right side </li>
+
+<li>Win + Up -&nbsp;window is maximized </li>
+
+<li>Win + Bottom -&nbsp;window in the normal state </li>
+</ul>
+
+<p>&nbsp;<img height="400" hspace="0" src="/library/images/01/0000004.png" width="640" border="0" /></p>
+
+<h2>Using the Code</h2>
+
+<p>Making this work with Windows Vista (most likely will work in earlier versions, but I have not tried it) was not a difficult task. First of all, I imported many <code>WinApi </code>functions in a WinForms application. The work was divided into two parts:</p>
+
+<ol>
+<li>interception of pressing the keys, and </li>
+
+<li>positioning the active window </li>
+</ol>
+
+<p>The art <a href="http://eknowledger.spaces.live.com/Blog/cns%21F475D4DE444DB1AB%21695.entry">Low-Level Keyboard Hook in C #</a> helped me to solve the first part. I had only to find the way to know whether the button LWin is pressed. Here is the main code: </p>
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;"><div id="codeSnippet" >
+<pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> IntPtr HookCallback(</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">int</span> nCode, IntPtr wParam, IntPtr lParam)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">if</span> (nCode &amp;gt;= 0 &amp;amp;&amp;amp; wParam == (IntPtr)WAKeysHook.WmKeyDown)</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">if</span> ((<span style="color: #0000ff;">int</span>)WAKeysHook.GetAsyncKeyState((IntPtr)Keys.LWin) != 0) <span style="color: #008000;">// Left Win Key</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            Keys key = (Keys) Marshal.ReadInt32(lParam);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (key == Keys.Left || key == Keys.Right || </pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        key == Keys.Up || key == Keys.Down) <span style="color: #008000;">// Arrows keys</span></pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                SetWindowLocation(key);</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre><!--CRLF--><pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">return</span> WAKeysHook.CallNextHookEx(WaKeysHook.HookId, nCode, wParam, lParam);</pre><!--CRLF--><pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre><!--CRLF--></div></div>
+
+<p>The second part: looking for the foreground window, setting state and size. </p>
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">private</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">void</span> SetWindowLocation(Keys k)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">//Active Window</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    IntPtr window = WAWindows.GetForegroundWindow();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #008000;">// Check SIZEBOX Style (Window can sizable)</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">if</span> (((<span style="color: #0000ff;">int</span>)WAWindows.GetWindowLongPtr(window, WAWindows.GwlStyle) &amp;amp; </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    WAWindows.WsSizebox)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        == WAWindows.WsSizebox)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    {</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #008000;">// Show window in normal state (if always maximized)</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        WAWindows.ShowWindow(window, (<span style="color: #0000ff;">int</span>)WAWindows.WindowShowStyle.ShowNormal);</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #008000;">//Need Maximized</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">if</span> (k != Keys.Down)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        {</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            WAWindows.ShowWindow(window, (<span style="color: #0000ff;">int</span>)WAWindows.WindowShowStyle.ShowMaximized);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #008000;">// Place Window on left or right</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">if</span> (k != Keys.Up)</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                WAWindows.Rect rect, rectDesktop;</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                <span style="color: #0000ff;">if</span> (WAWindows.GetWindowRect(window, <span style="color: #0000ff;">out</span> rect) &amp;amp;&amp;amp; </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        WAWindows.GetWindowRect(WAWindows.GetDesktopWindow(), </pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">out</span> rectDesktop))</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                {</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                    WAWindows.SetWindowPos(window, WAWindows.HwndTop, </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            (k == Keys.Left) ? Math.Min(rect.Left, 0) : </pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            rectDesktop.Right / 2, rect.Top, Math.Min(rect.Width, </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            rectDesktop.Right / 2 - Math.Min(rect.Left, 0)),</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                                 Math.Min(rect.Height, rectDesktop.Bottom), </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                WAWindows.SwpShowwindow);</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">                }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            }</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    }</pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>In addition, there is an opportunity to display (or hide) the icon in the taskbar with context menu (that can help you to close the application). You can set these options in <em>app.config</em>&nbsp; section &quot;<code>ShowNotifyIcon</code>&quot;.</p>
+
+<div id="codeSnippetWrapper" style="background-color: #f4f4f4;color: black;font-family: 'Courier New', Courier, Monospace;	font-size: 9pt; line-height: 12pt; border: solid 1px silver; cursor: text; margin: 20px 0px 10px 0px; overflow: auto; padding: 4px; width: 97.5%; direction: ltr; text-align: left;">
+  <div id="codeSnippet" >
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">applicationSettings</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">VistaKeysExtender.Properties.Settings</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">setting</span> <span style="color: #ff0000;">name</span><span style="color: #0000ff;">=&quot;ShowNotifyIcon&quot;</span> <span style="color: #ff0000;">serializeAs</span><span style="color: #0000ff;">=&quot;String&quot;</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">            <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">value</span><span style="color: #0000ff;">&gt;</span>False<span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">value</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">        <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">setting</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;">    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">VistaKeysExtender.Properties.Settings</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white;border-style: none; overflow: visible; padding: 0px; width: 100%; margin: 0em;"><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">applicationSettings</span><span style="color: #0000ff;">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Enjoy it!&nbsp; &nbsp;&nbsp;</p>
+
+<h2>Updated</h2>
+
+<ul>
+<li>20.04.2009 - Build version for x64 system </li>
+
+<li>21.04.2009 - Project has new version. Now you can choose the setting, and some bugs fixed. This is the new version window: </li>
+</ul>
+<img height="423" alt="0000k00h.png" src="/library/images/01/0000005.png" width="435" /> 
+<h4>You can download the new version and code from <a title="http://code.google.com/p/keysextender/" href="http://code.google.com/p/keysextender/">here</a>.</h4>
+
+</span>

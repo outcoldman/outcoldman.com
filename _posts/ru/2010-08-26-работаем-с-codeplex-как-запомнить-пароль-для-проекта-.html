@@ -1,0 +1,23 @@
+---
+layout: post
+title: "Работаем с CodePlex. Как запомнить пароль для проекта?"
+date: 2010-08-26 05:29:00
+categories: ru
+tags: [Windows 7, Visual Studio, CodePlex, TFS, SVN]
+alias: ru/blog/show/220
+---
+<p>Решил выложить один мелкий проект на codeplex. Думаю, что многие знают, что с codeplex можно работать как через SVN клиент, так и через TFS. Так вот через SVN у меня работать как-то не получилось, при попытке добавить dll в папку у меня вылетало такое вот сообщение “<i>Server sent unexpected return value (200 OK) in response to PUT request for</i> <i>…</i>”. Как его побороть не понятно, нашел дискуссию на codeplex по этой теме <a href="http://codeplex.codeplex.com/Thread/View.aspx?ThreadId=67527">Can't commit binary files using TortoiseSVN</a>, последнее сообщение было в прошлом году, что не радует. Ну ладно, все равно сейчас с TFS работаю, потому перелез на TFS и для codeplex. Но там есть тоже неприятный момент – Visual Studio спрашивает постоянно пароль при каждом новом подключении к проекту, а галочки Save credentials нет. Но способ есть. </p>
+
+<p>Вот как я это сделал в Windows 7. Идем в Control Panel, дальше User Accounts and Family Safety, потом User Accounts. Слева находим Credential Manager:</p>
+
+<p><img src="/library/images/02/codeplex/01.png" /></p>
+
+<p>Там выбираем Add a Windows credential:</p>
+
+<p><img src="/library/images/02/codeplex/02.png" /></p>
+
+<p>И забиваем ваши правильные настройки для TFS:</p>
+
+<p><img src="/library/images/02/codeplex/03.png" /></p>
+
+<p>Кстати, где храните исходники? Github, Google Code? Один я с codeplex мучаюсь? :)</p>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<openServiceDescription
+    xmlns="http://www.microsoft.com/schemas/openservicedescription/1.0">
+  <homepageUrl>http://habrometr.ru/users/outcoldman/</homepageUrl>
+  <display>
+    <name>Посмотреть пользователя на habrametr</name>
+    <icon>http://habrometr.ru/favicon.ico</icon>
+  </display>
+  <activity category="Share">
+    <activityAction context="selection" >
+      <preview action="http://habrometr.ru/habrometr_88x120_{selection}.png">
+      </preview>
+      <execute action="http://habrometr.ru/users/{selection}/">
+      </execute>
+    </activityAction>
+  </activity>
+</openServiceDescription>

@@ -1,0 +1,49 @@
+---
+layout: post
+title: "How to improve performance of your own Inversion of Control Framework?"
+date: 2013-03-16 20:40:06
+categories: en
+tags: [.NET, C#, Patterns, IoC, Unity, OutcoldSolutions.Framework, GitHub]
+alias: en/blog/show/331
+---
+<p>I enjoy doing anything by myself instead of using well know frameworks. I am not saying that I am using only my own frameworks. It just gives me more knowledge about how these frameworks doing their job. Inversion of Control Framework it is one of these examples. I have a blog post on Russian about simple implementation of IoC container. You can look on it here <a href="http://www.microsofttranslator.com/bv.aspx?from=&amp;to=en&amp;a=http://outcoldman.com/ru/blog/show/276">Simple IoC Container</a> (I used Microsoft Translator for this link). Actually right now is more than just one class, I have my own framework, which I use for some my applications, like <a href="http://apps.microsoft.com/windows/en-US/app/gmusic/939f0859-1413-4a52-9ab6-6e50405c8c2e">gMusic</a> (you can follow this project on <a href="https://github.com/outcoldman/Framework">GitHub – Framework</a>). 
+</p><p>Couple months ago I met an article <a href="http://www.palmmedia.de/Blog/2011/8/30/ioc-container-benchmark-performance-comparison">IoC Container Benchmark - Performance comparison</a>, where this guy compare different IoC containers (when I first time met this article it was only about performance). So I decided to check performance of my simple container. This is result (I have different count of iterations, so do not compare it to the original blog post):
+</p>
+<p><img src="/Library/2013/02/26/022613_0714_1.png" alt=""/></p>
+
+<p>In this list: "Outcold" – this is my current framework, "IoC A" – it is a class which I showed in this blog post <a href="http://www.microsofttranslator.com/bv.aspx?from=&amp;to=en&amp;a=http://outcoldman.com/ru/blog/show/276">Simple IoC Container</a> (based on Activator.CreateInstance), "IoC E" – it is a different version of IoC class, but based on Expressions (I showed in in one of my comments <a href="/ru/blog/show/276">here</a>). "<a href="http://lightinject.codeplex.com">LightInject</a>" – it is one of the faster frameworks from original blog post about IoC performance, "<a href="http://unity.codeplex.com/">Unity</a>" – it is one of the famous frameworks. As you can see that, the version of IoC class which is based on Expressions has the worst performance. The funny thing, that I used it everywhere, I really thought that it should be faster than Activator, somebody told me… and I did not verify that…. Anyway, after this article, I spent some time to improve performance of my IoC container, and this is how I did this. 
+</p
+<p>The main problem of IoC container which I implemented is that I did not cache the compiled Expression. Each time when I ask IoC to resolve some object – it compiles expression and after this resolve it:
+</p>
+<p><img src="/Library/2013/02/26/022613_0714_2.png" alt=""/>
+	</p>
+<p>
+ </p><p>First optimization is simple. Just need to cache expression after first time somebody will ask to resolve object. However, first I need to change how I invoke constructor, because my expression expects constraints I need to change it to parameters, so each "resolving" can use it is own parameters:
+</p>
+
+<p><img src="/Library/2013/02/26/022613_0714_3.png" alt=""/>
+	</p>
+<p>
+ </p><p>Now I have Delegate, which can create for me a new object of specific type. The only one problem, that this delegate can have different set of parameters, so I cannot cast it to something like Func&lt;Type1, … , TypeN, Result&gt; and invoke it. I need to call DynamicInvoke, which is slow:
+</p>
+
+<p><img src="/Library/2013/02/26/022613_0714_4.png" alt=""/>
+	</p>
+<p>
+ </p><p>This is the result of this optimization (as you can see it is very good, but still variant with Activator works better):
+</p>
+<p><img src="/Library/2013/02/26/022613_0714_5.png" alt=""/>
+	</p>
+<p>
+ </p><p>The second step I made – I just changed Expression in such way, so it always takes just one parameter "array of objects". In expression I use this array to cast each item of this array to the parameter in constructor. This is how I do this: 
+</p>
+<p><img src="/Library/2013/02/26/022613_0714_6.png" alt=""/>
+	</p>
+<p>
+ </p><p>This is the result:
+</p>
+<p><img src="/Library/2013/02/26/022613_0714_7.png" alt=""/>
+	</p>
+<p>
+ </p><p>It is faster than version with Activator! But it still slower than LightInject. I guess it is because LightInject used before System.Reflection.Emit instead of Expressions, or maybe they have better idea how to create this expression for type resolving. 
+</p><p>Anyway, it was a good result for me.</p>

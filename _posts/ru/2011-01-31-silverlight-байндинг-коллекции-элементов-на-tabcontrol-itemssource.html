@@ -1,0 +1,347 @@
+---
+layout: post
+title: "Silverlight: Байндинг коллекции элементов на TabControl.ItemsSource"
+date: 2011-01-31 10:47:00
+categories: ru
+tags: [Silverlight, XAML, Binding, TabControl, Converter]
+alias: ru/blog/show/269
+---
+<p>Раньше я как-то обходился без подобного в Silverlight. Всегда размещал TabItem в XAML коде, а не байндил коллекцию объектов, и при помощи DataTemplate настраивал вид того, что находится в TabItem.Content. Просто не было необходимости байндить коллекцию моих объектов (неких BindingModel) на TabControl.ItemsSource, а тут, буквально недавно, захотелось немного отрефакторить код, так как коллекция табов все росла, и управлять ею уже было сложно, и как раз придумал как это возможно сделать через описанный выше способ. Сказано – сделано. Потратил пару часов, переписал код, запускаю, и обнаруживаю такой вот exception: </p>  <blockquote>   <p>System.ArgumentException: Unable to cast object of type 'SilverlightTabControl.Foo' to type 'System.Windows.Controls.TabItem'.</p> </blockquote>  <p>Быстро гуглю, нахожу на форумах Silverlight тему <a href="http://forums.silverlight.net/forums/t/44291.aspx">Databinding a TabControl</a> (Я не одинок! Как показало более глубокое угугление, я совсем не одинок), а там </p>  <blockquote>   <p>This is because currently TabControl doesn't override PrepareContainerForItemOverride, so it won't automatically wrap your data source in TabItems.</p> </blockquote>  <p>Ну и в качестве решения предлагается написать свой TabConverter. Microsoft, ну я точно помню, что в WPF байндинг на ItemsSource у TabControl’а работает прекрасно. Я это делал. Ладно, терпим, что в Silverlight контролах достаточно много багов, но тут-то просто ребята немного не доделали, а контрол зарелизили, да и сколько версий он уже живет? В реальности на первый взгляд нужно сделать 2 вещи: </p>    <ol>   <li>Переопределить метод ItemsControl.<a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.itemscontrol.getcontainerforitemoverride(VS.95).aspx">GetContainerForItemOverride</a>, чтобы он возвращал TabItem. </li>    <li>Переопределить метод ItemsControl.<a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.itemscontrol.preparecontainerforitemoverride(VS.95).aspx">PrepareContainerForItemOverride</a>, чтобы он тому созданному контейнеру из шага 1 выставлял нужный Header из DisplayMemberPath (там простая строка, путь до свойства), а так же выставил в Content элемент полученный из DataTemplate, указанный в ItemTemplate, а если не указан, то просто выставить туда элемент вашей байндинг модели. </li> </ol>  <p>И это все. И я даже подумал, что напишу сейчас TabControlEx, который бы наследовался от TabControl и выполнил два этих действия. Но ребята из Microsoft написали обработчик на изменение ItemsSource, который и ломает все мечты. К сожалению, код посмотреть не удалось, .NET Reflector почему-то не может дизасемблировать код TabControl.</p>  <p>В общем, ничего не оставалось, и я тоже написал конвертер из коллекции объектов в коллекцию TabItem.</p>  <div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">   <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">     <pre style="background-color: white; margin: 0em"><span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #008000">/// Convert collection ob objects to List of &lt;see cref=&quot;TabItem&quot;/&gt;. </span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #008000">///  &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> CollectionToTabItemsConverter : IValueConverter</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// Set &lt;see cref=&quot;ControlTemplate&quot;/&gt; object to parameter</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// to change view of &lt;see cref=&quot;TabItem&quot;/&gt;'s &lt;see cref=&quot;TabItem.Content&quot;/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">object</span> Convert(<span style="color: #0000ff">object</span> <span style="color: #0000ff">value</span>, Type targetType, <span style="color: #0000ff">object</span> parameter, System.Globalization.CultureInfo culture)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        IEnumerable source = <span style="color: #0000ff">value</span> <span style="color: #0000ff">as</span> IEnumerable;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">if</span> (source != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            var controlTemplate = parameter <span style="color: #0000ff">as</span> ControlTemplate;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            List&lt;TabItem&gt; result = <span style="color: #0000ff">new</span> List&lt;TabItem&gt;();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">foreach</span> (<span style="color: #0000ff">object</span> item <span style="color: #0000ff">in</span> source)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">            {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                PropertyInfo[] propertyInfos = item.GetType().GetProperties();</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #008000">// Reflection Magic: trying to get possible header properties</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                PropertyInfo propertyInfo = propertyInfos.First(x =&gt; x.Name == <span style="color: #006080">&quot;Header&quot;</span> || x.Name == <span style="color: #006080">&quot;Name&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">string</span> headerText = <span style="color: #0000ff">null</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                <span style="color: #0000ff">if</span> (propertyInfo != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    <span style="color: #0000ff">object</span> propValue = propertyInfo.GetValue(item, <span style="color: #0000ff">null</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    headerText = (propValue ?? <span style="color: #0000ff">string</span>.Empty).ToString();</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                var tabItem = <span style="color: #0000ff">new</span> TabItem</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    DataContext = item,</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                    Header = headerText,</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                    Content = controlTemplate == <span style="color: #0000ff">null</span> ? item : <span style="color: #0000ff">new</span> ContentControl { Template = controlTemplate }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                };</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                result.Add(tabItem);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">return</span> result;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">return</span> <span style="color: #0000ff">null</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #008000">/// ConvertBack method is not supported</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #008000">/// &lt;/summary&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">object</span> ConvertBack(<span style="color: #0000ff">object</span> <span style="color: #0000ff">value</span>, Type targetType, <span style="color: #0000ff">object</span> parameter, System.Globalization.CultureInfo culture)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">throw</span> <span style="color: #0000ff">new</span> NotSupportedException(<span style="color: #006080">&quot;ConvertBack method is not supported&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Только в своем конвертере я захотел сделать так, чтобы мог его использовать по всему проекту, а не писать отдельно конвертер на каждый TabControl, потому я сделал его, на сколько это возможно, универсальным. Не обошлось и без магии, вид контента я еще могу передать через parameter, а вот что подставить в Header пришлось брать таким вот магическим образом: смотрю, есть ли у объекта свойства Header или Name (обычно они применяются). Есть и другой способ, можно просто переопределить ToString и просто подставлять сам объект в Header. </p>
+
+<p>Ну и пример, как использую. Тестовая ViewModel:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> Foo</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> Header { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">public</span> <span style="color: #0000ff">string</span> SomeContent { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em"><span style="color: #0000ff">public</span> <span style="color: #0000ff">class</span> ViewModel</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> ViewModel()</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        Collection = <span style="color: #0000ff">new</span> ObservableCollection&lt;Foo&gt;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                         {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                             <span style="color: #0000ff">new</span> Foo {Header = <span style="color: #006080">&quot;Foo 1&quot;</span>, SomeContent = <span style="color: #006080">&quot;Some Content 1&quot;</span>},</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                             <span style="color: #0000ff">new</span> Foo {Header = <span style="color: #006080">&quot;Foo 2&quot;</span>, SomeContent = <span style="color: #006080">&quot;Some Content 2&quot;</span>},</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                             <span style="color: #0000ff">new</span> Foo {Header = <span style="color: #006080">&quot;Foo 3&quot;</span>, SomeContent = <span style="color: #006080">&quot;Some Content 3&quot;</span>}</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                         };</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">public</span> ObservableCollection&lt;Foo&gt; Collection { get; set; }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>И разметка:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl</span> <span style="color: #ff0000">x:Class</span><span style="color: #0000ff">=&quot;SilverlightTabControl.MainPage&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">xmlns:x</span><span style="color: #0000ff">=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #ff0000">xmlns:SilverlightTabControl</span><span style="color: #0000ff">=&quot;clr-namespace:SilverlightTabControl&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #ff0000">xmlns:Controls</span><span style="color: #0000ff">=&quot;clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls&quot;</span> <span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl.Resources</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">SilverlightTabControl:CollectionToTabItemsConverter</span> <span style="color: #ff0000">x:Key</span><span style="color: #0000ff">=&quot;CollectionToTabItemsConverter&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">ControlTemplate</span> <span style="color: #ff0000">x:Key</span><span style="color: #0000ff">=&quot;MyTabItemContentTemplate&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                <span style="color: #0000ff">&lt;</span><span style="color: #800000">TextBlock</span> <span style="color: #ff0000">Text</span><span style="color: #0000ff">=&quot;{Binding Path=SomeContent}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">            <span style="color: #0000ff">&lt;/</span><span style="color: #800000">StackPanel</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;/</span><span style="color: #800000">ControlTemplate</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl.Resources</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">SilverlightTabControl:ViewModel</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl.DataContext</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;</span><span style="color: #800000">Grid</span> <span style="color: #ff0000">x:Name</span><span style="color: #0000ff">=&quot;LayoutRoot&quot;</span> <span style="color: #ff0000">Background</span><span style="color: #0000ff">=&quot;White&quot;</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">&#160;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">        <span style="color: #0000ff">&lt;</span><span style="color: #800000">Controls:TabControl</span> <span style="color: #ff0000">Grid</span>.<span style="color: #ff0000">Row</span><span style="color: #0000ff">=&quot;1&quot;</span> </pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">                             <span style="color: #ff0000">ItemsSource</span><span style="color: #0000ff">=&quot;{Binding Path=Collection, Converter={StaticResource CollectionToTabItemsConverter}, </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">                                                            ConverterParameter={StaticResource MyTabItemContentTemplate}}&quot;</span> <span style="color: #0000ff">/&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">        </pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">&lt;/</span><span style="color: #800000">Grid</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">&lt;/</span><span style="color: #800000">UserControl</span><span style="color: #0000ff">&gt;</span></pre>
+<!--CRLF--></div>
+</div>
+
+<p>Достаточно все просто. Устанавливаю байндинг коллекции на ItemsSource, устанавливаю Converter, а так же выставляю в параметр необходимый мне ControlTemplate. Исходный код можно взять с <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightTabControl?rev=12">assembla</a>.</p>
+
+<p>Еще у меня была идея передать в Converter сам элемент TabControl, из него выдрать ItemTemplate и DisplayMemberPath, но вот такой вот байндинг у меня не заработал:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 10pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: tahoma, verdana, courier, monospace; direction: ltr; color: black; font-size: 9pt; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-left: 0px; padding-right: 0px; padding-top: 0px; adding-bottom: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">{Binding Path=Collection, Converter={StaticResource CollectionToTabItemsConverter}, ConverterParameter={RelativeSource Self}}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Может знает кто-нибудь еще способ попроще и получше? Можно, конечно же, еще сделать все-таки свой TabControlEx со своей коллекцией MyItemsSource, в которую устанавливать коллекцию объектов, и на ее основе выставлять в TabControl.Items элементы TabItem, но не вижу плюсов по сравнению с конвертером.</p>

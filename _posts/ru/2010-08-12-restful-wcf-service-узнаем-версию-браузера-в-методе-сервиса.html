@@ -1,0 +1,134 @@
+---
+layout: post
+title: "RESTful WCF Service - Узнаем версию браузера в методе сервиса"
+date: 2010-08-12 18:56:00
+categories: ru
+tags: [Silverlight, .NET, C#, Internet Explorer 8, PDF, Reports, WCF, RESTful, FireFox]
+alias: ru/blog/show/212
+---
+<p>Сначала опишу задачу, которую мы решали в нашем проекте. У нас есть Silverlight клиентская часть и серверная часть, состоящая из набора WCF сервисов. Причем задумка у нас такая, что изначально мы разрабатываем эти сервисы с возможностью хостинга их вне веб-сервера, потому ASP.NET Compatible mode у нас отключен (зачем я так и не понял, ведь реально инсталлируем всегда на веб-сервер, ну усложнили себе жизнь - пускай). Следовательно, до значения HttpContext.Current нам никак не добраться из методов WCF сервисов. Один из WCF сервисов – это <a href="http://msdn.microsoft.com/en-us/magazine/dd315413.aspx">RESTful сервис</a>, который отдает файлы (отчеты), то есть умеет обрабатывать GET запросы, все по стандартному:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">WebOperationContext context = WebOperationContext.Current;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">context.OutgoingResponse.ContentLength = reportBytes.Length;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">context.OutgoingResponse.ContentType = <span style="color: #006080">&quot;application/pdf&quot;</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">context.OutgoingResponse.Headers.Set(<span style="color: #006080">&quot;content-disposition&quot;</span>, <span style="color: #006080">&quot;attachment;filename=&quot;</span> + fileName);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Но тут у нас возникала проблема. Имена файлов содержат пробелы, и разные браузеры обрабатывают их по-разному. Первая проблема: если filename содержит имя вроде “filename with spaces.pdf”, то FireFox нам покажет только filename, решается она просто, нужно имя файла заключить в кавычки (уже в который раз пишешь один и тот же код, а все равно можно напороться на уже известную проблему):</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">context.OutgoingResponse.Headers.Set(<span style="color: #006080">&quot;content-disposition&quot;</span>, <span style="color: #006080">&quot;attachment;filename=\&quot;&quot;</span> + fileName + <span style="color: #006080">&quot;\&quot;&quot;</span>);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>А вот Internet Explorer 8 обрабатывает по-другому, он заменяет пробелы на ‘_’. В голову сразу пришла идея </p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em">filename = HttpUtility.UrlPathEncode(filename);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Теперь вместо “filename with spaces.pdf” на сервере в переменной filename мы имеем “filename%20with%20spaces.pdf” и Internet Explorer теперь сохраняет файл с тем именем что нужно (с пробелами), а вот FireFox наоборот оставляет %20 вместо пробелов. Решил найти способ, как определить какой браузер использует пользователь:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">bool</span> IsInternetExplorer()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  WebOperationContext context = WebOperationContext.Current;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  <span style="color: #0000ff">if</span> (context != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  {</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">string</span> userAgentInfo = context.IncomingRequest.Headers[<span style="color: #006080">&quot;User-Agent&quot;</span>];</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">if</span> (userAgentInfo != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">      <span style="color: #0000ff">return</span> userAgentInfo.Contains(<span style="color: #006080">&quot;MSIE&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  }</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  <span style="color: #0000ff">return</span> <span style="color: #0000ff">false</span>;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>А точнее сделал затычку именно для Internet Explorer:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">if</span> (IsInternetExplorer())</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  filename = HttpUtility.UrlPathEncode(filename);</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Удивило, что решение, как определить браузер я шустро не нашел в интернете, хотя знал, что ну должен быть способ найти user-agent строчку из запроса. Поначалу написал реализацию, которая использовала OperationContext:</p>
+
+<div style="border-bottom: silver 1px solid; text-align: left; border-left: silver 1px solid; padding-bottom: 4px; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; padding-left: 4px; width: 97.5%; padding-right: 4px; font-family: &#39;Courier New&#39;, courier, monospace; direction: ltr; color: black; overflow: auto; border-top: silver 1px solid; cursor: text; border-right: silver 1px solid; padding-top: 4px" id="codeSnippetWrapper">
+  <div style="padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px" id="codeSnippet">
+    <pre style="background-color: white; margin: 0em"><span style="color: #0000ff">private</span> <span style="color: #0000ff">bool</span> IsInternetExplorer()</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">{</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  OperationContext context = OperationContext.Current;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  HttpRequestMessageProperty httpRequest = context.IncomingMessageProperties[<span style="color: #006080">&quot;httpRequest&quot;</span>] <span style="color: #0000ff">as</span> HttpRequestMessageProperty;</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">if</span> (httpRequest != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  {</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">    <span style="color: #0000ff">string</span> userAgentInfo = httpRequest.Headers[<span style="color: #006080">&quot;User-Agent&quot;</span>];</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">    <span style="color: #0000ff">if</span> (userAgentInfo != <span style="color: #0000ff">null</span>)</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">      <span style="color: #0000ff">return</span> userAgentInfo.Contains(<span style="color: #006080">&quot;MSIE&quot;</span>);</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">  }</pre>
+<!--CRLF-->
+
+    <pre style="background-color: white; margin: 0em">  <span style="color: #0000ff">return</span> <span style="color: #0000ff">false</span>;</pre>
+<!--CRLF-->
+
+    <pre style="margin: 0em">}</pre>
+<!--CRLF--></div>
+</div>
+
+<p>Хорошо, что позже вспомнил про WebOperationContext, вообще в WCF все как-то ну не очень прозрачно. Постараюсь в будущем осилить эту тему посильнее, и может попробовать сдать сертификационный экзамен. </p>
+
+<p>Больше чем уверен, что <a href="http://force-net.com">Макс</a> скажет еще о каких-либо проблемах, который этот код еще содержит и как их решить, насколько я знаю – он с этими отдачами файлов в свое время очень намучался с подобной реализацией, правда на ASP.NET, но разницы-то нет.</p>
