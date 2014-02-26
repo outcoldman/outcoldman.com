@@ -16,31 +16,75 @@
         <script>hljs.initHighlightingOnLoad();</script>
     </head>
     <body>
+        <header>
+            <div class="content-wrapper default-padding">
+                
+                <div class="float-right">
+                    <section class="langbar clear-fix">
+                        {% if post.categories contains 'ru' %}
+                        <a href="/en">In English</a>
+                        {% endif %}
+                        {% if post.categories contains 'en' %}
+                        <a href="/ru">In Russian</a>
+                        {% endif %}
+                    </section>
+                    
+                    <div class="subscription">
+                        <ul>
+                            <li>
+                                <a href="http://feeds.feedburner.com/Outcoldman_en">
+                                    <img alt="rss" src="/images/rss64.png" />
+                                </a>
+                            </li>
+                            <li>
+                                <a href="http://twitter.com/outcoldman">
+                                    <img alt="twitter" src="/images/twitter64.png" />
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="float-left">
+                    
+                    <hgroup class="site-title float-left clear-fix">
+                        <h2>
+                            <a href="/">Denis Gladkikh</a>
+                        </h2>
+                        <h1>
+                            <a href="/">outcoldman</a>
+                        </h1>
+                    </hgroup>
 
-        <div class="site">
-          <div class="header">
-            <h1 class="title"><a href="/">{{ site.name }}</a></h1>
-            <a class="extra" href="/">home</a>
-          </div>
 
-          {{ content }}
+                    <nav class='mainMenu clear-fix-b'>
+                        <ul>
+                            <li><a href="/">Blog</a></li>
+                            <li><a href="/">About Me/CV</a></li>
+                        </ul>
+                    </nav>
 
-          <div class="footer">
-            <div class="contact">
-              <p>
-                Your Name<br />
-                What You Are<br />
-                you@example.com
-              </p>
+                </div>
+                
             </div>
-            <div class="contact">
-              <p>
-                <a href="https://github.com/yourusername">github.com/yourusername</a><br />
-                <a href="https://twitter.com/yourusername">twitter.com/yourusername</a><br />
-              </p>
+        </header>
+
+        <div id="body">
+            <div class="content-wrapper clear-fix default-padding text-content default-vertical-padding">
+                {{ content }}
             </div>
-          </div>
         </div>
+
+        <footer>
+            <div class="content-wrapper default-padding">
+                <div class="float-left">
+                    The content on this site represents my own personal opinions and thoughts at the time of posting.
+                </div>
+                <div class="float-right">
+                    Denis Gladkikh (outcoldman) &copy; 
+                </div>
+            </div>
+        </footer>
 
     </body>
 </html>

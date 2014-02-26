@@ -1,138 +1,490 @@
-/*****************************************************************************/
-/*
-/* Common
-/*
-/*****************************************************************************/
-
-/* Global Reset */
-* {
-  margin: 0;
-  padding: 0;
+﻿* {
+    margin:0; 	
+    padding:0;
 }
 
-html, body { height: 100%; }
+img {
+    border: none 0px;
+    max-width: 100%;
+}
 
+header, footer, hgroup,
+nav, section {
+    display: block;
+}
+
+a {
+    color:#650000;
+}
+
+    a:link, a:visited,
+    a:active, a:hover {
+        color:#650000;
+    }
+
+    a:hover {
+        color: #5a5a5a;
+        text-decoration: underline;
+    }
+    
 body {
-  background-color: #FFF;
-  font: 13.34px Helvetica, Arial, sans-serif;
-  font-size: small;
-  text-align: center;
+    margin:0px;	
+    padding:0em 0em 1.5em 0em;
+    font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
+    font-size:1em;
+    color:#000000;
+    background:#EBE8D9 url(images/background.jpg) top center no-repeat;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-size: 100%; }
-
-h1 { margin-bottom: 1em; }
-p { margin: 1em 0; }
-
-a         { color: #00a; }
-a:hover   { color: #000; }
-a:visited { color: #a0a; }
-
-/*****************************************************************************/
-/*
-/* Home
-/*
-/*****************************************************************************/
-.posts {
-  list-style-type: none;
-  margin-bottom: 2em;
+header {
+    height: auto;
 }
 
-.posts li {
-  line-height: 1.75em;
+.content-wrapper {
+    margin: 0 auto;
+    max-width: 995px;
 }
 
-.posts span {
-  color: #aaa;
-  font-family: Monaco, "Courier New", monospace;
-  font-size: 80%;
+.float-left {
+    float: left;
 }
 
-/*****************************************************************************/
-/*
-/* Site
-/*
-/*****************************************************************************/
-
-.site {
-  font-size: 115%;
-  text-align: justify;
-  width: 42em;
-  margin: 3em auto 2em;
-  line-height: 1.5em;
+.float-right {
+    float: right;
 }
 
-.header a {
-  font-weight: bold;
-  text-decoration: none;
+.default-padding {
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
-.title {
-  display: inline-block;
-  margin-bottom: 2em;
+.default-vertical-padding {
+    padding-top: 1em;
+    padding-bottom: 1em;
 }
 
-.title a {
-  color: #a00;
+.content-break:after {
+    content: ".";
+    padding-top: 2em;
+    visibility: hidden;
 }
 
-.title a:hover {
-  color: #000;
+.clear-fix:after, .clear-fix-b:before {
+    content: ".";
+    clear: both;
+    display: block;
+    height: 0;
+    visibility: hidden;
 }
 
-.header a.extra {
-  color: #aaa;
-  margin-left: 1em;
+
+/******Top*********/
+.langbar {
+    text-align: right;
 }
 
-.header a.extra:hover {
-  color: #000;
+.langbar a, .langbar a:hover, .langbar a:active  {
+    color: #B7B7B7;
 }
 
-.meta {
-  color: #aaa;
+.subscription ul {
+    padding-top: 15px;
 }
 
-.footer {
-  font-size: 80%;
-  color: #666;
-  border-top: 4px solid #eee;
-  margin-top: 2em;
-  overflow: hidden;
+.subscription li {
+    list-style: none;
+    padding-left: 15px;
+    padding-top: 15px;
+    display:inline;
 }
 
-.footer .contact {
-  float: left;
-  margin-right: 3em;
+.subscription a  {
+    text-decoration: none;
 }
 
-.footer .contact a {
-  color: #8085C1;
+header .content-wrapper {
+    padding-top: 20px;
 }
 
-.footer .rss {
-  margin-top: 1.1em;
-  margin-right: -.2em;
-  float: right;
+.site-title {
+    color: #c8c8c8;
 }
 
-.footer .rss img {
-  border: 0;
+.site-title a, .site-title a:hover, .site-title a:active {
+    background: none;
+    color: black;
+    outline: none;
+    text-decoration: none;
 }
 
-/*****************************************************************************/
-/*
-/* Posts
-/*
-/*****************************************************************************/
-
-.post ul, .post ol {
-  margin-left: 1.35em;
+.site-title h1 {
+    color: black;
+    font-size: 4em;
+    font-weight: normal;
+    margin: 0px;
+    padding: 0px;
 }
 
-.post pre code {
-    overflow: auto;
-    word-wrap: normal;
-    white-space: pre;
+.site-title h2 {
+    font-size: 1.1em;
+    font-weight: normal;
+    text-align: right;
+    padding: 0px;
+    margin: 0em 0em -1.5em 0em;
+}
+
+/********* Menu ************/
+.mainMenu li {
+    float: left;
+    display: inline-block;
+    padding: 0em 0.1em;
+}
+
+    .mainMenu li a {
+        float: left;
+        font-family: "Segoe UI Semibold", Verdana, Helvetica, Sans-Serif;
+        font-size: 0.75em;
+        color: #fff;
+        text-align: center;
+        padding: 1em 1.2em;
+        display: inline-block;
+        background: #313131;
+        border-top: 0.5em solid #EBE8D9;
+        text-transform: uppercase;
+        text-decoration: none;
+    }
+
+        .mainMenu li a:hover {
+            background: #F57E29;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .mainMenu li a.active {
+            background: #FFFFFF;
+            color: #000000;
+            text-decoration: none;
+            position: relative;
+            border-top-color: #fff;
+            padding-top: 0.5em;
+            padding-bottom: 1.5em;
+        }
+
+/****** Footer ***********/
+footer {
+    clear: both;
+    font-size: .8em;
+    padding: 15px 0px;
+    color: #B7B7B7;
+}
+
+/***Main content**/
+#body {
+    background-color: #fff;
+    clear: both;
+}
+
+.leftSection {
+    float: left;
+    width: 70%;
+}
+
+aside {
+    float: right;
+    width: 25%;
+}   
+
+/***** Comment form *******/
+fieldset.comment, fieldset.comment-author, fieldset.comment-edit {
+    padding: 10px;
+}
+
+fieldset.comment-author {
+    border: solid 2px #4a4a4a;
+}
+
+fieldset.comment legend {
+    margin-left: 10px; 
+    padding:2px;
+}
+
+fieldset.comment .comment-body {
+    padding-left:90px; 
+}
+
+fieldset.comment-edit .info {
+    font-size:0.8em;
+    color: #b7b7b7;
+}
+
+fieldset.comment-edit .fields-section {
+    width: 35%;
+    float: left;
+}
+
+fieldset.comment-edit .comment-body-section {
+    width: 60%;
+    float: right;
+}
+
+fieldset.comment-edit label {
+    color: #6a6a6a; 
+    margin-bottom:5em;
+}
+
+fieldset.comment-edit input[type=text], fieldset.comment-edit input[type=email], fieldset.comment-edit input[type=url], fieldset.comment-edit textarea {
+    background:#FFFFFF;
+    border:solid 1px #b7b7b7;
+    padding:0.3em;
+    width:98%;
+    font-size:1em;
+}
+
+input[type=button], input[type=submit] {
+    background-color:#313131;	
+    color:#fff;
+    border:none;
+    padding: 0.5em;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+input[type=button]:hover, input[type=submit]:hover {
+    background-color:#F57E29;	
+    color:#fff;
+}
+
+#busyIndicator {
+    vertical-align: middle;
+    display: none;
+}
+
+fieldset.comment-edit div.notification {display:none;}
+
+fieldset.comment-edit div.notification h4 {
+    text-align:left;
+    color:#EAAB15; 
+    padding: 5px 0px 0px 0px; 
+    line-height:100%;
+}
+
+/*** Article ****/
+
+.text-content .article-title time {
+    color: #B7B7B7;
+    font-size: 0.9em;
+}
+
+.text-content .article-title h1 {
+    padding-top: 0em;
+}
+
+.text-content p {
+    padding: 1em 0em 0em 0em;
+}
+
+.text-content blockquote {
+    padding: 0.5em;
+    margin: 1em 0em 0em 0em;
+    border-left: 5px solid #fce27c; 
+    background-color: #f6ebc1;
+}
+
+.text-content blockquote p:first-child {
+    padding: 0em;
+}
+
+.text-content h1, .text-content h2, .text-content h3, .text-content h4, .text-content h5, .text-content h6 {
+    color:#3a3a3a;
+    font-family: "Segoe UI Semibold", Verdana, Helvetica, Sans-Serif;
+}
+
+.text-content h1 {
+    font-size:1.8em;
+    padding-bottom:0.3em;
+    padding-top:0.3em;
+}
+
+.text-content h2 {
+    font-size:1.5em;
+    padding-bottom:0.1em;
+    padding-top:0.4em;
+}
+
+.text-content h3 {
+    font-size: 1.2em;
+    padding-bottom:0.1em;
+    padding-top:0.4em;
+}
+
+.text-content h4 {
+    padding-bottom:0.1em;
+    padding-top:0.4em;
+}
+
+.text-content ul {
+    padding:5px 0px 5px 30px; 
+    list-style-type:disc;
+}
+
+.text-content ol {
+    padding:5px 0px 5px 30px;
+}
+
+/*** Tags cloud ***/
+ ul.tags {
+     margin:0;
+     padding:.5em .5em; 
+     text-align:center;
+     background:#EBE8D9;
+     list-style:none;
+     font-size: 0.8em;
+ }
+
+.tags li {
+    margin:0;
+    padding: 0px 0px 3px 0px;
+    display: inline;
+}
+
+.tags li a {
+    text-decoration:none;
+    padding:0 5px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.tag1 {
+    font-size:1em;
+}
+
+.tag2 {
+    font-size:1.1em;
+}
+
+.tag3 {
+    font-size:1.2em;
+}
+
+.tag4 {
+    font-size:1.3em;
+}
+
+.tag5 {
+    font-size:1.4em;
+}
+
+.tag6 {
+    font-size:1.5em;
+}
+
+.tag7 {
+    font-size:1.6em;
+}
+
+.tag8 {
+    font-size:1.7em;
+}
+
+.tag9 {
+    font-size:1.8em;
+}
+
+.tag10 {
+    font-size:1.9em;
+}
+
+/* Contacts list */
+
+ul.contacts {
+    list-style-type: none;
+    padding-left: 1em;
+}
+
+ul.contacts img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+/********************
+*   Mobile Styles   *
+********************/
+@media only screen and (max-width: 600px) {
+
+    body {
+        background:#EBE8D9;
+    }
+
+    header .content-wrapper {
+        padding-top: 5px;
+    }
+
+    .default-padding {
+        padding-right: .3em;
+        padding-left: .3em;
+    }
+
+    .default-vertical-padding {
+        padding-top: .3em;
+        padding-bottom: .3em;
+    }
+    
+    .subscription ul {
+        padding-top: 10px;
+        text-align: right;
+    }
+
+    .subscription li {
+        padding-left: 5px;
+    }
+
+    .subscription ul img {
+        width: 32px;
+        height: 32px;
+    }
+
+    aside, .leftSection {
+        float: none;
+        width: 100%;
+    }
+
+    .site-title h1 {
+        font-size: 2.5em;
+    }
+
+    .site-title h2 {
+        margin: 0 0 -0.5em 0;
+        text-align: right;
+        font-size: 1em;
+    }
+
+    fieldset.comment .float-left {
+        float: none;
+    }
+
+     fieldset.comment .comment-body {
+        padding-left: 0;
+    }
+
+    fieldset.comment-edit .fields-section, fieldset.comment-edit .comment-body-section {
+        width: 100%;
+        float: none;
+    }
+
+    .text-content h1 {
+        font-size: 1.4em;
+    }
+
+    .text-content h2 {
+        font-size: 1.3em;
+    }
+
+    .text-content h3 {
+        font-size: 1.2em;
+    }
+
+    .text-content h3 {
+        font-size: 1.1em;
+    }
 }
