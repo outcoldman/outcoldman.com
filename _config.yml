@@ -5,3 +5,4 @@ markdown: redcarpet
 pygments: true
 permalink: /:categories/archive/:year/:month/:day/:title/
 safe: false
+exclude: [bower_components, node_modules]
