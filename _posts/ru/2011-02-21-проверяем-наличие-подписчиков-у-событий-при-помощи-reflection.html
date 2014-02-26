@@ -114,11 +114,11 @@ alias: ru/blog/show/274
 
 <p>А вот если вне его, то проверить так нельзя:</p>
 
-<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Method" border="0" alt="Method" src="/Library/2011/02/06/Method_271E9A85.png" width="753" height="87" /></p>
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Method" border="0" alt="Method" src="/library/2011/02/06/Method_271E9A85.png" width="753" height="87" /></p>
 
 <p>Что ж, нужно посмотреть через Reflector и разобраться, что к чему:</p>
 
-<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="reflector" border="0" alt="reflector" src="/Library/2011/02/06/reflector_25F98B99.png" width="232" height="221" /></p>
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="reflector" border="0" alt="reflector" src="/library/2011/02/06/reflector_25F98B99.png" width="232" height="221" /></p>
 
 <p>Ага, дальше можно и не изучать, все понятно. Генерируется свойство и поле. Вот для того, чтобы узнать есть ли подписчики, нужно обратиться к полю. Как оказалось, в .NET это сделать очень просто при помощи Reflection:</p>
 

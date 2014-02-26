@@ -87,11 +87,11 @@ alias: en/blog/show/242
 
 <p>Looks like that if you will pass null instead of WindowInteropHelper in second constructor you will get NullReferenceException again, because first will executed code in base constructor and next constructor’s body which we invoke. And R# tell us that we don’t need to check <em>window!=null</em>, because we used this variable before considering that it can not be null (I created <a href="http://youtrack.jetbrains.net/issue/RSRP-190932?projectKey=RSRP&amp;query=created+by:+me">bug</a> in ReSharper Youtrack):</p>
 
-<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Untitled" border="0" alt="Untitled" src="/Library/2010/09/14/Untitled_5DC85F5B.png" width="336" height="163" /></p>
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Untitled" border="0" alt="Untitled" src="/library/2010/09/14/Untitled_5DC85F5B.png" width="336" height="163" /></p>
 
 <p>Actually contracts works before method execution, so we will see <em>Precondition failed exception</em>:</p>
 
-<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/Library/2010/09/14/Capture_1D2612EC.png" width="789" height="266" /></p>
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/library/2010/09/14/Capture_1D2612EC.png" width="789" height="266" /></p>
 
 <p>Also if you want to see ArgumentNullException instead of ContractException you can write:</p>
 
@@ -135,4 +135,4 @@ alias: en/blog/show/242
 }
 </code></pre>
 
-<p>So all next code only with contracts! <img style="border-bottom-style: none; border-left-style: none; border-top-style: none; border-right-style: none" class="wlEmoticon wlEmoticon-winkingsmile" alt="Подмигивающая рожица" src="/Library/2010/09/19/wlEmoticonwinkingsmile_09C46272.png" /></p>
+<p>So all next code only with contracts! <img style="border-bottom-style: none; border-left-style: none; border-top-style: none; border-right-style: none" class="wlEmoticon wlEmoticon-winkingsmile" alt="Подмигивающая рожица" src="/library/2010/09/19/wlEmoticonwinkingsmile_09C46272.png" /></p>

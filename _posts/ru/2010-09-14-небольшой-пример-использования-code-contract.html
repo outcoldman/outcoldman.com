@@ -82,10 +82,10 @@ alias: ru/blog/show/241
 
 <p>И, вроде, выглядит все так, что, например, во втором конструкторе все равно произойдет ошибка NullReferenceException, если передать null, до того, как начнет выполнятся код конструктора. И даже R# нам практически об этом говорит (надо бы, наверное создать багу на JetBrains), что не стоит делать сравнение с null, так как до этого и так уже используете переменную, считая что она null быть не может:</p>
 
-<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="Untitled" border="0" alt="Untitled" src="/Library/2010/09/14/Untitled_5DC85F5B.png" width="336" height="163" /></p>
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="Untitled" border="0" alt="Untitled" src="/library/2010/09/14/Untitled_5DC85F5B.png" width="336" height="163" /></p>
 
 <p>Но на самом деле, контракты проверяются до вызова метода, поэтому мы увидим при запуске приложения при инициализации null:</p>
 
-<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/Library/2010/09/14/Capture_1D2612EC.png" width="789" height="266" /></p>
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/library/2010/09/14/Capture_1D2612EC.png" width="789" height="266" /></p>
 
 <p>В общем, дальше только с контрактами. </p>
