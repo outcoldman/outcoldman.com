@@ -167,6 +167,15 @@ footer {
         padding: 3em 0;
     }
 
+.comments h1 {
+    font-family: "Open sans", sans-serif;
+    font-weight: 800;
+    font-size: 2em;
+    line-height: 1.1em;
+    margin-top:2em;
+    margin-bottom:0;
+}
+
 h1 {
     font-family: "Open sans", sans-serif;
     font-weight: 800;
@@ -209,7 +218,7 @@ ul.meta {
     }
 }
 
-@media screen and (max-width: 46em) { 
+@media screen and (max-width: 60em) { 
     header {
         width: 100%;
         float: none;

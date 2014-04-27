@@ -1,4 +1,12 @@
 #
+# Blog Settings
+#
+author: Denis Gladkikh
+description: Denis Gladkikh (outcoldman) - Personal blog about software development 
+url: http://outcoldman.com
+title: Denis Gladkikh (outcoldman) - Personal blog about software development 
+
+#
 # Jekyll Settings
 #
 markdown: redcarpet
@@ -6,3 +14,7 @@ pygments: true
 permalink: /:categories/archive/:year/:month/:day/:title/
 safe: false
 exclude: [bower_components, node_modules]
+
+# Disqus Comments
+disqus_short_name: outcoldman
+disqus_show_comment_count: true
