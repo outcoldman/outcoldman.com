@@ -6,85 +6,70 @@
         <title>{{ page.title }}</title>
         <meta name="viewport" content="width=device-width">
 
+        <!-- Open Sans -->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+        <!-- syntax highlighting CSS -->
+        <link rel="stylesheet" href="/css/font-awesome.min.css">
+
         <!-- syntax highlighting CSS -->
         <link rel="stylesheet" href="/css/highlight.css">
 
         <!-- Custom CSS -->
+        <link rel="stylesheet" href="/css/normalize.css">
         <link rel="stylesheet" href="/css/main.css">
 
         <script src="/js/highlight.js"></script>
         <script>hljs.initHighlightingOnLoad();</script>
     </head>
     <body>
-        <header>
-            <div class="content-wrapper default-padding">
-                
-                <div class="float-right">
-                    <section class="langbar clear-fix">
-                        {% if post.categories contains 'ru' %}
-                        <a href="/en">In English</a>
-                        {% endif %}
-                        {% if post.categories contains 'en' %}
-                        <a href="/ru">In Russian</a>
-                        {% endif %}
-                    </section>
-                    
-                    <div class="subscription">
-                        <ul>
-                            <li>
-                                <a href="http://feeds.feedburner.com/Outcoldman_en">
-                                    <img alt="rss" src="/images/rss64.png" />
-                                </a>
-                            </li>
-                            <li>
-                                <a href="http://twitter.com/outcoldman">
-                                    <img alt="twitter" src="/images/twitter64.png" />
-                                </a>
-                            </li>
-                        </ul>
+        <div id="container">
+            <header>
+                <div class="profile">
+                    <img src="http://www.gravatar.com/avatar/50ec75bf23983807a18359d58a2f5a92.png?s=160" 
+                         width="160px"
+                         height="160px">
+                </div>
+
+                <hgroup>
+                    <h1><a href="/">Denis Gladkikh</a></h1>
+                    <h2><a href="/">outcoldman</a></h2>
+                    <h3>My personal blog about software development</h3>
+                </hgroup>
+
+                <nav>
+                    <ul>
+                        <li><a href="/">about</a></li>
+                        <li><a href="/">archives</a></li>
+                    </ul>
+                </nav>
+
+                <ul class="social">
+                    <li><a class="twitter" href="https://twitter.com/outcoldman"><i class="fa fa-twitter"></i></a></li>
+                    <li><a class="github" href="https://github.com/outcoldman"><i class="fa fa-github"></i></a></li>
+                    <li><a class="rss" href="http://feeds.feedburner.com/Outcoldman_en"><i class="fa fa-rss"></i></a></li>
+                </ul>
+            </header>
+
+            <div id="center-wrapper">
+                <div id="center">
+                    <div id="content">
+                        {{ content }}
                     </div>
+
+                    <footer>
+                        <p>
+                            The content on this site represents my own personal opinions and thoughts at the time of posting.
+                        </p>
+                        <p>
+                            Copyright &copy; 2014 Denis Gladkikh (outcoldman) Blog content licensed under the Creative Commons <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+                        </p>
+                        <p>
+                            Blog theme licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>
+                        </p>
+                    </footer>
                 </div>
-                
-                <div class="float-left">
-                    
-                    <hgroup class="site-title float-left clear-fix">
-                        <h2>
-                            <a href="/">Denis Gladkikh</a>
-                        </h2>
-                        <h1>
-                            <a href="/">outcoldman</a>
-                        </h1>
-                    </hgroup>
-
-
-                    <nav class='mainMenu clear-fix-b'>
-                        <ul>
-                            <li><a href="/">Blog</a></li>
-                            <li><a href="/">About Me/CV</a></li>
-                        </ul>
-                    </nav>
-
-                </div>
-                
-            </div>
-        </header>
-
-        <div id="body">
-            <div class="content-wrapper clear-fix default-padding text-content default-vertical-padding">
-                {{ content }}
             </div>
         </div>
-
-        <footer>
-            <div class="content-wrapper default-padding">
-                <div class="float-left">
-                    The content on this site represents my own personal opinions and thoughts at the time of posting.
-                </div>
-                <div class="float-right">
-                    Denis Gladkikh (outcoldman) &copy; 
-                </div>
-            </div>
-        </footer>
-
     </body>
 </html>

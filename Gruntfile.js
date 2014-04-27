@@ -11,6 +11,17 @@ grunt.initConfig({
       files: [
         { src: 'bower_components/highlightjs/styles/default.css', dest: 'css/highlight.css' }
       ]
+    },
+    normalizecss: {
+      files: [
+        { src: 'bower_components/normalize-css/normalize.css', dest: 'css/normalize.css' }
+      ]
+    },
+    fontawesome: {
+      files: [
+        { src: 'bower_components/font-awesome/css/font-awesome.min.css', dest: 'css/font-awesome.min.css' },
+        { src: 'bower_components/font-awesome/fonts/*', dest: 'fonts/', flatten: true, filter: 'isFile', expand: true }
+      ]
     }
   },
 

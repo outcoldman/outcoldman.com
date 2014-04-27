@@ -2,5 +2,7 @@ _site
 bower_components/
 node_modules/
 js/
-css/highlight.css
+css/*.css
+!css/main.css
 .DS_Store
+fonts/

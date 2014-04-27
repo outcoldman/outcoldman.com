@@ -1,490 +1,254 @@
-﻿* {
-    margin:0; 	
-    padding:0;
-}
-
-img {
-    border: none 0px;
-    max-width: 100%;
-}
-
-header, footer, hgroup,
-nav, section {
-    display: block;
+﻿body {
+    font-family: Georgia, Times, "Times New Roman", serif;
+    color:#333;
 }
 
 a {
-    color:#650000;
+    color: #0A9ACC;
 }
 
-    a:link, a:visited,
-    a:active, a:hover {
-        color:#650000;
-    }
+a:hover, a:visited:hover {
+    color: #07607F;
+}
 
-    a:hover {
-        color: #5a5a5a;
-        text-decoration: underline;
-    }
-    
-body {
-    margin:0px;	
-    padding:0em 0em 1.5em 0em;
-    font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
-    font-size:1em;
-    color:#000000;
-    background:#EBE8D9 url(images/background.jpg) top center no-repeat;
+a:visited {
+    color: #0CC0FF;
+}
+
+#container {
+    width:100%;
 }
 
 header {
-    height: auto;
-}
-
-.content-wrapper {
-    margin: 0 auto;
-    max-width: 995px;
-}
-
-.float-left {
     float: left;
+    width: 17em;
+    min-height: 100%;
+    position: fixed;
+    background: #333;
+    color: #aaa;
 }
 
-.float-right {
-    float: right;
-}
-
-.default-padding {
-    padding-left: 1em;
-    padding-right: 1em;
-}
-
-.default-vertical-padding {
-    padding-top: 1em;
-    padding-bottom: 1em;
-}
-
-.content-break:after {
-    content: ".";
-    padding-top: 2em;
-    visibility: hidden;
-}
-
-.clear-fix:after, .clear-fix-b:before {
-    content: ".";
-    clear: both;
-    display: block;
-    height: 0;
-    visibility: hidden;
-}
-
-
-/******Top*********/
-.langbar {
-    text-align: right;
-}
-
-.langbar a, .langbar a:hover, .langbar a:active  {
-    color: #B7B7B7;
-}
-
-.subscription ul {
-    padding-top: 15px;
-}
-
-.subscription li {
-    list-style: none;
-    padding-left: 15px;
-    padding-top: 15px;
-    display:inline;
-}
-
-.subscription a  {
-    text-decoration: none;
-}
-
-header .content-wrapper {
-    padding-top: 20px;
-}
-
-.site-title {
-    color: #c8c8c8;
-}
-
-.site-title a, .site-title a:hover, .site-title a:active {
-    background: none;
-    color: black;
-    outline: none;
-    text-decoration: none;
-}
-
-.site-title h1 {
-    color: black;
-    font-size: 4em;
-    font-weight: normal;
-    margin: 0px;
-    padding: 0px;
-}
-
-.site-title h2 {
-    font-size: 1.1em;
-    font-weight: normal;
-    text-align: right;
-    padding: 0px;
-    margin: 0em 0em -1.5em 0em;
-}
-
-/********* Menu ************/
-.mainMenu li {
-    float: left;
-    display: inline-block;
-    padding: 0em 0.1em;
-}
-
-    .mainMenu li a {
-        float: left;
-        font-family: "Segoe UI Semibold", Verdana, Helvetica, Sans-Serif;
-        font-size: 0.75em;
-        color: #fff;
+    header .profile {
         text-align: center;
-        padding: 1em 1.2em;
-        display: inline-block;
-        background: #313131;
-        border-top: 0.5em solid #EBE8D9;
-        text-transform: uppercase;
+        width: 100%;
+        padding-top: 1.5em;
+    }
+
+    header .profile img {
+        border-radius: 50%;
+        -moz-border-radius: 50%;
+        -webkit-border-radius: 50%;
+    }
+
+    header a, header a:visited {
         text-decoration: none;
     }
 
-        .mainMenu li a:hover {
-            background: #F57E29;
-            color: #ffffff;
-            text-decoration: none;
+    header a:hover, header a:visited:hover {
+        color: #80DEFF;
+        text-decoration: none;
+    }
+
+    header hgroup {
+        margin: 1.5em;
+        font-family: "Open sans", sans-serif;
+        line-height: 1.1em;
+    }
+
+        header hgroup h1 {
+            font-weight: 600;
+            font-size: 3em;
+            margin: 0 0;
+        }
+            header hgroup h1 a, header hgroup h1 a:visited {
+                color: #eee;
+            }
+
+        header hgroup h2 {
+            font-weight: normal;
+            font-size: 2em;
+            margin-top: 0.5em;
         }
 
-        .mainMenu li a.active {
-            background: #FFFFFF;
-            color: #000000;
-            text-decoration: none;
-            position: relative;
-            border-top-color: #fff;
-            padding-top: 0.5em;
-            padding-bottom: 1.5em;
+            header hgroup h2 a, header hgroup h2 a:visited {
+                color: #aaa;
+            }
+
+        header hgroup h3 {
+            font-weight: normal;
+            font-size: 1em;
+            margin-top: 0.5em;
+            font-style: italic;
+            color: #aaa;
+            line-height: 1.2em;
         }
 
-/****** Footer ***********/
+    header nav {
+        margin: 3em 1.5em 0 1.5em;
+    }
+
+        header nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        header nav ul li {
+            line-height: 1.8em;
+        }
+
+        header nav a, header nav a:visited {
+            color: #fff;
+            font-family: "Open sans", sans-serif;
+            text-decoration: none;
+            font-size: 1.4em;
+            font-weight: 300;
+        }
+
+    header ul.social {
+        text-align: center;
+        padding:4em 0 2em 0;
+    }
+
+        header ul.social li:not(:first-child):before {
+            content: '\2219';
+            padding: 0 0.6em 0 0.4em;
+            color: #aaa;
+        }
+
+        header ul.social li {
+            display: inline-block;
+            font-size: 1.5em;
+        }
+
+        header ul.social li a {
+            opacity: 0.7;
+        }
+
+        header ul.social li a:hover {
+            opacity: 1;
+        }
+
+            header ul.social li a.rss {
+                color: #f88624;
+            }
+
+            header ul.social li a.twitter {
+                color: #54ACEE;
+            }
+
+            header ul.social li a.github {
+                color: #eee;
+            }
+
 footer {
-    clear: both;
-    font-size: .8em;
-    padding: 15px 0px;
-    color: #B7B7B7;
+    border-top: 1px solid #aaa;
+    padding-top: 0.5em;
+    font-size: 0.8em;
+    text-align: center;
 }
 
-/***Main content**/
-#body {
-    background-color: #fff;
-    clear: both;
+    footer p {
+        margin: 0.5em 0;
+    }
+
+#center-wrapper {
+    margin-left: 17em;
 }
 
-.leftSection {
-    float: left;
-    width: 70%;
+    #center-wrapper #center {
+        max-width: 50em;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 1em 1.5em;
+    }
+
+    #center-wrapper #center #content {
+        padding: 3em 0;
+    }
+
+h1 {
+    font-family: "Open sans", sans-serif;
+    font-weight: 800;
+    font-size: 3em;
+    line-height: 1.1em;
+    margin-top:0;
+    margin-bottom:0;
 }
 
-aside {
-    float: right;
-    width: 25%;
-}   
-
-/***** Comment form *******/
-fieldset.comment, fieldset.comment-author, fieldset.comment-edit {
-    padding: 10px;
+h1 a, h1 a:visited {
+    text-decoration: none;
+    color:#333;
 }
 
-fieldset.comment-author {
-    border: solid 2px #4a4a4a;
+h2, h3, h4, h5, h6 {
+    font-family: "Open sans", sans-serif;
+    color: #444;
 }
 
-fieldset.comment legend {
-    margin-left: 10px; 
-    padding:2px;
+article {
+    line-height: 1.4em;
+    font-size: 1.3em;
 }
 
-fieldset.comment .comment-body {
-    padding-left:90px; 
-}
-
-fieldset.comment-edit .info {
-    font-size:0.8em;
-    color: #b7b7b7;
-}
-
-fieldset.comment-edit .fields-section {
-    width: 35%;
-    float: left;
-}
-
-fieldset.comment-edit .comment-body-section {
-    width: 60%;
-    float: right;
-}
-
-fieldset.comment-edit label {
-    color: #6a6a6a; 
-    margin-bottom:5em;
-}
-
-fieldset.comment-edit input[type=text], fieldset.comment-edit input[type=email], fieldset.comment-edit input[type=url], fieldset.comment-edit textarea {
-    background:#FFFFFF;
-    border:solid 1px #b7b7b7;
-    padding:0.3em;
-    width:98%;
-    font-size:1em;
-}
-
-input[type=button], input[type=submit] {
-    background-color:#313131;	
-    color:#fff;
-    border:none;
-    padding: 0.5em;
-    font-size: 1em;
-    cursor: pointer;
-}
-
-input[type=button]:hover, input[type=submit]:hover {
-    background-color:#F57E29;	
-    color:#fff;
-}
-
-#busyIndicator {
-    vertical-align: middle;
-    display: none;
-}
-
-fieldset.comment-edit div.notification {display:none;}
-
-fieldset.comment-edit div.notification h4 {
-    text-align:left;
-    color:#EAAB15; 
-    padding: 5px 0px 0px 0px; 
-    line-height:100%;
-}
-
-/*** Article ****/
-
-.text-content .article-title time {
-    color: #B7B7B7;
-    font-size: 0.9em;
-}
-
-.text-content .article-title h1 {
-    padding-top: 0em;
-}
-
-.text-content p {
-    padding: 1em 0em 0em 0em;
-}
-
-.text-content blockquote {
-    padding: 0.5em;
-    margin: 1em 0em 0em 0em;
-    border-left: 5px solid #fce27c; 
-    background-color: #f6ebc1;
-}
-
-.text-content blockquote p:first-child {
-    padding: 0em;
-}
-
-.text-content h1, .text-content h2, .text-content h3, .text-content h4, .text-content h5, .text-content h6 {
-    color:#3a3a3a;
-    font-family: "Segoe UI Semibold", Verdana, Helvetica, Sans-Serif;
-}
-
-.text-content h1 {
-    font-size:1.8em;
-    padding-bottom:0.3em;
-    padding-top:0.3em;
-}
-
-.text-content h2 {
-    font-size:1.5em;
-    padding-bottom:0.1em;
-    padding-top:0.4em;
-}
-
-.text-content h3 {
-    font-size: 1.2em;
-    padding-bottom:0.1em;
-    padding-top:0.4em;
-}
-
-.text-content h4 {
-    padding-bottom:0.1em;
-    padding-top:0.4em;
-}
-
-.text-content ul {
-    padding:5px 0px 5px 30px; 
-    list-style-type:disc;
-}
-
-.text-content ol {
-    padding:5px 0px 5px 30px;
-}
-
-/*** Tags cloud ***/
- ul.tags {
-     margin:0;
-     padding:.5em .5em; 
-     text-align:center;
-     background:#EBE8D9;
-     list-style:none;
-     font-size: 0.8em;
- }
-
-.tags li {
-    margin:0;
-    padding: 0px 0px 3px 0px;
-    display: inline;
-}
-
-.tags li a {
-    text-decoration:none;
-    padding:0 5px;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-.tag1 {
-    font-size:1em;
-}
-
-.tag2 {
-    font-size:1.1em;
-}
-
-.tag3 {
-    font-size:1.2em;
-}
-
-.tag4 {
-    font-size:1.3em;
-}
-
-.tag5 {
-    font-size:1.4em;
-}
-
-.tag6 {
-    font-size:1.5em;
-}
-
-.tag7 {
-    font-size:1.6em;
-}
-
-.tag8 {
-    font-size:1.7em;
-}
-
-.tag9 {
-    font-size:1.8em;
-}
-
-.tag10 {
-    font-size:1.9em;
-}
-
-/* Contacts list */
-
-ul.contacts {
+ul.meta {
+    font-size: 0.7em;
+    color: #777;
+    margin: 2em 0;
     list-style-type: none;
-    padding-left: 1em;
+    padding: 0;
 }
 
-ul.contacts img {
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
+    ul.meta .fa {
+        margin-right: 0.5em;
+    }
+
+@media screen and (max-width: 70em) { 
+    #center-wrapper #center #content {
+        padding: 0em;
+    }
 }
 
-/********************
-*   Mobile Styles   *
-********************/
-@media only screen and (max-width: 600px) {
-
-    body {
-        background:#EBE8D9;
-    }
-
-    header .content-wrapper {
-        padding-top: 5px;
-    }
-
-    .default-padding {
-        padding-right: .3em;
-        padding-left: .3em;
-    }
-
-    .default-vertical-padding {
-        padding-top: .3em;
-        padding-bottom: .3em;
-    }
-    
-    .subscription ul {
-        padding-top: 10px;
-        text-align: right;
-    }
-
-    .subscription li {
-        padding-left: 5px;
-    }
-
-    .subscription ul img {
-        width: 32px;
-        height: 32px;
-    }
-
-    aside, .leftSection {
-        float: none;
+@media screen and (max-width: 46em) { 
+    header {
         width: 100%;
+        float: none;
+        position: static;
+        min-height: auto;
     }
 
-    .site-title h1 {
+        header hgroup {
+            text-align: center;
+        }
+
+        header nav {
+            text-align: center;
+        }
+
+            header nav li {
+                display: inline-block;
+            }
+
+            header nav li:not(:first-child):before {
+                content: '\2219';
+                padding: 0 1.2em 0 1em;
+            }
+
+        header ul.social {
+            padding:2em 0 2em 0;
+        }
+
+    #center-wrapper {
+        margin-left: 0;
+    }
+
+    #center-wrapper #center {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: auto;
+    }
+
+    h1 {
         font-size: 2.5em;
-    }
-
-    .site-title h2 {
-        margin: 0 0 -0.5em 0;
-        text-align: right;
-        font-size: 1em;
-    }
-
-    fieldset.comment .float-left {
-        float: none;
-    }
-
-     fieldset.comment .comment-body {
-        padding-left: 0;
-    }
-
-    fieldset.comment-edit .fields-section, fieldset.comment-edit .comment-body-section {
-        width: 100%;
-        float: none;
-    }
-
-    .text-content h1 {
-        font-size: 1.4em;
-    }
-
-    .text-content h2 {
-        font-size: 1.3em;
-    }
-
-    .text-content h3 {
-        font-size: 1.2em;
-    }
-
-    .text-content h3 {
-        font-size: 1.1em;
     }
 }

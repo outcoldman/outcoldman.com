@@ -1,0 +1,14 @@
+<h1 itemprop="name">
+  <a href="{{ post.url }}" itemprop="url">
+    {{ page.title }}
+  </a>
+</h1>
+
+<ul class="meta">
+  <li><i class="fa fa-calendar"></i>{{ page.date | date_to_string }}</li>
+  <li><i class="fa fa-tags"></i>{{ page.tags | join: ', ' }}</li>
+</ul>
+
+<div itemprop="articleBody" >
+  {{ content }}
+</div>
