@@ -1,8 +1,6 @@
 _site
+
 bower_components/
 node_modules/
-js/
-css/*.css
-!css/main.css
+
 .DS_Store
-fonts/
