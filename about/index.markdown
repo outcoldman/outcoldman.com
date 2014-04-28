@@ -8,7 +8,7 @@ meta: false
 
 On this web site I publish my personal thoughts, I'm not talking for any company in my blog posts. 
 
-This page is my latest CV. I update it just for fun, I'm not looking for a job, please don't write me offering positions in your companies. I'm happy with Splunk.
+This page is my latest CV. I update it just for fun, I'm not looking for a job, please don't send me offering for positions in your companies. I'm happy with Splunk.
 
 ## Contacts
 

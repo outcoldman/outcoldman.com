@@ -3,6 +3,10 @@ layout: default
 comments: true
 ---
 
+{% assign post_date = page.date %}
+{% assign post_tags = page.tags %}
+{% assign post_title = page.title %}
+{% assign post_url = page.url %}
 <article itemscope itemtype="http://schema.org/BlogPosting">{% include article.html %}</article>
 
 {% if site.disqus_short_name and page.comments == true %}

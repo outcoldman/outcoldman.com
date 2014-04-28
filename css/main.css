@@ -293,6 +293,15 @@ ul.languages {
         padding: 0 1.2em 0 1em;
     }
 
+.index article:not(:last-child) {
+    padding-bottom: 3em; 
+}
+
+.index article:not(:first-child) {
+    border-top: 1px solid #aaa;
+    padding-top: 3em;
+}
+
 @media screen and (max-width: 70em) { 
     #center-wrapper #center #content {
         padding: 0em;

@@ -1,11 +1,17 @@
 ---
 layout: default
 ---
-
-<div id="home">
-  <h1>Blog Posts</h1>
-  <ul class="posts">
-    <li>&raquo; <a href="/ru">ru</a></li>
-    <li>&raquo; <a href="/en">en</a></li>
-  </ul>
+<div class="index" itemscope itemtype="http://schema.org/Blog">
+{% for post in site.categories.en limit:3 %}
+{% unless post.redirect %}
+{% assign content = post.content %}
+{% assign post_date = post.date %}
+{% assign post_tags = post.tags %}
+{% assign post_title = post.title %}
+{% assign post_url = post.url %}
+    <article itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+        {% include article.html %}
+    </article>
+{% endunless %}
+{% endfor %}
 </div>
