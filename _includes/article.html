@@ -1,6 +1,6 @@
 <h1 itemprop="name">
   <a href="{{ post.url }}" itemprop="url">
-    {{ post_title }}
+    {{ post_title | xml_escape }}
   </a>
 </h1>
 
