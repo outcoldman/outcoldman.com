@@ -246,7 +246,7 @@ article .article-content {
 
 .archives h3 a, .archives h3 a:visited {
     text-decoration: none;
-    color: #777;
+    color: #444;
 }
 
 .archives h3 a:hover {
@@ -276,6 +276,21 @@ ul.meta {
 
     ul.meta a[data-disqus-identifier] {
         text-transform: lowercase;
+    }
+
+ul.languages {
+    font-size: 1.5em;
+    padding: 0;
+    
+}
+
+    ul.languages li {
+        display: inline-block;
+    }
+
+    ul.languages li:not(:first-child):before {
+        content: '\2219';
+        padding: 0 1.2em 0 1em;
     }
 
 @media screen and (max-width: 70em) { 

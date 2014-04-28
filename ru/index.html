@@ -6,6 +6,11 @@ comments: true
 
 <h1>Blog archives</h1>
 
+<ul class="languages">
+  <li><a href="/en">English</a></li>
+  <li>Russian</li>
+</ul>
+
 <div class="archives" itemscope itemtype="http://schema.org/Blog">
 {% for post in site.categories.ru reverse %}
 {% if post.layout == 'post' %}

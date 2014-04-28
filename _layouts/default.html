@@ -49,7 +49,11 @@
                 <ul class="social">
                     <li><a class="twitter" href="https://twitter.com/outcoldman"><i class="fa fa-twitter"></i></a></li>
                     <li><a class="github" href="https://github.com/outcoldman"><i class="fa fa-github"></i></a></li>
-                    <li><a class="rss" href="http://feeds.feedburner.com/Outcoldman_en"><i class="fa fa-rss"></i></a></li>
+                    {% if page.categories contains 'ru' %}
+                    <li><a class="rss" href="http://feeds.feedburner.com/outcoldman"><i class="fa fa-rss"></i></a></li>
+                    {% else %}
+                    <li><a class="rss" href="http://feeds.feedburner.com/outcoldman_en"><i class="fa fa-rss"></i></a></li>
+                    {% endif %}
                 </ul>
             </header>
 
