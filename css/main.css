@@ -179,7 +179,7 @@ footer {
 h1 {
     font-family: "Open sans", sans-serif;
     font-weight: 800;
-    font-size: 3em;
+    font-size: 4em;
     line-height: 1.1em;
     margin-top:0;
     margin-bottom:0;
@@ -195,15 +195,17 @@ h2, h3, h4, h5, h6 {
     color: #444;
 }
 
-article {
+h2 { font-size: 2em; }
+h3 { font-size: 1.7em; }
+h3 { font-size: 1.3em; }
+h4 { font-size: 1.2em; }
+h5 { font-size: 1.1em; }
+h6 { font-size: 1em; }
+
+article .article-content {
     line-height: 1.4em;
     font-size: 1.3em;
 }
-
-    article pre code {
-        line-height: 1.1em;
-        font-size: 0.7em;
-    }
 
     article * {
         max-width: 100%;
@@ -230,12 +232,15 @@ article {
     }
 
 ul.meta {
-    font-size: 0.7em;
     color: #777;
     margin: 2em 0;
     list-style-type: none;
     padding: 0;
 }
+
+    ul.meta li:not(:first-child) {
+        margin-top: 0.5em;
+    }
 
     ul.meta .fa {
         margin-right: 0.5em;
