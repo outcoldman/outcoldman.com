@@ -9,7 +9,7 @@ grunt.initConfig({
     },
     highlightcss: {
       files: [
-        { src: 'bower_components/highlightjs/styles/default.css', dest: 'css/highlight.css' }
+        { src: 'bower_components/highlightjs/styles/solarized_dark.css', dest: 'css/highlight.css' }
       ]
     },
     normalizecss: {

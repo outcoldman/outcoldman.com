@@ -26,8 +26,7 @@ alias: en/blog/show/4
         }    
     }
 }</code></pre><p>Next we can place dynamic script load for Seadragon Ajax. It&rsquo;s easy. First of all check whether element container exists on the page, and if true we load the script and initialize Seadragon object:</p>
-<div id="codeSnippetWrapper" style="text-align: left; line-height: 12pt; background-color: #f4f4f4; margin: 20px 0px 10px; width: 97.5%; font-family: 'Courier New', courier, monospace; direction: ltr; font-size: normal; overflow: auto; cursor: text; border: silver 1px solid; padding: 4px;">
-<div id="codeSnippet" style="text-align: left; line-height: 12pt; background-color: #f4f4f4; width: 100%; font-family: 'Courier New', courier, monospace; direction: ltr; color: black; font-size: normal; overflow: visible; border-style: none; padding: 0px;">function start() {
+<pre><code>function start() {
     var container = document.getElementById("container");
     if (container != null) {
         var script = document.getElementById('seadragon_javascript');
@@ -38,9 +37,7 @@ alias: en/blog/show/4
             viewer.openDzi("GeneratedImages/dzc_output.xml");
         }
     }
-}
-</div>
-</div>
+}</code></pre>
 <p>And of course good practice is to show message &ldquo;You may install Silverlight to see more interactive gallery.&rdquo; with hyperlink to Silverlight installer.</p>
 <p>By the end you can see result like this <a href="/library/content/01/dzcsample/test.html">http://outcoldman.com/library/content/01/dzcsample/test.html</a></p>
 <h4>Download sample: <a href="/library/content/01/DZCSample.zip">DZCSample.zip</a>

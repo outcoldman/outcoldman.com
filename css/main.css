@@ -200,6 +200,35 @@ article {
     font-size: 1.3em;
 }
 
+    article pre code {
+        line-height: 1.1em;
+        font-size: 0.7em;
+    }
+
+    article * {
+        max-width: 100%;
+    }
+
+    article blockquote {
+        border-left: 3px solid #aaa;
+        margin-left: 0;
+        padding-left: 1em;
+        opacity: 0.7;
+    }
+
+    article code:not(.hljs) {
+        border: 1px solid #ddd;
+        background: #f8f8f8;
+        border-radius: 3px;
+        padding: 0 0.2em;
+        -moz-border-radius: 3px;
+        -webkit-border-radius: 3px;
+    }
+
+    article pre {
+        background: #002b36;
+    }
+
 ul.meta {
     font-size: 0.7em;
     color: #777;

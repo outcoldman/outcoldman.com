@@ -4,10 +4,12 @@
   </a>
 </h1>
 
+{% if page.meta != false %}
 <ul class="meta">
   <li><i class="fa fa-calendar"></i>{{ page.date | date_to_string }}</li>
   <li><i class="fa fa-tags"></i>{{ page.tags | join: ', ' }}</li>
 </ul>
+{% endif %}
 
 <div itemprop="articleBody" >
   {{ content }}

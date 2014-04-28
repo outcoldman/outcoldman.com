@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>{{ page.title }}</title>
+        <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
         <meta name="viewport" content="width=device-width">
 
         <!-- Open Sans -->
@@ -41,8 +41,8 @@
 
                 <nav>
                     <ul>
-                        <li><a href="/">about</a></li>
-                        <li><a href="/">archives</a></li>
+                        <li><a href="/about">about</a></li>
+                        <li><a href="/{% if page.categories %}{{ page.categories }}{% else %}en{% endif %}">archives</a></li>
                     </ul>
                 </nav>
 
