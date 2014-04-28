@@ -231,6 +231,29 @@ article .article-content {
         background: #002b36;
     }
 
+    article pre code {
+        line-height: 1.1em;
+        font-size: 0.7em;
+    }
+
+.archives h3 {
+    margin: 0.5em 0;
+}
+
+.archives .meta {
+    margin: 0;
+}
+
+.archives h3 a, .archives h3 a:visited {
+    text-decoration: none;
+    color: #777;
+}
+
+.archives h3 a:hover {
+    text-decoration: underline;
+    color: #07607F;
+}
+
 ul.meta {
     color: #777;
     margin: 2em 0;
@@ -244,6 +267,15 @@ ul.meta {
 
     ul.meta .fa {
         margin-right: 0.5em;
+    }
+
+    ul.meta a, ul.meta a:visited, ul.meta a:hover {
+        text-decoration: none;
+        color: #777;
+    }
+
+    ul.meta a[data-disqus-identifier] {
+        text-transform: lowercase;
     }
 
 @media screen and (max-width: 70em) { 

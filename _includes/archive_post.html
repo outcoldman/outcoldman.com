@@ -9,10 +9,11 @@
   <ul>
 {% endunless %}
   <li>
-    <h3 class="title"><a href="{{ post.url }}">{{post.title}}</a></h3>
-    <div class="meta">
-      <span class="date">
-        <time datetime="{{ date | datetime | date_to_xmlschema }}" itemprop="datePublished">{{ date | date: "%b %e" }}</time>
-      </span>
-    </div>
+    <h3><a href="{{ post.url }}">{{post.title}}</a></h3>
+
+    <ul class="meta">
+      <li><i class="fa fa-calendar"></i><time datetime="{{ date | datetime | date_to_xmlschema }}" itemprop="datePublished">{{ date | date: "%b %e" }}</time></li>
+      <li><i class="fa fa-tags"></i>{{ post.tags | join: ', ' }}</li>
+      <li><i class="fa fa-comments"></i><a href="{{ post.url }}#disqus_thread" data-disqus-identifier="{% if page.disqus_identifier %}{{ page.disqus_identifier}}{% else %}{{ site.url }}{{ post.url }}{% endif %}">comments</a></li>
+    </ul>
   </li>
