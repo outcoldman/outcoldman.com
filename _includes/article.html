@@ -8,7 +8,7 @@
 <ul class="meta">
   <li><i class="fa fa-calendar"></i>{{ post_date | date_to_string }}</li>
   <li><i class="fa fa-tags"></i>{{ post_tags | join: ', ' }}</li>
-  <li><i class="fa fa-comments"></i><a href="{{ post_url }}#disqus_thread" data-disqus-identifier="{% if page.disqus_identifier %}{{ page.disqus_identifier}}{% else %}{{ site.url }}{{ post_url }}{% endif %}">comments</a></li>
+  <li><i class="fa fa-comments"></i><a href="{{ post_url }}#disqus_thread" data-disqus-identifier="{% if page.disqus_identifier %}{{ page.disqus_identifier}}{% else %}{{ post_url }}{% endif %}">comments</a></li>
 </ul>
 {% endif %}
 

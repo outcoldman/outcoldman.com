@@ -193,6 +193,7 @@ h1 a, h1 a:visited {
 h2, h3, h4, h5, h6 {
     font-family: "Open sans", sans-serif;
     color: #444;
+    line-height: 1.1em;
 }
 
 h2 { font-size: 2em; }
@@ -202,7 +203,7 @@ h4 { font-size: 1.2em; }
 h5 { font-size: 1.1em; }
 h6 { font-size: 1em; }
 
-article .article-content {
+article .article-content, .page-content {
     line-height: 1.4em;
     font-size: 1.3em;
 }
@@ -272,10 +273,6 @@ ul.meta {
     ul.meta a, ul.meta a:visited, ul.meta a:hover {
         text-decoration: none;
         color: #777;
-    }
-
-    ul.meta a[data-disqus-identifier] {
-        text-transform: lowercase;
     }
 
 ul.languages {
