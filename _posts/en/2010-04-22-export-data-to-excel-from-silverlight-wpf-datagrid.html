@@ -8,7 +8,7 @@ alias: en/blog/show/201
 ---
 <p>Data export from DataGrid to Excel is very common task, and it can be solved with different ways, and chosen way depend on kind of app which you are design. If you are developing app for enterprise, and it will be installed on several computes, then you can to advance a claim (system requirements) with which your app will be work for client. Or customer will advance system requirements on which your app should work. In this case you can use COM for export (use infrastructure of Excel or OpenOffice). This approach will give you much more flexibility and give you possibility to use all features of Excel app. About this approach I’ll speak below. Other way – your app is for personal use, it can be installed on any home computer, in this case it is not good to ask user to install MS Office or OpenOffice just for using your app. In this way you can use foreign tools for export, or export to xml/html format which MS Office can read (this approach used by JIRA). But in this case will be more difficult to satisfy user tasks, like create document with landscape rotation and with defined fields for printing.</p>
 
-<h1>Integration with Excel from Silverlight 4 and .NET 4</h1>
+<h2>Integration with Excel from Silverlight 4 and .NET 4</h2>
 
 <p>In Silverlight 4 and .NET 4 we have dynamic objects, which give us possibility to use MS Office COM objects without referenced to MS Office dlls. So for creating excel document in .NET 4 you can write this code::</p>
 
@@ -210,7 +210,7 @@ using System.Runtime.InteropServices;
 }
 </code></pre>
 
-<h1>Export data from DataGrid to two-dimension array</h1>
+<h2>Export data from DataGrid to two-dimension array</h2>
 
 <p>So we have method which export array to Excel, now we need to write method which will export DataGrid data to array. In WPF we can get all items with <em>Items</em> property, but in Silverlight this property is internal. But we can use ItemsSource property and cast it to List:</p>
 
@@ -363,7 +363,7 @@ Method GetPath is easy, it try to get path from set by attached property value o
 }
 </code></pre>
 
-<h1>Sample</h1>
+<h2>Sample</h2>
 
 <p>For sample I wrote some model classes and fill test data:</p>
 
@@ -435,7 +435,7 @@ Method GetPath is easy, it try to get path from set by attached property value o
 
 <p>Where ExportToExcel is extension method for DataGridm which invoke export to Excel method with separate thread. That's all. In Silverlight 4 code will be exactly the same. Below I’ll put anchor with samples for Silverlight 4 and WPF 4 (solution for Visual Studio 2010).</p>
 
-<h1>Conclusion</h1>
+<h2>Conclusion</h2>
 
 <p>My approach very easy allows you to set how to export data from DataGrid with attached properties. If you want to use this approach I recommend you design new features: show busy indicator when data is exporting, and use OpenOffice when Excel is not installed on computer. Thanks.</p>
 

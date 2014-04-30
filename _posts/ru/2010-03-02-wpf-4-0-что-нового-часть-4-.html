@@ -8,7 +8,7 @@ alias: ru/blog/show/188
 ---
 <p>Четвертая часть из серии нововведений WPF 4.0 (Предыдущие записи: <a href="/ru/blog/show/168">1</a>, <a href="/ru/blog/show/169">2</a>, <a href="/ru/blog/show/170">3</a>). Думал, что это будет заключительная, но все же откопал еще несколько вкусностей на следующую часть. В этой же серии в основном будет информация о нововведениях связанных с XAML разметкой и биндингом.</p> 
 
-<h1>XAML</h1>  <h2>Built in Types</h2>  <p>В XAML добавилась возможность использовать стандартные типы .NET в разметке без указания лишних namespace, для чего это стало нужно видно в нижеописанных возможностях. Если раньше для описания в XAML объекта типа string приходилось писать:</p>  
+<h2>XAML</h2>  <h3>Built in Types</h3>  <p>В XAML добавилась возможность использовать стандартные типы .NET в разметке без указания лишних namespace, для чего это стало нужно видно в нижеописанных возможностях. Если раньше для описания в XAML объекта типа string приходилось писать:</p>  
 
 <pre><code>&lt;s:String xmlns:s="clr-namespace:System;assembly=mscorlib"&gt; Foo &lt;/s:String&gt;</code></pre>
 
@@ -18,7 +18,7 @@ alias: ru/blog/show/188
 
 <p>Все типы перечислены тут - <a href="http://blogs.msdn.com/llobo/archive/2009/11/05/xaml-2009-features-built-in-types.aspx">Xaml 2009 Features: Built in Types</a>.</p>
 
-<h2>Поддержка Generics</h2>
+<h3>Поддержка Generics</h3>
 
 <p>Этого давно не хватало, а именно с выпуска первого WPF. Как часто хотелось объявить в XAML ObservableCollection с типом вроде Person, а для этого нам приходилось создавать новый тип и наследовать его от коллекции, либо инкапсулировать ее:</p>
 
@@ -38,7 +38,7 @@ alias: ru/blog/show/188
 
 <p>Интересные примеры с объявлением Dictionary&lt;Key,Value&gt; можно посмотреть здесь - <a href="http://blogs.msdn.com/llobo/archive/2009/11/19/xaml-2009-features-generics-support.aspx">XAML 2009 Features: Generics Support</a>.</p>
 
-<h2>FactoryMethod\Arguments</h2>
+<h3>FactoryMethod\Arguments</h3>
 
 <p>Еще одна возможность, которую хотели уже давно. Возможность использовать методы для инициализации объектов, а так же конструкторы, которые принимают параметры. Для того чтобы создать объект такого типа:</p>
 
@@ -77,7 +77,7 @@ alias: ru/blog/show/188
     &lt;/x:Arguments&gt;
 &lt;/coll:List&gt;</code></pre>
 
-<h2>Named Object References</h2>
+<h3>Named Object References</h3>
 
 <p>Тут все просто, такой биндинг:</p>
 
@@ -93,7 +93,7 @@ alias: ru/blog/show/188
 
 <pre><code>&lt;Label Target= 'thirdNameBox' &gt;_Third Target&lt;/Label&gt;</code></pre>
 
-<h2>Binding to Dynamic Objects</h2>
+<h3>Binding to Dynamic Objects</h3>
 
 <p>.NET 4 приходит вместе с dynamic, потому и в WPF добавили возможность биндить к свойствам dynamic объектов. Если мы установим такие свойства у объекта:</p>
 

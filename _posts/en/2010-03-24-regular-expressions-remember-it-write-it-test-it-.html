@@ -12,9 +12,9 @@ alias: en/blog/show/194
 
 <p>Now I want to show you little samples of regular expressions and want to show you how to test these samples.</p>
 
-<h1>Examples</h1>
+<h2>Examples</h2>
 
-<h2>Check language of text</h2>
+<h3>Check language of text</h3>
 
 <p>On my website (<a href="http://outcoldman.com">http://outcoldman.com</a>) I display my messages from Twitter, but once I separated all content of the site in Russian and English, I decided to separate messages from Twitter too. I got a very easy way for this: if text has Russian letter then the message is Russian, else English. Most likely you do not know Russian, so I'll do the opposite, if there is an English letter - it's English, otherwise the Russian. I wrote next regular expression for this:</p>
 
@@ -32,7 +32,7 @@ alias: en/blog/show/194
 
 <p><a href="http://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex.aspx">Regex</a> is class from namespace System.Text.RegularExpressions</p>
 
-<h2>Finding and replacing urls in text</h2>
+<h3>Finding and replacing urls in text</h3>
 
 <p>Previous sample is very easy. Let try to solve more difficult problem like finding http urls in text. Doing this job without regex is not an easy solution. So we will look how to solve this with regex:</p>
 
@@ -60,7 +60,7 @@ Regex.Replace(text, RegexTwitterTag, &quot;&lt;a href='http://twitter.com/#searc
 
 <p>Also I can show you many samples of using Regex. Developers often use regular expressions in validation process, with them and default asp.net (or other technologies) very easy validate user input (email, phones, post indexes, etc). You can find many ready to use regex solutions in internet.</p>
 
-<h2>Unit test for regex</h2>
+<h3>Unit test for regex</h3>
 
 <p>I always write combinatory unit tests for regex (combinatory tests – methods with parameters where test runner put values from some data sources). So let look on nUnit (now I’m using this one, because I couldn’t make MbUnit work with Gallio and R# 5 in VS 2010). </p>
 
