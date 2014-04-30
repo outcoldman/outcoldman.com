@@ -7,6 +7,7 @@ comments: true
 {% assign post_tags = page.tags %}
 {% assign post_title = page.title %}
 {% assign post_url = page.url %}
+{% assign post_path = page.path %}
 <article itemscope itemtype="http://schema.org/BlogPosting">{% include article.html %}</article>
 
 {% if site.disqus_short_name and page.comments == true %}

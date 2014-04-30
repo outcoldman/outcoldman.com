@@ -2,9 +2,9 @@
 # Blog Settings
 #
 author: Denis Gladkikh
-description: Denis Gladkikh (outcoldman) - Personal blog about software development 
+description: Blog about software development 
 url: http://outcoldman.com
-title: Denis Gladkikh (outcoldman) - Personal blog about software development 
+title: Blog about software development 
 
 #
 # Jekyll Settings
@@ -21,3 +21,7 @@ disqus_show_comment_count: true
 
 # Google Analytics
 google_analytics_tracking_id: UA-7023371-5
+
+# Github repositories
+github_user: outcoldman
+github_repo_url: https://github.com/outcoldman/outcoldman.com/
