@@ -18,14 +18,14 @@ alias: en/blog/show/325
 </p><p>And this is really cool that you don't need to think a lot about settings. I just downloaded Publish Profile, which I imported to the ASP.NET MVC 4 project in Visual Studio (right click on project in solution explorer and choose Publish…). And that is it. 
 </p><h2>Mobile Devices support
 </h2><p>I thought that this requires a huge amount of work. Because I remembered from ASP.NET – you need to render your pages on server for mobile devices in special way if you want to support them. I was so surprised when I found that to do this you just need to add two things. Set viewport for mobile devices:
-</p><p><img src="/library/2012/10/27/102712_0632_1.png" alt=""/>
+</p><p><img src="{{ site.url }}/library/2012/10/27/102712_0632_1.png" alt=""/>
  </p><p>And set special css classes for case when width is less than some defined value:
-</p><p><img src="/library/2012/10/27/102712_0632_2.png" alt=""/>
+</p><p><img src="{{ site.url }}/library/2012/10/27/102712_0632_2.png" alt=""/>
  </p><p>The easiest way is to take a look how ASP.NET MVC 4.0 defines its classes for mobile devices. This is really good example.
 </p><h2>Moving domain
 </h2><p>At first I specified for both of my domains that they should redirect to azure web site instance. After this I set two special rules for Url Rewriter in web.config. Url Rewriter is installed on Web Sites by default. 
 </p>
-<p><img src="/library/2012/10/27/102712_0632_3.png" alt=""/></p>
+<p><img src="{{ site.url }}/library/2012/10/27/102712_0632_3.png" alt=""/></p>
 <p>After this I found that it is really easy to change domain in Google Web Master and Google Analytics services. As I understand to do the moving right – I will need also to find main referral pages in internet (Google Analytics can help me to do this) and change links on it (or ask owners to change them). And after this I can say good bye to my old domain.
 </p><h2>What is next?
 </h2><p>As I said I really missed web-development. So I have some plans to continue improving my web site. At first I want to refactor couple places in source code and publish it to GitHub. When I tried some new features, like Entity Framework and SQL Server CE I didn't try to do it well, I just tried it. And when I saw that it works – I published it with thoughts that I will refactor this code in future. Very common situation, right? 

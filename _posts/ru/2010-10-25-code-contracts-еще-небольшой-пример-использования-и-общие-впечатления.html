@@ -86,7 +86,7 @@ abstract class IUserRepositoryContract : IUserRepository
 
 <p>Больше в самой реализации нам не нужно делать проверки. Более того, если вы установите плагин для VS с официального сайта Code Contracts, то будете видеть все эти условия вот так:</p>
 
-<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/library/2010/10/20/Capture_5ABEFD2D.png" width="373" height="464" /></p>
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture" border="0" alt="Capture" src="{{ site.url }}/library/2010/10/20/Capture_5ABEFD2D.png" width="373" height="464" /></p>
 
 <p>Ну и соответственно при выполнении такого кода:</p>
 
@@ -96,7 +96,7 @@ repository.AddUser(null);
 
 <p>Получим ошибку:</p>
 
-<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture2" border="0" alt="Capture2" src="/library/2010/10/20/Capture2_52C75ACB.png" width="855" height="304" /></p>
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Capture2" border="0" alt="Capture2" src="{{ site.url }}/library/2010/10/20/Capture2_52C75ACB.png" width="855" height="304" /></p>
 
 <p>Вместо использования методов Contract класса можно так же писать и свои проверки с бросанием исключений, вроде такого:</p>
 
@@ -109,8 +109,8 @@ repository.AddUser(null);
 }
 </code></pre>
 
-<p>Пишите безопасный код. <img style="border-bottom-style: none; border-right-style: none; border-top-style: none; border-left-style: none" class="wlEmoticon wlEmoticon-winkingsmile" alt="Winking smile" src="/library/2010/10/20/wlEmoticon-winkingsmile_0452C861.png" /></p>
+<p>Пишите безопасный код. <img style="border-bottom-style: none; border-right-style: none; border-top-style: none; border-left-style: none" class="wlEmoticon wlEmoticon-winkingsmile" alt="Winking smile" src="{{ site.url }}/library/2010/10/20/wlEmoticon-winkingsmile_0452C861.png" /></p>
 
 <p>Кстати, я в прошлый раз упоминал еще, что в .Net базовых классах используются контракты. Открыл недавно ASP.NET проект старенький, но переведенный на ASP.NET 4 и вот что я там увидел:</p>
 
-<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="CaptureASPNET" border="0" alt="CaptureASPNET" src="/library/2010/10/25/CaptureASPNET_6C24B54F.png" width="463" height="322" /></p>
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="CaptureASPNET" border="0" alt="CaptureASPNET" src="{{ site.url }}/library/2010/10/25/CaptureASPNET_6C24B54F.png" width="463" height="322" /></p>

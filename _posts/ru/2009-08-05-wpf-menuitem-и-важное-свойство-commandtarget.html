@@ -71,7 +71,7 @@ private void MenuCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
 
 <p>Итак, в окне мы разместили наш MainUserControl, а так же поле для ввода и кнопку для примера. После запуска мы видим, что все работает, до того момента, пока мы не перевели фокус в TextBox или не нажали на кнопку Click, после этого мы видим, что MenuItem стали неактивными:</p>  
 
-<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Untitled" border="0" alt="Untitled" src="/library/images/01/0000038.png" width="298" height="147" /> </p>  
+<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Untitled" border="0" alt="Untitled" src="{{ site.url }}/library/images/01/0000038.png" width="298" height="147" /> </p>  
 
 <p>Догадаться, почему пункты меню стали не активными – сложно, но можно. Нужно обратить внимание на свойство <a href="http://msdn.microsoft.com/ru-ru/library/system.windows.controls.menuitem.commandtarget.aspx">MenuItem.CommandTarget</a>:</p> 
 

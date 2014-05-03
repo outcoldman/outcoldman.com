@@ -16,7 +16,7 @@ Because `Visual Studio` was showing me for a long time that using IDEs is helpfu
 
 At first I tried really rough approach. I created new C++ workspace and added all my C++ files to it. After that I realized that I still cannot debug my process. But this one was really easy to fix: I create new project with External Build System:
 
-![Xcode External Build System](/library/2014/05/xcode_external_build_system.png)
+![Xcode External Build System]({{ site.url }}/library/2014/05/xcode_external_build_system.png)
 
 After day or two I realized that I do not have IntelliSence in Xcode. I started to look again what else I need to do and I've found this [Xcode 4 Code Completion for External Build Projects](http://hiltmon.com/blog/2013/07/07/xcode-4-code-completion-for-external-build-projects/). 
 
@@ -64,20 +64,20 @@ open casablanca.xcodeproj
 
 You should see Xcode (I hope you have installed Xcode on your Mac, right?) with opened `casablanca.xcodeproj`
 
-![casablanca.xcodeproj in Xcode](/library/2014/05/casablanca.xcodeproj.png)
+![casablanca.xcodeproj in Xcode]({{ site.url }}/library/2014/05/casablanca.xcodeproj.png)
 
 By default it selects `ALL_BUILD` target, which just builds everything. You can try to build it. It should just work. It will take some time and at the end you should get successful build.
 
 Now let's try to use one of the samples `BingRequest`. Change current target to `BingRequest`
 
-![BingRequest in Xcode](/library/2014/05/casablanca_bingrequest.png)
+![BingRequest in Xcode]({{ site.url }}/library/2014/05/casablanca_bingrequest.png)
 
 This sample expects two arguments on input. First is what you want to search in `Bing`, second is the file name where you want to save response. So, let's modify the scheme (I get to this window by pressing `⌥` key and clicking on <i class="fa fa-play"></i> button)
 
-![BingRequest scheme in Xcode](/library/2014/05/bingrequest_scheme.png)
+![BingRequest scheme in Xcode]({{ site.url }}/library/2014/05/bingrequest_scheme.png)
 
 As you can see I specified `Xcode` as a first parameter and `output.log` as second. Now let's put some breakpoints and press <i class="fa fa-play"></i> button to debug it
 
-![BingRequest in Xcode under debugger](/library/2014/05/bingrequest_debugger.png)
+![BingRequest in Xcode under debugger]({{ site.url }}/library/2014/05/bingrequest_debugger.png)
 
 As you can see - it works. Happy debugging!

@@ -21,7 +21,7 @@ alias: ru/blog/show/222
 
 <p>$(MSBuildExtensionsPath32) в моем случае был “<i>C:\Program Files (x86)\MSBuild\</i>”, там я нашел файл <i>Microsoft.WebApplication.targets</i>, а так же файл <i>Microsoft.WebApplication.Build.Tasks.Dll</i>, который привлек мое внимание больше. Вооружившись программой .Net Reflector, открыл этот файл и, проанализировав, нашел, что все задачи наследуются от типа Task, значит, по плану, мне просто нужно было бы найти нужную задачу. </p>
 
-<p><img alt=".Net Reflector" src="/library/images/02/ctt/01.png" /></p>
+<p><img alt=".Net Reflector" src="{{ site.url }}/library/images/02/ctt/01.png" /></p>
 
 <p>Ее я нашел под названием TransformTask, сначала интуитивно подумал, что, наверное, это она и есть, а затем и под Reflector’ом посмотрев код в этом убедился на 100%. Решил попробовать встроить его в простенькое консольное приложение, которое позволяло бы мне выполнять эту задачу для любых файлов. Тут я замечу, что в случае использования MS Build, который в TFS, скорее всего, будет возможность вызвать эту задачу прямо из файла настройки билда, но наш случай – это CCNet. В будущем я, правда, планирую тесное знакомство с Ms Build, так как задумываемся о переходе с CCNet на MsBuild, но пока решил реализовать по-быстрому.</p>
 
@@ -80,7 +80,7 @@ transformXml.Execute();
 
 <p><i>ctt.exe s:source.config t:transform.config d:destination.config</i></p>
 
-<p><img alt="Config Transformation Tool In Action" src="/library/images/02/ctt/02.png" /></p>
+<p><img alt="Config Transformation Tool In Action" src="{{ site.url }}/library/images/02/ctt/02.png" /></p>
 
 <p>Получаем результат destination.config:</p>
 

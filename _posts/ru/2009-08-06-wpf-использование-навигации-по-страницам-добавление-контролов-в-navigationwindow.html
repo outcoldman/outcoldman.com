@@ -53,11 +53,11 @@ alias: ru/blog/show/149
 <p>
 Итак, в результате мы должны получить, приблизительно, следующий вид окна:   </p>   
 
-<p><img width="475" height="317" border="0" style="border-width: 0px;" alt="Untitled" src="/library/images/01/0000039.png" />  </p>   
+<p><img width="475" height="317" border="0" style="border-width: 0px;" alt="Untitled" src="{{ site.url }}/library/images/01/0000039.png" />  </p>   
 
 <p>Тут возникает следующее желание, положить наш контрол ApplicationToolbar на <a href="http://msdn.microsoft.com/en-us/library/system.windows.navigation.navigationwindow.aspx">NavigationWindow</a> (там, где располагаются навигационные кнопки). Сделать нам это поможет возможность переопределение стилей в WPF. А именно переопределение стиля для <a href="http://msdn.microsoft.com/en-us/library/system.windows.navigation.navigationwindow.aspx">NavigationWindow</a>.   </p>     <p>Для того, чтобы описать новый стиль для <a href="http://msdn.microsoft.com/en-us/library/system.windows.navigation.navigationwindow.aspx">NavigationWindow</a>, а точнее переписать существующий, нам изначально необходимо вытащить стиль из библиотек <i>PresentationFramework</i>. Вообще у <i>PresentationFramework </i>есть несколько наборов тем, таких как Classic, Aero, Royale и Luna, каждая тема лежит в отдельной библиотеке. Я буду рассматривать библиотеку <i>PresentationFramework.Aero</i> с ее темой. Для того, чтобы посмотреть BAML файл (после компиляции файл xaml упаковывается в baml - Binary Application Markup) можно воспользоваться программой <a href="http://www.red-gate.com/products/reflector/">Reflector</a> с плагином <a href="http://www.codeplex.com/reflectoraddins">BamlViewer</a>, но как показала практика - BamlViewer не очень хорошо справляется с декомпиляцией: он не верно прописывает имена ключей (Key), не верно расшифровывает данные <a href="http://msdn.microsoft.com/en-us/library/ms751808.aspx">Geometry</a>, даже располагает описание триггеров перед описание контента стиля - из-за чего элементы в триггерах не находятся. В общем, лучше с задачей декомпиляции BAML справляется <a href="http://www.codeplex.com/stylesexplorer">StyleExplorer</a>. Вот небольшой скриншот сравнения данных программ:   </p>    
 
-<p><img width="640" height="297" border="0" style="border-width: 0px;" alt="Untitled2" src="/library/images/01/0000040.png" />  </p>   
+<p><img width="640" height="297" border="0" style="border-width: 0px;" alt="Untitled2" src="{{ site.url }}/library/images/01/0000040.png" />  </p>   
 
 <p>Самое интересное, что значение ключей стилей действительно такими и являются как видно на скриншоте - x:Key=&quot;&Igrave;&quot;. То есть в своих стилях мы можем ссылаться на стиль с именем ключа &Igrave; (если стиль подключили). Почему сделаны такие странные имена ключей - не понятно (и видно так же, что BAML Viewer не верно их распознает). В итоге, Style Explorer предоставляет нам реально работающий XAML текст - мы можем к примеру перенести к себе в проект весь XAML текст и он будет валиден, чего не скажешь о BAML Viewer. Но весь XAML нам не нужен. Нам интересно переписать представление NavigationWindow, для этого мы изначально создадим в нашем проекте новый файл ресурсов Themes/General.xaml (имя файла и каталог можно выбрать любыми). Чтобы наш файл ресурсов был доступен в приложении - мы должны его так же подключить в файле App.xaml, это делается так:   </p>     
 
@@ -111,6 +111,6 @@ alias: ru/blog/show/149
 
 <p>В результате наше приложение будет выглядеть следующим образом:   </p>   
 
-<p><img width="438" height="187" border="0" align="middle" style="border-width: 0px;" alt="Untitled3" src="/library/images/01/0000041.png" /></p> 
+<p><img width="438" height="187" border="0" align="middle" style="border-width: 0px;" alt="Untitled3" src="{{ site.url }}/library/images/01/0000041.png" /></p> 
 
 <p>  Как видим, мы добились того, что наш контрол ApplicationToolbar теперь располагается на навигационной панели.   </p>        <h4>Скачать пример: <a href="/library/content/01/WPF_NavigationWindow.zip">WPF_NavigationWindow.zip (12,64 KB)</a></h4>

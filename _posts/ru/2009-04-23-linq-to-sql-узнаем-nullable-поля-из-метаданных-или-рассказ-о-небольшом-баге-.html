@@ -10,11 +10,11 @@ alias: ru/blog/show/140
 
 <p>Шаг первый - создаем просту таблицу следующего вида:</p>   
 
-<p><a href="/library/images/01/0000015.png"><img width="296" height="152" border="0" alt="" src="/library/images/01/0000015.png" /></a></p> 
+<p><a href="/library/images/01/0000015.png"><img width="296" height="152" border="0" alt="" src="{{ site.url }}/library/images/01/0000015.png" /></a></p> 
 
 <p>Шаг второй - создаем проект (для примера хватит и Console Application). Добавляем в него Model Linq-To-Sql, на которую добавляем маппинг на таблицу LinqBugTable, обращаю внимание, что Nullable property у price выставлено в False, так и должно быть, ведь в базе данное поле not nullable:</p>  
 
-<p><a href="/library/images/01/0000016.png"><img width="590" height="354" border="0" alt="" src="/library/images/01/0000016.png" /></a></p>
+<p><a href="/library/images/01/0000016.png"><img width="590" height="354" border="0" alt="" src="{{ site.url }}/library/images/01/0000016.png" /></a></p>
 
 <p>Не буду пока показывать код для property price, а покажу для number: </p>
 
@@ -53,7 +53,7 @@ public decimal price
 <p>
 Как видим у атрибута Column свойство CanBeNull не выставлено, но, вообще bool переменные определяются значение false, так что, может, это и не страшно (так я подумал сначала). Хорошо, что существует прекрастная программа <a href="http://www.red-gate.com/products/reflector/">Reflector</a>, с помощью которой можно посмотреть, что происходит в коде ColumnAttribute:</p>  
 
-<p><a href="/library/images/01/0000017.png"><img width="542" height="480" border="0" alt="" src="/library/images/01/0000017.png" /></a></p> 
+<p><a href="/library/images/01/0000017.png"><img width="542" height="480" border="0" alt="" src="{{ site.url }}/library/images/01/0000017.png" /></a></p> 
 
 <p>Видим, что в конструкторе они инициализируют field значением true. Вообще у ColumnAttribute есть еще свойство CanBeNullSet, которое к несчастью internal, при помощи которого можно было бы узнавать выставлено ли свойство или нет.</p> 
 

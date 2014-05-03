@@ -14,13 +14,13 @@ alias: ru/blog/show/170
 
 <p>И получить что-то вроде</p>
 
-<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Untitled" border="0" alt="Untitled" src="/library/images/01/0000067.png" width="337" height="193" /> </p>
+<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Untitled" border="0" alt="Untitled" src="{{ site.url }}/library/images/01/0000067.png" width="337" height="193" /> </p>
 
 <h4>ClearTypeHint</h4>
 
 <p>Очередная заклепка в WPF – свойство <a href="http://msdn.microsoft.com/en-gb/library/system.windows.media.renderoptions.cleartypehint(VS.100).aspx" target="_blank">RenderOptions.ClearTypeHint</a>. Идея в следующем, если в вашем визуальном дереве на каком то шаге используется, например, <a href="http://msdn.microsoft.com/ru-ru/library/system.windows.media.brush.opacity.aspx" target="_blank">Opacity</a>, то все визуальное дерево ниже уровнем будет прорисовывать текст без ClearType. Из-за этого текст будет выглядеть значительно другим:</p>
 
-<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="cth" border="0" alt="cth" src="/library/images/01/0000068.png" width="240" height="117" /> </p>
+<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="cth" border="0" alt="cth" src="{{ site.url }}/library/images/01/0000068.png" width="240" height="117" /> </p>
 
 <p></p>
 
@@ -30,11 +30,11 @@ alias: ru/blog/show/170
 
 <p>Теперь мы можем действительно управлять тем, как будет отрисовываться текст. Для этого нам предоставили два свойства <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.textoptions.textformattingmode(VS.100).aspx" target="_blank">TextOptions.TextFormattingMode</a> и <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.textoptions.textrenderingmode(VS.100).aspx" target="_blank">TextOptions.TextRenderingMode</a>. Первому можно установить <em>Ideal</em> – текст будет выглядеть как обычно в WPF, или <em>Display</em> – будет выглядеть как текст GDI. <em>Display</em> советуют применять только с мелким текстом, в остальных случаях оставить как есть. Разница в чтении мелкого текста заметна сразу:</p>
 
-<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Magna Carta Ideal vs Display 8pt annotated_4" border="0" alt="Magna Carta Ideal vs Display 8pt annotated_4" src="/library/images/01/0000069.png" width="479" height="177" /> </p>
+<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Magna Carta Ideal vs Display 8pt annotated_4" border="0" alt="Magna Carta Ideal vs Display 8pt annotated_4" src="{{ site.url }}/library/images/01/0000069.png" width="479" height="177" /> </p>
 
 <p>Свойству <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.textoptions.textrenderingmode(VS.100).aspx" target="_blank">TextOptions.TextRenderingMode</a> можно установить Auto, Aliased, Grayscale и ClearType. </p>
 
-<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="CT vs Grayscale vs Aliased_4" border="0" alt="CT vs Grayscale vs Aliased_4" src="/library/images/01/0000070.png" width="133" height="43" /> </p>
+<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="CT vs Grayscale vs Aliased_4" border="0" alt="CT vs Grayscale vs Aliased_4" src="{{ site.url }}/library/images/01/0000070.png" width="133" height="43" /> </p>
 
 <p>Auto – выставляет ClearType, если он не отключен. Более подробную информацию о тексте можно посмотреть тут: <a href="http://blogs.msdn.com/text/archive/2009/08/24/wpf-4-0-text-stack-improvements.aspx" target="_blank">WPF 4.0 Text Stack Improvements</a>.</p>
 <p>

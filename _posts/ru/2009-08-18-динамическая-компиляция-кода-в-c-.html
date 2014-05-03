@@ -65,7 +65,7 @@ namespace ConsoleCompiler
 }
 </code></pre>
 
-<p>Запускаем и проверяем:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="First Sample" border="0" alt="First Sample" src="/library/images/01/0000051.png" width="678" height="222" /> </p>  <p>Первое, на что стоит обратить внимание – это использование двух пространств имен (namespace):</p>  <ul>   <li>Microsoft.CSharp </li>    <li>System.CodeDom.Compiler </li> </ul>  <p>В данных классах и содержится ключ к возможности компиляции. В нашем примере мы указываем что компилировать будем под .NET Framework 3.5, а так же указываем что мы хотим получить на выходе – Foo.exe, с возможностью запуска данного приложения.</p>   <h2>Пример посложнее, используем Linq</h2> 
+<p>Запускаем и проверяем:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="First Sample" border="0" alt="First Sample" src="{{ site.url }}/library/images/01/0000051.png" width="678" height="222" /> </p>  <p>Первое, на что стоит обратить внимание – это использование двух пространств имен (namespace):</p>  <ul>   <li>Microsoft.CSharp </li>    <li>System.CodeDom.Compiler </li> </ul>  <p>В данных классах и содержится ключ к возможности компиляции. В нашем примере мы указываем что компилировать будем под .NET Framework 3.5, а так же указываем что мы хотим получить на выходе – Foo.exe, с возможностью запуска данного приложения.</p>   <h2>Пример посложнее, используем Linq</h2> 
 <p>Теперь давайте усложним наш пример, в компилируемый код добавим использование Linq:</p> 
 
 <pre><code>string source = 
@@ -87,11 +87,11 @@ namespace Foo
 }
 </code></pre>
 
-<p>Добавленные строки помечены красным, если мы попробуем запустить предыдущий пример с измененным компилируемым кодом, то теперь мы увидим ошибки компиляции:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Compiler Error" border="0" alt="Compiler Error" src="/library/images/01/0000052.png" width="681" height="225" /> </p>  <p>Чтобы компиляция удалась, необходимо добавить в параметры компиляции ссылку на сборку System.Core.dll</p>  
+<p>Добавленные строки помечены красным, если мы попробуем запустить предыдущий пример с измененным компилируемым кодом, то теперь мы увидим ошибки компиляции:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Compiler Error" border="0" alt="Compiler Error" src="{{ site.url }}/library/images/01/0000052.png" width="681" height="225" /> </p>  <p>Чтобы компиляция удалась, необходимо добавить в параметры компиляции ссылку на сборку System.Core.dll</p>  
 
 <pre><code>compilerParams.ReferencedAssemblies.Add("System.Core.Dll");</code></pre>
 
-<p>И теперь все будет работать:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Linq Sample" border="0" alt="Linq Sample" src="/library/images/01/0000053.png" width="678" height="224" /> </p>  <h2>Используем созданную сборку в коде</h2>  <p>Теперь попробуем скомпилировать сборку Foo.dll вместо исполняемого файла, а так же сразу же после компиляции загрузить и использовать скомпилированный метод. Компилируемый код мы изменим, сделаем его попроще:</p>  
+<p>И теперь все будет работать:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Linq Sample" border="0" alt="Linq Sample" src="{{ site.url }}/library/images/01/0000053.png" width="678" height="224" /> </p>  <h2>Используем созданную сборку в коде</h2>  <p>Теперь попробуем скомпилировать сборку Foo.dll вместо исполняемого файла, а так же сразу же после компиляции загрузить и использовать скомпилированный метод. Компилируемый код мы изменим, сделаем его попроще:</p>  
 
 <pre><code>string source = 
            @" 
@@ -123,4 +123,4 @@ Type type = assembly.GetType("Foo.Bar");
 MethodInfo method = type.GetMethod("SayHello"); 
 method.Invoke(null, null);</code></pre>
 
-<p>Результат:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Final Result" border="0" alt="Final Result" src="/library/images/01/0000054.png" width="679" height="224" /> </p>  <h4>Скачать пример:<a href="/library/content/01/ConsoleCompiler.zip">ConsoleCompiler.zip</a>.</h4>  <p>Информацию о динамической компиляции и основные примеры я взял отсюда: <a href="http://blogs.msdn.com/saveenr/archive/2009/08/11/a-walkthrough-of-dynamically-compiling-c-code.aspx">Saveen Reddy's blog - A Walkthrough of Dynamically Compiling C# code</a> (Английский).</p> <p> </p>
+<p>Результат:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Final Result" border="0" alt="Final Result" src="{{ site.url }}/library/images/01/0000054.png" width="679" height="224" /> </p>  <h4>Скачать пример:<a href="/library/content/01/ConsoleCompiler.zip">ConsoleCompiler.zip</a>.</h4>  <p>Информацию о динамической компиляции и основные примеры я взял отсюда: <a href="http://blogs.msdn.com/saveenr/archive/2009/08/11/a-walkthrough-of-dynamically-compiling-c-code.aspx">Saveen Reddy's blog - A Walkthrough of Dynamically Compiling C# code</a> (Английский).</p> <p> </p>

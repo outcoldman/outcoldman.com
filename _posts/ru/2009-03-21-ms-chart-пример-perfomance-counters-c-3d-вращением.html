@@ -14,7 +14,7 @@ alias: ru/blog/show/123
 Итак, мы установили MS Chart. Создаем новый WinForms проект. Кладем на него контрол Chart. Выставляем у свойства объекта Area Area3DStyle.Enabled3D в true. Кладем 3 набора Series с типами Spline (это один из типов графиков, который позволяет класть несколько графиков на один Area). В итогге у нас есть некоторое представление, которое мы можем заполнять информацией. Дальше можно подстроить вид графиков, цвета и многое другое, что я и сделал. 
 </p>
 
-<p><a href="/library/images/01/0000006.jpeg"><img width="640" height="344" border="0" alt="" src="/library/images/01/0000006.jpeg" /></a>
+<p><a href="/library/images/01/0000006.jpeg"><img width="640" height="344" border="0" alt="" src="{{ site.url }}/library/images/01/0000006.jpeg" /></a>
 </p>
 
 <p>Дальше нам необходимо создать 3 PerfomanceCounter объекта из пространства имен System.Diagnostics:</p>
@@ -225,6 +225,6 @@ private int savedInclination;
 <p>
 Все три метода нужно прицепить к объекту контрола Chart на события MouseMove, MouseDown и MouseUp соответственно. <br />В результате у нас должно получиться такой результат:</p>
 
-<p><a href="/library/images/01/0000007.jpeg"><img width="604" height="480" border="0" alt="" src="/library/images/01/0000007.jpeg" /></a></p>
+<p><a href="/library/images/01/0000007.jpeg"><img width="604" height="480" border="0" alt="" src="{{ site.url }}/library/images/01/0000007.jpeg" /></a></p>
 
 <p>Вот такой простой пример работы с MS Chart. Хочу сказать, что это достаточно мощная библиотека, которая предоставляет возможность представления данных в виде графиков. И из бесплатных аналогов, наверное, лучшая. Бесплатных аналогов я, правда, знаю всего один - <a href="http://zedgraph.sourceforge.net/samples.html">ZedGraph</a>, и до появления MS Chart им только и пользовался. Не скажу что MS Chart принес больше функциональности, но он имеет возможность размещения умных подписей (чтобы они друг на друга не залазили), методов для вычисления финансовых формул (медианы и многое другое), отображения легенд ну и много другого.</p><p>По окончании хочу привести несколько ссылок, где можно еще почерпать информации о MS Chart:</p><ul><li><a href="http://blogs.msdn.com/alexgor/ ">Alex Gorev's Weblog</a></li><li><a href="http://social.msdn.microsoft.com/Forums/en-US/MSWinWebChart/threads/">MS Chart Forum</a></li></ul><h4>Скачать пример: <a href="/library/content/01/PerfomanceCounterChart.zip">PerfomanceCounterChart.zip</a></h4>
