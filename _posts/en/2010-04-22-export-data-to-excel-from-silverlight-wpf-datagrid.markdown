@@ -12,193 +12,217 @@ alias: en/blog/show/201
 
 <p>In Silverlight 4 and .NET 4 we have dynamic objects, which give us possibility to use MS Office COM objects without referenced to MS Office dlls. So for creating excel document in .NET 4 you can write this code::</p>
 
-<pre><code>dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject(&quot;Excel.Application&quot;, string.Empty);
-</code></pre>
+```
+dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject("Excel.Application", string.Empty);
+```
 
 <p>And in Silverlight 4 this:</p>
 
-<pre><code>dynamic excel = AutomationFactory.CreateObject(&quot;Excel.Application&quot;);
-</code></pre>
+```
+dynamic excel = AutomationFactory.CreateObject("Excel.Application");
+```
 
 <p>If you want to use AutomationFactory in Silverlight 4 app you need to set “Required elevated trust when running outside the browser” in project settings. You can check at code that your app have this privileges with property AutomationFactory.IsAvailable.</p>
 
 <p>First, lets design new method, which will export to Excel two-dimension array:</p>
 
-<pre><code>public static void ExportToExcel(object[,] data) { /* ... */ }
-</code></pre>
+```
+public static void ExportToExcel(object[,] data) { /* ... */ }
+```
 
 <p>Above I wrote how to get instance of Excel app. Now we will write some additional requirements for export:</p>
 
-<pre><code>excel.ScreenUpdating = false;
+```
+excel.ScreenUpdating = false;
 dynamic workbook = excel.workbooks;
 workbook.Add();
-&#160;
+ 
 dynamic worksheet = excel.ActiveSheet;
-&#160;const int left = 1;
+ 
+const int left = 1;
 const int top = 1;
 int height = data.GetLength(0);
 int width = data.GetLength(1);
 int bottom = top + height - 1;
 int right = left + width - 1;
-&#160;if (height == 0 || width == 0)
+ 
+if (height == 0 || width == 0)
   return;
-</code></pre>
+```
 
 <p>In this code we set that Excel will not show changes until we allow. This approach will give us little win in performance. Next we create new workbook and get active sheet of this book. And then get dimension of range where we will place our data.</p>
 
 <p>Next step – export to Excel. When you export to excel with set data by cell this is slowly approach than export data to range of cells (you can try to compare speed of exporting with 1000 rows). So we will use setting data for range of cells:</p>
 
-<pre><code>dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];
+```
+dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];
 rg.Value = data;
-</code></pre>
+```
 
 <p>Ok, our data in excel document. This approach work in .NET, but doesn’t work in Silverlight 4. When I tried to export data like I wrote above I got exception&#160; </p>
 
-<blockquote>
-  <p><em><font color="#808000">{System.Exception: can't convert an array of rank [2] 
-        <br />&#160;&#160; at MS.Internal.ComAutomation.ManagedObjectMarshaler.MarshalArray(Array array, ComAutomationParamWrapService paramWrapService, ComAutomationInteropValue&amp; value) 
-
-        <br />&#160;&#160; at MS.Internal.ComAutomation.ManagedObjectMarshaler.MarshalObject(Object obj, ComAutomationParamWrapService paramWrapService, ComAutomationInteropValue&amp; value, Boolean makeCopy) 
-
-        <br />&#160;&#160; at MS.Internal.ComAutomation.ComAutomationObject.InvokeImpl(Boolean tryInvoke, String name, ComAutomationInvokeType invokeType, Object&amp; returnValue, Object[] args) 
-
-        <br />&#160;&#160; at MS.Internal.ComAutomation.ComAutomationObject.Invoke(String name, ComAutomationInvokeType invokeType, Object[] args) 
-
-        <br />&#160;&#160; at System.Runtime.InteropServices.Automation.AutomationMetaObjectProvider.TrySetMember(SetMemberBinder binder, Object value) 
-
-        <br />&#160;&#160; at System.Runtime.InteropServices.Automation.AutomationMetaObjectProviderBase.&lt;.cctor&gt;b__3(Object obj, SetMemberBinder binder, Object value) 
-
-        <br />&#160;&#160; at CallSite.Target(Closure , CallSite , Object , Object[,] ) 
-
-        <br />&#160;&#160; at System.Dynamic.UpdateDelegates.UpdateAndExecute2[T0,T1,TRet](CallSite site, T0 arg0, T1 arg1) 
-
-        <br />&#160;&#160; at ExportToExcelTools.ExportManager.ExportToExcel(Object[,] data) 
-
-        <br />&#160;&#160; at ExportToExcelTools.DataGridExcelTools.StartExport(Object data) 
-
-        <br />&#160;&#160; at System.Threading.ThreadHelper.ThreadStart_Context(Object state) 
-
-        <br />&#160;&#160; at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean ignoreSyncCtx) 
-
-        <br />&#160;&#160; at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state) 
-
-        <br />&#160;&#160; at System.Threading.ThreadHelper.ThreadStart(Object obj)}</font></em></p>
-</blockquote>
+```
+{System.Exception: can't convert an array of rank [2] 
+   at MS.Internal.ComAutomation.ManagedObjectMarshaler.MarshalArray(Array array, ComAutomationParamWrapService paramWrapService, ComAutomationInteropValue& value) 
+   at MS.Internal.ComAutomation.ManagedObjectMarshaler.MarshalObject(Object obj, ComAutomationParamWrapService paramWrapService, ComAutomationInteropValue& value, Boolean makeCopy) 
+   at MS.Internal.ComAutomation.ComAutomationObject.InvokeImpl(Boolean tryInvoke, String name, ComAutomationInvokeType invokeType, Object& returnValue, Object[] args) 
+   at MS.Internal.ComAutomation.ComAutomationObject.Invoke(String name, ComAutomationInvokeType invokeType, Object[] args) 
+   at System.Runtime.InteropServices.Automation.AutomationMetaObjectProvider.TrySetMember(SetMemberBinder binder, Object value) 
+   at System.Runtime.InteropServices.Automation.AutomationMetaObjectProviderBase.<.cctor>b__3(Object obj, SetMemberBinder binder, Object value) 
+   at CallSite.Target(Closure , CallSite , Object , Object[,] ) 
+   at System.Dynamic.UpdateDelegates.UpdateAndExecute2[T0,T1,TRet](CallSite site, T0 arg0, T1 arg1) 
+   at ExportToExcelTools.ExportManager.ExportToExcel(Object[,] data) 
+   at ExportToExcelTools.DataGridExcelTools.StartExport(Object data) 
+   at System.Threading.ThreadHelper.ThreadStart_Context(Object state) 
+   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state, Boolean ignoreSyncCtx) 
+   at System.Threading.ExecutionContext.Run(ExecutionContext executionContext, ContextCallback callback, Object state) 
+   at System.Threading.ThreadHelper.ThreadStart(Object obj)}
+```
 
 <p>But I could export one-dimension arrays (one row), so I think this is problem of Silverlight, <a href="https://connect.microsoft.com/VisualStudio/feedback/details/552759/when-exporting-two-dimension-array-to-range-of-excel-doc-with-automationfactory-in-silverlight-4-get-exception">I posted</a> bug in section .net 4 on <a href="http://connect.microsoft.com">http://connect.microsoft.com</a>. </p>
 
 <p>For export in Silverlight I use this code (export by rows):</p>
 
-<pre><code>for (int i = 1; i &lt;= height; i++)
-{  object[] row = new object[width];
-  for (int j = 1; j &lt;= width; j++)
+```
+for (int i = 1; i <= height; i++)
+{
+  object[] row = new object[width];
+  for (int j = 1; j <= width; j++)
   {
     row[j - 1] = data[i - 1, j - 1];
   }
   dynamic r = worksheet.Range[worksheet.Cells[i, left], worksheet.Cells[i, right]];
-  r.Value = row;  r = null;
+  r.Value = row;
+  r = null;
 }
-</code></pre>
+```
 
 <p>If you are developing app just for Silverlight you can use some other data structure instead of array. I try to write code which will work at .NET and Silverlight so I will use arrays. </p>
 
 <p>After data export we should to set to Excel object that it can apply changes, and then we will show it:</p>
 
-<pre><code>excel.ScreenUpdating = true;
+```
+excel.ScreenUpdating = true;
 excel.Visible = true;
-</code></pre>
+```
 
 <p>Before this we can set more beautiful view of our document:</p>
 
-<pre><code>// Set borders
-for (int i = 1; i &lt;= 4; i++)
+```
+// Set borders
+for (int i = 1; i <= 4; i++)
   rg.Borders[i].LineStyle = 1;
-&#160;// Set auto columns width
+ 
+// Set auto columns width
 rg.EntireColumn.AutoFit();
-&#160;// Set header view
-dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];rgHeader.Font.Bold = true;
+ 
+// Set header view
+dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];
+rgHeader.Font.Bold = true;
 rgHeader.Interior.Color = 189 * (int)Math.Pow(16, 4) + 129 * (int)Math.Pow(16, 2) + 78; // #4E81BD
-</code></pre>
+```
 
 <p>With this code we set borders, set auto size for cells and mark out first row (with background color and special style for text – it will be bold): it will be header, which will show DataGrid column’s headers. If you want to set more you can use Excel macros to get how to change document view: you need to start record macro, then change interface by hand, end record macro and look at macro code. </p>
 
 <p>At the end of export you need to clean resources. In .NET for solve this you can use method Marshal.ReleaseComObject(…), but Silverlight doesn’t have this method, but we can set null to variables and then invoke garbage collector collect method:</p>
 
-<pre><code>#if SILVERLIGHT
+```
+#if SILVERLIGHT
 #else
 Marshal.ReleaseComObject(rg);
 Marshal.ReleaseComObject(rgHeader);
 Marshal.ReleaseComObject(worksheet);
 Marshal.ReleaseComObject(workbook);
-Marshal.ReleaseComObject(excel);#endif
+Marshal.ReleaseComObject(excel);
+#endif
 rg = null;
 rgHeader = null;
 worksheet = null;
 workbook = null;
 excel = null;
 GC.Collect();
-</code></pre>
+```
 
 <p>So know we have this code:</p>
 
-<pre><code>using System;
+```
+using System;
 #if SILVERLIGHT
 using System.Runtime.InteropServices.Automation;
 #else
 using System.Runtime.InteropServices;
 #endif
-&#160;namespace ExportToExcelTools
-{  public static class ExportManager
-  {    public static void ExportToExcel(object[,] data)
-    {#if SILVERLIGHT
-      dynamic excel = AutomationFactory.CreateObject(&quot;Excel.Application&quot;);
+ 
+namespace ExportToExcelTools
+{
+  public static class ExportManager
+  {
+    public static void ExportToExcel(object[,] data)
+    {
+#if SILVERLIGHT
+      dynamic excel = AutomationFactory.CreateObject("Excel.Application");
 #else
-      dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject(&quot;Excel.Application&quot;, string.Empty);
+      dynamic excel = Microsoft.VisualBasic.Interaction.CreateObject("Excel.Application", string.Empty);
 #endif
-&#160;      excel.ScreenUpdating = false;
+ 
+      excel.ScreenUpdating = false;
       dynamic workbook = excel.workbooks;
       workbook.Add();
-&#160;
+ 
       dynamic worksheet = excel.ActiveSheet;
-&#160;      const int left = 1;
+ 
+      const int left = 1;
       const int top = 1;
       int height = data.GetLength(0);
       int width = data.GetLength(1);
       int bottom = top + height - 1;
       int right = left + width - 1;
-&#160;      if (height == 0 || width == 0)
+ 
+      if (height == 0 || width == 0)
         return;
-&#160;
-      dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];#if SILVERLIGHT
+ 
+      dynamic rg = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[bottom, right]];
+#if SILVERLIGHT
       //With setting range value for recnagle export will be fast, but this aproach doesn't work in Silverlight
-      for (int i = 1; i &lt;= height; i++)
-      {        object[] row = new object[width];
-        for (int j = 1; j &lt;= width; j++)
+      for (int i = 1; i <= height; i++)
+      {
+        object[] row = new object[width];
+        for (int j = 1; j <= width; j++)
         {
           row[j - 1] = data[i - 1, j - 1];
         }
         dynamic r = worksheet.Range[worksheet.Cells[i, left], worksheet.Cells[i, right]];
-        r.Value = row;        r = null;
-      }#else
-      rg.Value = data;#endif
-&#160;      // Set borders
-      for (int i = 1; i &lt;= 4; i++)
+        r.Value = row;
+        r = null;
+      }
+#else
+      rg.Value = data;
+#endif
+ 
+      // Set borders
+      for (int i = 1; i <= 4; i++)
         rg.Borders[i].LineStyle = 1;
-&#160;      // Set auto columns width
+ 
+      // Set auto columns width
       rg.EntireColumn.AutoFit();
-&#160;      // Set header view
-      dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];      rgHeader.Font.Bold = true;
+ 
+      // Set header view
+      dynamic rgHeader = worksheet.Range[worksheet.Cells[top, left], worksheet.Cells[top, right]];
+      rgHeader.Font.Bold = true;
       rgHeader.Interior.Color = 189 * (int)Math.Pow(16, 4) + 129 * (int)Math.Pow(16, 2) + 78; // #4E81BD
+      
       // Show excel app
       excel.ScreenUpdating = true;
       excel.Visible = true;
-&#160;#if SILVERLIGHT
+ 
+#if SILVERLIGHT
 #else
       Marshal.ReleaseComObject(rg);
       Marshal.ReleaseComObject(rgHeader);
       Marshal.ReleaseComObject(worksheet);
       Marshal.ReleaseComObject(workbook);
-      Marshal.ReleaseComObject(excel);#endif
+      Marshal.ReleaseComObject(excel);
+#endif
       rg = null;
       rgHeader = null;
       worksheet = null;
@@ -208,14 +232,15 @@ using System.Runtime.InteropServices;
     }
   }
 }
-</code></pre>
+```
 
 <h2>Export data from DataGrid to two-dimension array</h2>
 
 <p>So we have method which export array to Excel, now we need to write method which will export DataGrid data to array. In WPF we can get all items with <em>Items</em> property, but in Silverlight this property is internal. But we can use ItemsSource property and cast it to List:</p>
 
-<pre><code>List&lt;object&gt; list = grid.ItemsSource.Cast&lt;object&gt;().ToList();
-</code></pre>
+```
+List<object> list = grid.ItemsSource.Cast<object>().ToList();
+```
 
 <p>Before we realize export I want to think about features we need:</p>
 
@@ -231,207 +256,265 @@ using System.Runtime.InteropServices;
 
 <p>I solved all of this problems with attached properties:</p>
 
-<pre><code>/// &lt;summary&gt;
+```
+/// <summary>
 /// Include current column in export report to excel
-/// &lt;/summary&gt;
-public static readonly DependencyProperty IsExportedProperty = DependencyProperty.RegisterAttached(&quot;IsExported&quot;,
+/// </summary>
+public static readonly DependencyProperty IsExportedProperty = DependencyProperty.RegisterAttached("IsExported",
                                                                                 typeof(bool), typeof(DataGrid), new PropertyMetadata(true));
-&#160;/// &lt;summary&gt;
+ 
+/// <summary>
 /// Use custom header for report
-/// &lt;/summary&gt;
-public static readonly DependencyProperty HeaderForExportProperty = DependencyProperty.RegisterAttached(&quot;HeaderForExport&quot;,
+/// </summary>
+public static readonly DependencyProperty HeaderForExportProperty = DependencyProperty.RegisterAttached("HeaderForExport",
                                                                                 typeof(string), typeof(DataGrid), new PropertyMetadata(null));
-&#160;/// &lt;summary&gt;
+ 
+/// <summary>
 /// Use custom path to get value for report
-/// &lt;/summary&gt;
-public static readonly DependencyProperty PathForExportProperty = DependencyProperty.RegisterAttached(&quot;PathForExport&quot;,
+/// </summary>
+public static readonly DependencyProperty PathForExportProperty = DependencyProperty.RegisterAttached("PathForExport",
                                                                                 typeof(string), typeof(DataGrid), new PropertyMetadata(null));
-&#160;/// &lt;summary&gt;
+ 
+/// <summary>
 /// Use custom path to get value for report
-/// &lt;/summary&gt;
-public static readonly DependencyProperty FormatForExportProperty = DependencyProperty.RegisterAttached(&quot;FormatForExport&quot;,
+/// </summary>
+public static readonly DependencyProperty FormatForExportProperty = DependencyProperty.RegisterAttached("FormatForExport",
                                                                                 typeof(string), typeof(DataGrid), new PropertyMetadata(null));
-&#160;#region Attached properties helpers methods
-&#160;public static void SetIsExported(DataGridColumn element, Boolean value)
-{  element.SetValue(IsExportedProperty, value);
+ 
+#region Attached properties helpers methods
+ 
+public static void SetIsExported(DataGridColumn element, Boolean value)
+{
+  element.SetValue(IsExportedProperty, value);
 }
-&#160;public static Boolean GetIsExported(DataGridColumn element)
-{  return (Boolean)element.GetValue(IsExportedProperty);
+ 
+public static Boolean GetIsExported(DataGridColumn element)
+{
+  return (Boolean)element.GetValue(IsExportedProperty);
 }
-&#160;public static void SetPathForExport(DataGridColumn element, string value)
-{  element.SetValue(PathForExportProperty, value);
+ 
+public static void SetPathForExport(DataGridColumn element, string value)
+{
+  element.SetValue(PathForExportProperty, value);
 }
-&#160;public static string GetPathForExport(DataGridColumn element)
-{  return (string)element.GetValue(PathForExportProperty);
+ 
+public static string GetPathForExport(DataGridColumn element)
+{
+  return (string)element.GetValue(PathForExportProperty);
 }
-&#160;public static void SetHeaderForExport(DataGridColumn element, string value)
-{  element.SetValue(HeaderForExportProperty, value);
+ 
+public static void SetHeaderForExport(DataGridColumn element, string value)
+{
+  element.SetValue(HeaderForExportProperty, value);
 }
-&#160;public static string GetHeaderForExport(DataGridColumn element)
-{  return (string)element.GetValue(HeaderForExportProperty);
+ 
+public static string GetHeaderForExport(DataGridColumn element)
+{
+  return (string)element.GetValue(HeaderForExportProperty);
 }
-&#160;public static void SetFormatForExport(DataGridColumn element, string value)
-{  element.SetValue(FormatForExportProperty, value);
+ 
+public static void SetFormatForExport(DataGridColumn element, string value)
+{
+  element.SetValue(FormatForExportProperty, value);
 }
-&#160;public static string GetFormatForExport(DataGridColumn element)
-{  return (string)element.GetValue(FormatForExportProperty);
+ 
+public static string GetFormatForExport(DataGridColumn element)
+{
+  return (string)element.GetValue(FormatForExportProperty);
 }
-&#160;#endregion
-</code></pre>
+ 
+#endregion
+```
 
 <p>Then I use this code for getting all columns for export:</p>
 
-<pre><code>List&lt;DataGridColumn&gt; columns = grid.Columns.Where(x =&gt; (GetIsExported(x) &amp;&amp; ((x is DataGridBoundColumn)
+```
+List<DataGridColumn> columns = grid.Columns.Where(x => (GetIsExported(x) && ((x is DataGridBoundColumn)
           || (!string.IsNullOrEmpty(GetPathForExport(x))) || (!string.IsNullOrEmpty(x.SortMemberPath))))).ToList();
-</code></pre>
+```
 
 <p>With this code we get all columns with true values of IsExported attached property (I set true as default value for this attached property above) and for which I can get export path (binding or custom setting path, or SortMemberPath is not null). </p>
 
 <p>Next we will create new two-dimension array, first dimension is number of elements plus one – for header. And then set text headers into first row of array:</p>
 
-<pre><code>// Create data array (using array for data export optimization)
+```
+// Create data array (using array for data export optimization)
 object[,] data = new object[list.Count + 1, columns.Count];
-&#160;// First row will be headers
-for (int columnIndex = 0; columnIndex &lt; columns.Count; columnIndex++)
+ 
+// First row will be headers
+for (int columnIndex = 0; columnIndex < columns.Count; columnIndex++)
   data[0, columnIndex] = GetHeader(columns[columnIndex]);
-</code></pre>
+```
 
 <p>Method GetHeader try to get values from HeaderForExport attached property for current column and if it has null value method get header from column:</p>
 
-<pre><code>private static string GetHeader(DataGridColumn column)
-{  string headerForExport = GetHeaderForExport(column);
-  if (headerForExport == null &amp;&amp; column.Header != null)
+```
+private static string GetHeader(DataGridColumn column)
+{
+  string headerForExport = GetHeaderForExport(column);
+  if (headerForExport == null && column.Header != null)
     return column.Header.ToString();
   return headerForExport;
 }
-</code></pre>
+```
 
 <p>Then we fill array with values from DataGrid:</p>
 
-<pre><code>for (int columnIndex = 0; columnIndex &lt; columns.Count; columnIndex++)
+```
+for (int columnIndex = 0; columnIndex < columns.Count; columnIndex++)
 {
   DataGridColumn gridColumn = columns[columnIndex];
-&#160;  string[] path = GetPath(gridColumn);
-&#160;  string formatForExport = GetFormatForExport(gridColumn);
-&#160;  if (path != null)
-  {    // Fill data with values
-    for (int rowIndex = 1; rowIndex &lt;= list.Count; rowIndex++)
-    {      object source = list[rowIndex - 1];
+ 
+  string[] path = GetPath(gridColumn);
+ 
+  string formatForExport = GetFormatForExport(gridColumn);
+ 
+  if (path != null)
+  {
+    // Fill data with values
+    for (int rowIndex = 1; rowIndex <= list.Count; rowIndex++)
+    {
+      object source = list[rowIndex - 1];
       data[rowIndex, columnIndex] = GetValue(path, source, formatForExport);
     }
   }
 }
-</code></pre>
+```
+
 Method GetPath is easy, it try to get path from set by attached property value or binding or SortMemberPath. I only support easy paths: with only properties as chain of path, I don’t support arrays or static elements in paths, and of course I mean that binding set for current row item: 
 
-<pre><code>private static string[] GetPath(DataGridColumn gridColumn)
-{  string path = GetPathForExport(gridColumn);
-&#160;  if (string.IsNullOrEmpty(path))
-  {    if (gridColumn is DataGridBoundColumn)
-    {      Binding binding = ((DataGridBoundColumn)gridColumn).Binding as Binding;
+```
+private static string[] GetPath(DataGridColumn gridColumn)
+{
+  string path = GetPathForExport(gridColumn);
+ 
+  if (string.IsNullOrEmpty(path))
+  {
+    if (gridColumn is DataGridBoundColumn)
+    {
+      Binding binding = ((DataGridBoundColumn)gridColumn).Binding as Binding;
       if (binding != null)
       {
         path = binding.Path.Path;
       }
-    }    else
+    }
+    else
     {
       path = gridColumn.SortMemberPath;
     }
   }
-&#160;  return string.IsNullOrEmpty(path) ? null : path.Split('.');
+ 
+  return string.IsNullOrEmpty(path) ? null : path.Split('.');
 }
-</code></pre>
+```
 
 <p>After getting path value with method GetValue we will try to get value by this path for current item:</p>
 
-<pre><code>private static object GetValue(string[] path, object obj, string formatForExport)
-{  foreach (string pathStep in path)
-  {    if (obj == null)
+```
+private static object GetValue(string[] path, object obj, string formatForExport)
+{
+  foreach (string pathStep in path)
+  {
+    if (obj == null)
       return null;
-&#160;
+ 
     Type type = obj.GetType();
     PropertyInfo property = type.GetProperty(pathStep);
-&#160;    if (property == null)
-    {      Debug.WriteLine(string.Format(&quot;Couldn't find property '{0}' in type '{1}'&quot;, pathStep, type.Name));
+ 
+    if (property == null)
+    {
+      Debug.WriteLine(string.Format("Couldn't find property '{0}' in type '{1}'", pathStep, type.Name));
       return null;
     }
-&#160;    obj = property.GetValue(obj, null);
+ 
+    obj = property.GetValue(obj, null);
   }
-&#160;  if (!string.IsNullOrEmpty(formatForExport))
-    return string.Format(&quot;{0:&quot; + formatForExport + &quot;}&quot;, obj);
-&#160;  return obj;
+ 
+  if (!string.IsNullOrEmpty(formatForExport))
+    return string.Format("{0:" + formatForExport + "}", obj);
+ 
+  return obj;
 }
-</code></pre>
+```
 
 <h2>Sample</h2>
 
 <p>For sample I wrote some model classes and fill test data:</p>
 
-<pre><code>public class Person
-{  public string Name { get; set; }
+```
+public class Person
+{
+  public string Name { get; set; }
   public string Surname { get; set; }
   public DateTime DateOfBirth { get; set; }
 }
-&#160;public class ExportToExcelViewModel
-{  public ObservableCollection&lt;Person&gt; Persons
+ 
+public class ExportToExcelViewModel
+{
+  public ObservableCollection<Person> Persons
   {
     get
-    {      ObservableCollection&lt;Person&gt; collection = new ObservableCollection&lt;Person&gt;();
-      for (int i = 0; i &lt; 100; i++)
+    {
+      ObservableCollection<Person> collection = new ObservableCollection<Person>();
+      for (int i = 0; i < 100; i++)
         collection.Add(new Person()
-        {          Name = &quot;Person Name &quot; + i,
-          Surname = &quot;Person Surname &quot; + i,
+        {
+          Name = "Person Name " + i,
+          Surname = "Person Surname " + i,
           DateOfBirth = DateTime.Now.AddDays(i)
-        });      return collection;
+        });
+      return collection;
     }
   }
 }
-</code></pre>
+```
 
 <p>In WPF window I use this xaml declaration:</p>
 
-<pre><code>&lt;Window x:Class=&quot;ExportToExcelSample.MainWindow&quot;
-        xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
-        xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot; 
-        xmlns:ExportToExcelSample=&quot;clr-namespace:ExportToExcelSample&quot; 
-        xmlns:ExportToExcelTools=&quot;clr-namespace:ExportToExcelTools;assembly=ExportToExcelTools&quot; &gt;
-    &lt;Window.DataContext&gt;
-        &lt;ExportToExcelSample:ExportToExcelViewModel /&gt;
-    &lt;/Window.DataContext&gt;
-    &lt;ScrollViewer&gt;
-        &lt;StackPanel&gt;
-            &lt;Button Click=&quot;Button_Click&quot;&gt;Export To Excel&lt;/Button&gt;
-            &lt;DataGrid x:Name=&quot;grid&quot; ItemsSource=&quot;{Binding Persons}&quot; AutoGenerateColumns=&quot;False&quot; &gt;
-                &lt;DataGrid.Columns&gt;
-                    &lt;DataGridTextColumn Binding=&quot;{Binding Path=Name}&quot; Header=&quot;Name&quot; /&gt;
-                    &lt;DataGridTextColumn Binding=&quot;{Binding Path=Surname}&quot; Header=&quot;Surname&quot; 
-                                        ExportToExcelTools:DataGridExcelTools.HeaderForExport=&quot;SecondName&quot; /&gt;
-                    &lt;DataGridTemplateColumn ExportToExcelTools:DataGridExcelTools.FormatForExport=&quot;dd.MM.yyyy&quot;
-                                             ExportToExcelTools:DataGridExcelTools.PathForExport=&quot;DateOfBirth&quot;
-                                             ExportToExcelTools:DataGridExcelTools.HeaderForExport=&quot;Date Of Birth&quot;&gt;
-                        &lt;DataGridTemplateColumn.CellTemplate&gt;
-                            &lt;DataTemplate&gt;
-                                &lt;StackPanel&gt;
-                                    &lt;TextBlock Text=&quot;{Binding Path=DateOfBirth, StringFormat=dd.MM.yyyy}&quot; /&gt;
-                                    &lt;TextBlock Text=&quot;{Binding Path=DateOfBirth, StringFormat=HH:mm}&quot; /&gt;
-                                &lt;/StackPanel&gt;
-                            &lt;/DataTemplate&gt;
-                        &lt;/DataGridTemplateColumn.CellTemplate&gt;
-                    &lt;/DataGridTemplateColumn&gt;
-                &lt;/DataGrid.Columns&gt;
-            &lt;/DataGrid&gt;
-        &lt;/StackPanel&gt;
-    &lt;/ScrollViewer&gt;
-&lt;/Window&gt;
-</code></pre>
+```
+<Window x:Class="ExportToExcelSample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:ExportToExcelSample="clr-namespace:ExportToExcelSample" 
+        xmlns:ExportToExcelTools="clr-namespace:ExportToExcelTools;assembly=ExportToExcelTools" >
+    <Window.DataContext>
+        <ExportToExcelSample:ExportToExcelViewModel />
+    </Window.DataContext>
+    <ScrollViewer>
+        <StackPanel>
+            <Button Click="Button_Click">Export To Excel</Button>
+            <DataGrid x:Name="grid" ItemsSource="{Binding Persons}" AutoGenerateColumns="False" >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Path=Name}" Header="Name" />
+                    <DataGridTextColumn Binding="{Binding Path=Surname}" Header="Surname" 
+                                        ExportToExcelTools:DataGridExcelTools.HeaderForExport="SecondName" />
+                    <DataGridTemplateColumn ExportToExcelTools:DataGridExcelTools.FormatForExport="dd.MM.yyyy"
+                                             ExportToExcelTools:DataGridExcelTools.PathForExport="DateOfBirth"
+                                             ExportToExcelTools:DataGridExcelTools.HeaderForExport="Date Of Birth">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Path=DateOfBirth, StringFormat=dd.MM.yyyy}" />
+                                    <TextBlock Text="{Binding Path=DateOfBirth, StringFormat=HH:mm}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </ScrollViewer>
+</Window>
+```
 
 <p>And method Button_Click with this code:</p>
 
-<pre><code>private void Button_Click(object sender, RoutedEventArgs e)
+```
+private void Button_Click(object sender, RoutedEventArgs e)
 {
   grid.ExportToExcel();
 }
-</code></pre>
+```
 
 <p>Where ExportToExcel is extension method for DataGridm which invoke export to Excel method with separate thread. That's all. In Silverlight 4 code will be exactly the same. Below I’ll put anchor with samples for Silverlight 4 and WPF 4 (solution for Visual Studio 2010).</p>
 
@@ -439,14 +522,7 @@ Method GetPath is easy, it try to get path from set by attached property value o
 
 <p>My approach very easy allows you to set how to export data from DataGrid with attached properties. If you want to use this approach I recommend you design new features: show busy indicator when data is exporting, and use OpenOffice when Excel is not installed on computer. Thanks.</p>
 
-<h4>Download sample: <a href="/library/content/01/ExportToExcelTools.zip">ExportToExcelTools.zip</a></h4>
-
-<h4><a href="/library/content/01/ExportToExcelTools.zip"></a></h4>
-
-<p>
-
-
-</p>
+Download sample: <a href="/library/content/01/ExportToExcelTools.zip">ExportToExcelTools.zip</a>
 
 <h4>Updated</h4>
 

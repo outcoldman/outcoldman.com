@@ -13,12 +13,15 @@ alias: en/blog/show/206
 
 <p>Second, this book really cools separated by <a href="http://oreilly.com/catalog/9780596800956/">topics</a>. Incidentally, I didn’t turn up one's nose from first topic C# Basics, I read it. I think that maybe I can find something interesting for me. And at this (first!) topic you can find a lot of interesting studies. For example, you know that C# 4 became with named and optional parameters, but did you thought about this construction?</p>
 
-<pre><code>void Foo(int x, int y) { Console.WriteLine (x + &quot;, &quot; + y); }
-&#160;void OtherFoo()
-{  int a = 0;
+```
+void Foo(int x, int y) { Console.WriteLine (x + ", " + y); }
+ 
+void OtherFoo()
+{
+  int a = 0;
   Foo(y: ++a, x: --a);
 }
-</code></pre>
+```
 
 <p>What will be first ++a or –a and what will you see at screen? Book has a lot of like these interesting (at first look unnecessary) examples. You will find a minus of this book – if you read Richter, when he show sample like this then he write a few papers with MSIL code and detailed explanations. At this book at most cases you will see that this is so, because it is so. It is not surprising, look how many topics this book has:</p>
 

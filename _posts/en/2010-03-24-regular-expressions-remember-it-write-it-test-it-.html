@@ -64,36 +64,40 @@ Regex.Replace(text, RegexTwitterTag, &quot;&lt;a href='http://twitter.com/#searc
 
 <p>I always write combinatory unit tests for regex (combinatory tests – methods with parameters where test runner put values from some data sources). So let look on nUnit (now I’m using this one, because I couldn’t make MbUnit work with Gallio and R# 5 in VS 2010). </p>
 
-<pre><code>public string[][] Urls{
+<pre><code>public string[][] Urls
+{
     get    
-    {        return new[]                   
-        {            new[] {&quot;Hello http://google.com bye&quot;, 
-                              &quot;Hello &lt;a href='http://google.com'&gt;http://google.com&lt;/a&gt; bye&quot;},
-            new[] {&quot;Hello http://mail.google.com bye&quot;, 
-                              &quot;Hello &lt;a href='http://mail.google.com'&gt;http://mail.google.com&lt;/a&gt; bye&quot;},
-            new[] {&quot;Hello http://google.com/test/test.aspx&quot;, 
-                              &quot;Hello &lt;a href='http://google.com/test/test.aspx'&gt;http://google.com/test/test.aspx&lt;/a&gt;&quot;},
-            new[] {&quot;Hello http://g0ogle.com/test/test.aspx?q=7&amp;b=0&quot;, 
-                              &quot;Hello &lt;a href='http://g0ogle.com/test/test.aspx?q=7&amp;b=0'&gt;http://g0ogle.com/test/test.aspx?q=7&amp;b=0&lt;/a&gt;&quot;}
+    {        
+        return new[]                   
+        {                       
+            new[] {"Hello http://google.com bye", 
+                              "Hello <a href='http://google.com'>http://google.com</a> bye"},
+            new[] {"Hello http://mail.google.com bye", 
+                              "Hello <a href='http://mail.google.com'>http://mail.google.com</a> bye"},
+            new[] {"Hello http://google.com/test/test.aspx", 
+                              "Hello <a href='http://google.com/test/test.aspx'>http://google.com/test/test.aspx</a>"},
+            new[] {"Hello http://g0ogle.com/test/test.aspx?q=7&b=0", 
+                              "Hello <a href='http://g0ogle.com/test/test.aspx?q=7&b=0'>http://g0ogle.com/test/test.aspx?q=7&b=0</a>"}
         };    
     }
 } 
-&#160;
-[Test]public void twitter_text_to_html_convert([ValueSource(&quot;Urls&quot;)] string[] url)
-{    string replace = HtmlParser.ReplaceHref(url[0]);    
+ 
+[Test]
+public void twitter_text_to_html_convert([ValueSource("Urls")] string[] url)
+{    
+    string replace = HtmlParser.ReplaceHref(url[0]);    
     Assert.AreEqual(url[1], replace);
-}
-</code></pre>
+}</code></pre>
 
 <p>As you saw this is really small test – just one method twitter_text_to_html_convert. And this test are using data source Urls, in which I always place new test values. Method twitter_text_to_html_convert will be executed as many times as the count of items in data source.</p>
 
 <p>Some time ago I found that my regex didn’t find urls with dash (‘-’). I changed little my regex, and then added new values in data source Urls for test:</p>
 
 <pre><code>new[]    
-{    &quot;Hello http://ninja-assassin-movie.warnerbros.com&quot;,        
-    &quot;Hello &lt;a href='http://ninja-assassin-movie.warnerbros.com'&gt;http://ninja-assassin-movie.warnerbros.com&lt;/a&gt;&quot;    
-},
-</code></pre>
+{        
+    "Hello http://ninja-assassin-movie.warnerbros.com",        
+    "Hello <a href='http://ninja-assassin-movie.warnerbros.com'>http://ninja-assassin-movie.warnerbros.com</a>"    
+}</code></pre>
 
 <p></p>
 

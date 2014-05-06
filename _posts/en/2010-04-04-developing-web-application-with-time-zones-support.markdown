@@ -10,41 +10,47 @@ alias: en/blog/show/198
 
 <p>I thought about this question because I wanted to develop time zone support on my own site. My case is ASP.NET MVC app and MS SQL Server DB. First, I started from learning which params we have at HTTP headers, but it doesn’t have information about it. So we can’t use regional settings and methods DateTime.ToLocalTime and DateTime.ToUniversalTime until we get user time zone on server. If we used our app before without time zones support we need to change dates from local time zone to UTC time zone (something like Greenwich Mean Time). You can do it easily with this sql update statements:</p>
 
-<pre><code>update dbo.MyTable set [Date] = dateadd(hour, -4, [Date])
-</code></pre>
+```
+update dbo.MyTable set [Date] = dateadd(hour, -4, [Date])
+```
 
 <p>I have -4 in this statement because time zone of server is GMT+4 (summer time). Next in code where you get current time you need to change functions: in tsql scripts getdate() to getutcdate(), and on server change DateTime.Now (or Today) on DateTime.Now.ToUniversalTime(). So on server (app and DB) we will always have dates in UTC time zone. </p>
 
 <p>Next step – how to show datetime on client in browser. We need to show correct time for user (in his time zone). Get user time zone you can with Javascript function getTimezoneOffset(), it return difference in minutes from UTC to user time zone. On server I render all dates in format “dd.MM.yyyy HH:mm”. All dates I placed in html element with CSS class utcdate, if date located in text I just surround it with span element. So all dates I have like this:</p>
 
-<pre><code>&lt;h3 class=&quot;utcdate&quot;&gt;&lt;%= Model.BlogPost.Date.ToString(&quot;dd.MM.yyyy HH:mm&quot;)%&gt;&lt;/h3&gt;
-</code></pre>
+```
+<h3 class="utcdate"><%= Model.BlogPost.Date.ToString("dd.MM.yyyy HH:mm")%></h3>
+```
 
 <p>And definition of CSS class utcdate:</p>
 
-<pre><code>.utcdate {display: none; }
-</code></pre>
+```
+.utcdate {display: none; }
+```
 
 <p>When user get page all dates are invisible. I did it because on some pages in Internet Explorer we can see how old dates change with other dates (in other browsers JavaScript change it very quickly). </p>
 
 <p>I wrote this JavaScript code for this:</p>
 
-<pre><code>function utcToLocal(u) {
+```
+function utcToLocal(u) {
     var l = new Date(u.substring(6, 10), u.substring(3, 5)-1, u.substring(0, 2), u.substring(11, 13), u.substring(14, 16));
     var d = new Date(l.getTime() + (-l.getTimezoneOffset() * 60 * 1000));
     return wZ(d.getDate()) + '.' + wZ(d.getMonth()+1) + '.' + d.getFullYear() + ' ' + wZ(d.getHours()) + ':' + wZ(d.getMinutes());
-}function wZ(x) { if (x &lt;;= 9) return '0' + x; return x; }
+}
+function wZ(x) { if (x <;= 9) return '0' + x; return x; }
 function doCurrentDate() {
-    $(&quot;.utcdate&quot;).each(function () {
-        if ($(this).css(&quot;display&quot;) != &quot;inline&quot;) {
+    $(".utcdate").each(function () {
+        if ($(this).css("display") != "inline") {
             this.innerHTML = utcToLocal(this.innerHTML);
-            $(this).css(&quot;display&quot;, &quot;inline&quot;);
+            $(this).css("display", "inline");
         }
     });
-}$(document).ready(function () {
+}
+$(document).ready(function () {
     doCurrentDate();
 });
-</code></pre>
+```
 
 <p>I confess that I’m not a professional in JavaScript, so maybe you will say me how to do it better. I use jQuery, write this functions without jQuery will be more difficult, because jQuery help with selectors. Last 3 lines of this script on document ready state invoke doCurrentDate() function, which find all elements with css class utcdate and do for each: if display property of style doesn’t have ‘inline’ value than with function utcToLocal we change date from utc to user time zone and set ‘inline’ value for property display.</p>
 
@@ -56,8 +62,9 @@ function doCurrentDate() {
 
 <p>I think will be great if HTML 5 format will have html date supports. Example, you can write this on page:</p>
 
-<pre><code>&lt;date&gt;03.04.2010T00:38:00+04:00&lt;/date&gt;
-</code></pre>
+```
+<date>03.04.2010T00:38:00+04:00</date>
+```
 
 <p>And browser will change it in user’s local time. And date element can use some attribute for specify which date format you want to see on your site. </p>
 

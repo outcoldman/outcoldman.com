@@ -6,14 +6,18 @@ categories: en
 tags: [.NET, C#, WPF, Code Contract, ReSharper]
 alias: en/blog/show/242
 ---
-<p>I had read about Code Contracts long time ago, but I didn’t see a reason to use contract instead of simple tests and argument's check with Exception's throws. Only now I’m trying to use them at real project. I didn’t see why I need to write:</p>  <pre><code>Contract.Requires&lt;ArgumentNullException&gt;(argument == null); 
-</code></pre>
+<p>I had read about Code Contracts long time ago, but I didn’t see a reason to use contract instead of simple tests and argument's check with Exception's throws. Only now I’m trying to use them at real project. I didn’t see why I need to write:</p>  
+
+```
+Contract.Requires<ArgumentNullException>(argument == null); 
+```
 
 <p>Instead of like I did it before:</p>
 
-<pre><code>if (argument == null) 
-    throw new ArgumentNullException(“argument”)
-</code></pre>
+```
+if (argument == null) 
+    throw new ArgumentNullException(“argument”);
+```
 
 <p>Couple of weeks ago I had reinstall my Windows 7 on my laptop (I bought SSD for my laptop). After I install ReSharper with Visual Studio 2010 after run I accidental choosed “Go to the metadata” instead of like usual “Go to Object Explorer” by Ctrl and Mouse Click. So when I clicked on some class of System.xxx (basic classes of .NET) I looked at source code of these classes and found that they are using Code Contracts. I thought this is why I need to understand why I need to use contracts in my code, so I started to use them in some small applications and tried to find some interesting case.</p>
 
@@ -23,67 +27,88 @@ alias: en/blog/show/242
 
 <p>So, let's look at an example. We have class like this:</p>
 
-<pre><code>public sealed class HotKey 
-{    private IntPtr _handle;
-&#160;    public HotKey(Window window)
+```
+public sealed class HotKey 
+{
+    private IntPtr _handle;
+ 
+    public HotKey(Window window)
         :this (new WindowInteropHelper(window))
     {
     }
-&#160;    public HotKey(WindowInteropHelper window)
+ 
+    public HotKey(WindowInteropHelper window)
         :this(window.Handle)
     {
     }
-&#160;    public HotKey(IntPtr windowHandle)
+ 
+    public HotKey(IntPtr windowHandle)
     {
         _handle = windowHandle;
     }
 }
-</code></pre>
+```
 
 <p>In this class we are working with window’s handle, but we allow to create instance of this class not only with Handle as paramters, but with Window or WindowInteropHelper objects as well. What will happen if user will try to create new HotKey instance and put null instead of Window object (first constructor)? We will get Exception with message “<em>Value cannot be null. Parameter name:window</em>.”, this exception will throw constructor of type WindowInteropHelper. So it is good luck that we will get understandable message. But what about null instead of WindowInteropHelper (second constructor)? Try it. You will get <em>NullReferenceException</em> with message “Object <em>reference not set to an instance of and object</em>”. No good. How we can handle it? We can try to use separate method Initialize:</p>
 
-<pre><code>public sealed class HotKey
-{    private IntPtr _handle;
-&#160;    public HotKey(Window window)
-    {        if (window == null)
-            throw new ArgumentNullException(&quot;window&quot;);
-&#160;        Initialize(new WindowInteropHelper(window).Handle);
+```
+public sealed class HotKey
+{
+    private IntPtr _handle;
+ 
+    public HotKey(Window window)
+    {
+        if (window == null)
+            throw new ArgumentNullException("window");
+ 
+        Initialize(new WindowInteropHelper(window).Handle);
     }
-&#160;    public HotKey(WindowInteropHelper window)
-    {        if (window == null)
-            throw new ArgumentNullException(&quot;window&quot;);
-&#160;
+ 
+    public HotKey(WindowInteropHelper window)
+    {
+        if (window == null)
+            throw new ArgumentNullException("window");
+ 
         Initialize(window.Handle);
     }
-&#160;    public HotKey(IntPtr windowHandle)
+ 
+    public HotKey(IntPtr windowHandle)
     {
         Initialize(windowHandle);
     }
-&#160;    private void Initialize(IntPtr windowHandle)
+ 
+    private void Initialize(IntPtr windowHandle)
     {
         _handle = windowHandle;
     }
 }
-</code></pre>
+```
 
 <p>Аnd also you can use contracts:</p>
 
-<pre><code>public sealed class HotKey 
-{    private IntPtr _handle;
-&#160;    public HotKey(Window window)
+```
+public sealed class HotKey 
+{
+    private IntPtr _handle;
+ 
+    public HotKey(Window window)
         : this (new WindowInteropHelper(window))
-    {        Contract.Requires(window != null);
+    {
+        Contract.Requires(window != null);
     }
-&#160;    public HotKey(WindowInteropHelper window)
+ 
+    public HotKey(WindowInteropHelper window)
         : this(window.Handle)
-    {        Contract.Requires(window != null);
+    {
+        Contract.Requires(window != null);
     }
-&#160;    public HotKey(IntPtr windowHandle)
+ 
+    public HotKey(IntPtr windowHandle)
     {
         _handle = windowHandle;
     }
 }
-</code></pre>
+```
 
 <p>Looks like that if you will pass null instead of WindowInteropHelper in second constructor you will get NullReferenceException again, because first will executed code in base constructor and next constructor’s body which we invoke. And R# tell us that we don’t need to check <em>window!=null</em>, because we used this variable before considering that it can not be null (I created <a href="http://youtrack.jetbrains.net/issue/RSRP-190932?projectKey=RSRP&amp;query=created+by:+me">bug</a> in ReSharper Youtrack):</p>
 
@@ -95,44 +120,58 @@ alias: en/blog/show/242
 
 <p>Also if you want to see ArgumentNullException instead of ContractException you can write:</p>
 
-<pre><code>public sealed class HotKey 
-{    private IntPtr _handle;
-&#160;    public HotKey(Window window)
+```
+public sealed class HotKey 
+{
+    private IntPtr _handle;
+ 
+    public HotKey(Window window)
         : this (new WindowInteropHelper(window))
-    {        Contract.Requires&lt;ArgumentNullException&gt;(window != null);
+    {
+        Contract.Requires<ArgumentNullException>(window != null);
     }
-&#160;    public HotKey(WindowInteropHelper window)
+ 
+    public HotKey(WindowInteropHelper window)
         : this(window.Handle)
-    {        Contract.Requires&lt;ArgumentNullException&gt;(window != null);
+    {
+        Contract.Requires<ArgumentNullException>(window != null);
     }
-&#160;    public HotKey(IntPtr windowHandle)
+ 
+    public HotKey(IntPtr windowHandle)
     {
         _handle = windowHandle;
     }
 }
-</code></pre>
+```
 
 <p>Or:</p>
 
-<pre><code>public sealed class HotKey
-{    private IntPtr _handle;
-&#160;    public HotKey(Window window)
+```
+public sealed class HotKey
+{
+    private IntPtr _handle;
+ 
+    public HotKey(Window window)
         :this (new WindowInteropHelper(window))   
-    {        if (window == null)
-            throw new ArgumentNullException(&quot;window&quot;);
+    {
+        if (window == null)
+            throw new ArgumentNullException("window");
         Contract.EndContractBlock();
     }
-&#160;    public HotKey(WindowInteropHelper window)
+ 
+    public HotKey(WindowInteropHelper window)
         : this(window.Handle)
-    {        if (window == null)
-            throw new ArgumentNullException(&quot;window&quot;);
+    {
+        if (window == null)
+            throw new ArgumentNullException("window");
         Contract.EndContractBlock();
     }
-&#160;    public HotKey(IntPtr windowHandle)
+ 
+    public HotKey(IntPtr windowHandle)
     {
         _handle = windowHandle;
     }
 }
-</code></pre>
+```
 
 <p>So all next code only with contracts! <img style="border-bottom-style: none; border-left-style: none; border-top-style: none; border-right-style: none" class="wlEmoticon wlEmoticon-winkingsmile" alt="Подмигивающая рожица" src="{{ site.url }}/library/2010/09/19/wlEmoticonwinkingsmile_09C46272.png" /></p>
