@@ -1,0 +1,60 @@
+---
+layout: post
+title: "Do you miss Homebrew on Windows? Don't. Use Scoop."
+date: 2014-07-20 00:00:00 -00:08:00
+categories: en
+tags: [Windows, Scoop, shell, terminal, PowerShell, Homebrew]
+---
+
+I don't do a lot of development on Windows these days, but when I do I miss many things which I really like on OS X. One of them is a good package manager like [Homebrew](http://brew.sh). Yes, I know about [Chocolatey](https://chocolatey.org), but my experience with it was not good for various reasons. The main one is the process of contributing to the outdated packages, see [Triage Process](https://github.com/chocolatey/chocolatey/wiki/PackageTriageProcess), it is long hard process. So, why Homebrew is better? Because repository with packages is just a GitHub repository with formulas, and anybody can contribute to it. This is why I was glad to meet [Scoop](http://scoop.sh) for Windows. Scoop is based on the same idea as Homebrew, where author maintains just one GitHub repository with all formulas. 
+
+I would suggest you to watch the Scoop Demo video first
+
+<iframe width="640" height="360" src="//www.youtube.com/embed/a85QLUJ0Wbs" frameborder="0" allowfullscreen></iframe>
+
+Below my workflow for installing Scoop
+
+* [Install PowerShell 3.0](http://technet.microsoft.com/en-us/library/hh847837.aspx) (Windows 7 has older version, if you are on Windows 8 you can skip this step).
+
+* Update execution policy (this is insecure, don't do that on your servers)
+
+```
+$ set-executionpolicy unrestricted -s cu
+```
+
+* Install `Scoop`
+
+```
+$ iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+```
+
+* Install core utils and tools
+
+```
+scoop install 7zip coreutils curl git grep openssh sed wget vim grep 
+```
+
+> `coreutils` and some of these tools allow me to use mostly all the same set of tools which I use every day on OS X, like `grep`, `curl`, `ls`, `touch`, `tail`, `wc` and so on.
+
+* Change PowerShell theme
+
+```
+$ scoop install concfg
+$ concfg import solarized small
+$ scoop install pshazz
+```
+
+> First two commands import theme called solarized, third command installs [Pshazz](https://github.com/lukesampson/pshazz) script, which makes prompt look nice (plus Git info in prompt and tab completion).
+
+* Generate SSH key. 
+
+```
+$ ssh-keygen -t rsa -C "your_email@example.com"
+$ cat ~/.ssh/id_rsa.pub
+```
+
+> The last command will show your public SSH key. If you are GitHub user, just add it to the list of your [SSH keys](https://github.com/settings/ssh). If you need it for something else - you probably know what to do.
+
+What else I can say about Scoop? It does not have a lot of packages, but as author [said](https://github.com/lukesampson/scoop/wiki/Chocolatey-Comparison) it "Focuses on developer tools". If you want to know more about Scoop, read [wiki](https://github.com/lukesampson/scoop/wiki) pages, and if you will like it you can always [help](http://scoop.sh/donate). 
+
+> **Disclaimer**: I don't know Scoop author, I don't have any relationship with Scoop, I share this tool with you only because I liked it. I suggest you to make a donation to Scoop, because this is what I did to say "thank you" to Scoop author.
