@@ -27,10 +27,10 @@ grunt.initConfig({
 
   exec: {
     build: {
-      cmd: 'jekyll build'
+      cmd: 'bundle exec jekyll build'
     },
     serve: {
-      cmd: 'jekyll serve --watch'
+      cmd: 'bundle exec jekyll serve --watch'
     }
   }
 });
