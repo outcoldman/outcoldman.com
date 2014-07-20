@@ -1,0 +1,65 @@
+---
+layout: post
+title: "Который раз о фоновом потоке"
+date: 2008-12-02 10:06:00
+categories: ru
+tags: [WinForms, .NET, C#, BackrgoundWorker]
+alias: ru/blog/show/125
+---
+<p>
+Очень часто люди выдумывают уже сделанное, а невнимательность заставляет писать намного больше кода, чем это необходимо. Рассказ про прекрасный компонент BackgroundWorker. 
+</p>
+
+<p>Навеяло написание данной статьи не раз увиденные мной статьи о том как сделать фоновый процесс на вашей форме, как, например, эти:</p>
+ 
+<p><a href="http://blogs.gotdotnet.ru/personal/filippovma/CategoryView.aspx?category=.NET+GUI" rel="nofollow" >http://blogs.gotdotnet.ru/personal/filippovma/CategoryView.aspx?category=.NET+GUI</a> </p>
+ 
+<p>И статьи, описанные с заголовком "Простая и безопасная реализации многопоточности в Windows Forms". Я не хочу сказать, что в них что-то не верно, просто есть методы, наверное, попроще. А те статьи обязательно нужно прочитать, чтобы понимать вообще о реализации многопоточности и с какими ошибками можно столкнуться при ее осуществлении, кто писал - тот знает ;). </p>
+ 
+<p>Существует такой компонент, как <strong>BackgroundWorker</strong>, он существует в WinForms начиная с .NET Framework 2.0.</p>
+ 
+<p>Он позволяет вызывать некоторую операцию в отдельном потоке, например это бывает необходимо при долгих вычислениях, или множественных и продолжительных запросах к базе данных, ну и вообще еще может быть много назначений.</p>
+ 
+<p>Начнем с самого начала. </p>
+ 
+<p>Объявляем сам объект и инициализируем его свойства:</p>
+ <pre><code>this.backgroundWorker.WorkerReportsProgress = true;
+this.backgroundWorker.WorkerSupportsCancellation = true;
+this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_DoWork);
+this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
+this.backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker_ProgressChanged);</code></pre>
+
+<p>DoWork - это что у нас будет делать фоновый поток, для примера просто будем вызывать Sleep у текущего (фонового) потока:</p>
+<pre><code>void backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+{
+       for (int i = 1; i &amp;lt;= 100; i++)
+       {
+            if (backgroundWorker.CancellationPending)
+                return;
+            Thread.Sleep(1000);
+            backgroundWorker.ReportProgress(i);
+       }
+}</code></pre>
+<p>Хочу обратить внимание, на то что я в цикле так же проверяю "backgroundWorker.CancellationPending" - это необходимо для того если этому процессу сказано остановиться. Далее в каждом цикле я вызываю метод у этого самого backgroundWorker под названием ReportProgress, которому я передаю процент выполняения потока (так же можно передавать и любой другой объект - к примеру, для отображения progressBar в своем диапазоне от 1 до 10000, для этого можно передать второй параметр).</p>
+ 
+<p>Следующее, если хотим следить за тем что у нас происходит с потоком (прослеживать тот же процент выполнения), то для этого мы прикрепили метод к событию ProgressChanged:</p>
+<pre><code>void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+{
+        progressBar.Value = e.ProgressPercentage;
+}</code></pre>
+<p>В котором мы просто выставляем значение прогресс бару процента выполнения потока.</p>
+ 
+<p>Ну а по окончании потока цепляем метод на событие RunWorkerCompleted, который, к примеру, просто сообщит что-то прекрасное:</p>
+<pre><code>void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+{
+       MessageBox.Show(this, &quot;Hello word!!!&quot;);
+}</code></pre>
+<p>Раз упоминул про то, что поток можно остановить, ведь не просто так мы проверяли backgroundWorker.CancellationPending, то покажу как в нашем случае это делается, навесим на обычную кнопку метод на событие OnClick:</p>
+<pre><code>private void buttonCancel_Click(object sender, EventArgs e)
+{
+       backgroundWorker.CancelAsync();
+}</code></pre>
+<p>Ну а для того, чтобы запустить поток необходимо просто вызвать метод:</p>
+<pre><code>backgroundWorker.RunWorkerAsyn​c();</code></pre> 
+<p>Этот пример намного проще описанного в MSDN. Там есть пример с показом того, как можно передавать некоторые результаты между всеми методами, участниками фонового потока, а моя статья направлена просто на обращения внимания на компонент BackgroundWorker. </p>
+

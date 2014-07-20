@@ -1,0 +1,210 @@
+---
+layout: post
+title: "Обновляем сайт до HTML 5. Часть 1."
+date: 2011-02-28 10:13:00
+categories: ru
+tags: [JavaScript, HTML, Internet Explorer, Html 5, Internet Explorer 9]
+alias: ru/blog/show/275
+---
+<p>Недавно я <a href="http://yana.ineta.ru/events/eventMultiSessionInfo.aspx?Id=2cac9d3c-025f-4edb-a4fd-d971870e7c65">выступал</a> на нашей Ярославской User Group с докладом о HTML5, не потому что, я в этом профессионал, а просто решил поведать, раз недавно <a href="/ru/blog/show/247">читал книгу о HTML5</a> и даже перевел свой сайт на HTML5, а еще потому, что никто у нас в Ярославле так и не собрался сделать доклад про HTML5. Посмотреть и скачать презентацию доклада можно с <a href="http://cid-ed105c18939cfcb7.office.live.com/view.aspx/Presentations/html5.pptx">SkyDrive</a>. Мой доклад был небольшой реферативной работой на книгу Html 5: Up and Running, либо <a href="http://diveintohtml5.org/">DIVE INTO HTML5</a> (что на самом деле одно и тоже). Сегодня же я хочу сделать небольшую памятку о том, как перевести сайт с HTML4 на HTML5, основанную на докладе и книгах (опять же реферативная работа) для дальнейшего пользования мной же, ну и может быть кому-нибудь тоже будет полезно. </p>    <h2>Определяем возможности браузера</h2>  <p>Текущие браузеры поддерживают не полностью HTML5, и более того, каждый браузер поддерживает только определенный набор фич, потому если хочется использовать побольше HTML5 у себя, и есть понимание того, что не все посетители сайта будут обладать определенным браузером(ами), которые поддерживают фичу, которую так хочется внедрить, то приходится делать проверку на то, поддерживает его браузер или нет, и как-то бороться. Так, например, если хочется нарисовать canvas, то проверить поддерживает ли браузер это, можно при помощи такой функции:</p>  <pre><code>function supports_canvas() {
+  return !!document.createElement('canvas').getContext;
+}
+</code></pre>
+
+<p>Чтобы не писать на каждую фичу отдельную функцию, можно скачать уже готовую библиотеку <a href="http://www.modernizr.com/">modernizr</a>, которая умеет определять как HTML5 фичи, так и CSS3, ну и проверять поддержку того же canvas становится проще:</p>
+
+<pre><code>if (Modernizr.canvas) {
+  // let's draw some shapes!
+} else {
+  // no native canvas support available :(
+}
+</code></pre>
+
+<p>Более того библиотека opensource, поэтому можно выдрать именно те проверки, которые нужны именно вам на сайте. И еще modernizr предоставляет возможность создать свой собственный билд с определенным набором проверок, для этого идем по этой ссылке <a href="http://modernizr.github.com/Modernizr/2.0-beta/">Customize your Modernizr download</a>.</p>
+
+<h2>Обновляем сайт</h2>
+
+<p>Итак, с чего же начать обновление сайта на HTML 5? Вообще, можно это сделать при помощи замены всего лишь одной строчки, если вы ваш сайт верстали с поддержкой XHTML 1.1. HTML 5 – это объединение стандартов HTML 5 и XHTML 2, потому подразумевается, что верстая на HTML 5 нужно придерживаться принципа закрытия каждого элемента (должен быть валидный XML). С другой стороны иногда ходят фразы о XHTML 5, который это обязует делать. В общем-то, разница между ними как я понял просто в том, что некоторые случаи пропуска закрывающих тегов будут распознаваться по-разному: HTML 5 может принять, XHTML 5 ругнется. К чему это я? Когда в той же Visual Studio создаешь новый сайт, то на вверху каждой страницу можно встретить DOCTYPE:</p>
+
+<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
+</code></pre>
+
+<p>Вы же помните его наизусть? Как нет? Ну ладно, тогда теперь можно писать так:</p>
+
+<pre><code>&lt;!DOCTYPE html &gt;
+</code></pre>
+
+<p>Вот, в принципе, и все, у вас сайт уже воспринимается как HTML5, тестируем в браузерах, проверяем, что ничего не разъехалось, а если разъехалось, то исправляем. В HTML5 по умолчанию подключено xmlns пространство, потому в root элементе вместо </p>
+
+<pre><code>&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot; xml:lang=&quot;en&quot;&gt;
+</code></pre>
+
+<p>Пишем просто</p>
+
+<pre><code>&lt;html lang=&quot;en&quot;&gt;
+</code></pre>
+
+<p>Язык, конечно же, зависит от вашего сайта, для кого вы там его пишите. Дальше можно немного облегчить head элемент, объявление charset облегчилось, теперь вместо:</p>
+
+<pre><code>&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;
+</code></pre>
+
+<p>Можно написать просто </p>
+
+<pre><code>&lt;meta charset=&quot;utf-8&quot; /&gt;
+</code></pre>
+
+<p>Облегчить теперь можно еще и Link Relations, так, например, ссылку на CSS файл можно облегчить с </p>
+
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;style-original.css&quot; type=&quot;text/css&quot; /&gt;
+</code></pre>
+
+<p>на </p>
+
+<pre><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;style-original.css&quot; /&gt;
+</code></pre>
+
+<p>Для CSS так возможно, потому как не бывает других типов для stylesheet элементов (ну или они не так распространены?), потому можно выбрать один из по умолчанию. С другой стороны для rel=&quot;alternate&quot; такого сделать нельзя. В конечном счете у нас заготовка HTML5 странички будет выглядеть следующим образом:</p>
+
+<pre><code>&lt;!DOCTYPE html &gt;
+&lt;html lang=&quot;ru&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot; /&gt;
+        &lt;title&gt;My Weblog Page&lt;/title&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;style-original.css&quot; /&gt;
+        &lt;link rel=&quot;alternate&quot; type=&quot;application/atom+xml&quot; title=&quot;My Weblog feed&quot; href=&quot;/feed/&quot; /&gt;
+        &lt;link rel=&quot;shortcut icon&quot; href=&quot;/favicon.ico&quot; /&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Кстати language=&quot;JavaScript&quot; так же можно выкидывать из тега script. </p>
+
+<p>Можно сказать еще пару слов об остальных relations links, вообще их не мало, и полный список можно посмотреть, например, здесь <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/links.html#linkTypes">Link types</a>. В HTML5 добавилось только несколько, раньше были rel type&#160; start, prev и next, но так как разработчики сами додумывали типы, вроде first, last, up, а вместо prev писали previous, то и их тоже добавили просто в стандарт. </p>
+
+<h2>Новые элементы в HTML5</h2>
+
+<p>В HTML5 появилось несколько новых секционных элементов, более того, теперь стало намного проще использовать старые элементы. Рекомендую почитать по этому поводу статью <a href="http://www.ibm.com/developerworks/ru/library/x-html5/">Новые элементы в HTML 5</a> (на сайте ibm). Я же расскажу вам на примере того, как я сделал у себя на сайте. В общем-то теперь есть возможность использовать несколько h1 заголовков у себя на сайте. В книжке <a href="http://diveintohtml5.org/">DIVE INTO HTML5</a> приводится хороший пример, почему раньше это было небольшой проблемой. </p>
+
+<p>Предположим у нас сайт (как у меня он и есть) – это просто набор статьей (блогпостов), так вот для них теперь есть специальный тег article. И давайте поймем, какая была раньше проблема в разметке. Я создал сайт, на master странице (шаблонной) я поместил тег h1 для заголовка, написал там свой ник/фамилию/о чем блог. Дальше по разметке я больше не могу использовать тег h1, это противоречит стандарту HTML4. Предположим, я даже не использовал в заголовке h1, решив его оставить для заголовка статьи/блогпоста. Я использую MVC/ASP.NET для разработки своего сайта, и мне бы хотелось бы иметь единый CustomControl/PartialView, который бы умел рендерить блогпост на страничку везде, хоть на странице списка блогпостов, идущих один за одним, хоть на странице просто с одним блогпостом. Соответственно, если я сделаю разметку такой:</p>
+
+<pre><code>&lt;div class=&quot;article&quot;&gt;
+    &lt;h1&gt;Article Title&lt;/h1&gt;
+    &lt;h3&gt;Article subtitle/abstract&lt;/h3&gt;
+    
+    .... 
+&#160;    &lt;h2&gt;Article Subtitle 1&lt;/h2&gt;
+&#160;
+    ....
+&#160;    &lt;h2&gt;Article Subtitle 2&lt;/h2&gt;
+&#160;
+    ...&lt;/div&gt;
+</code></pre>
+
+<p>То я не смогу ее использовать, когда буду делать список статьей на одной странице, HTML4 этого не позволяет (h1 может быть только один). Теперь же этого можно избежать (точнее теперь можно использовать), просто помещая такие штуки в определенные секционные элементы, например, для статьи это будет article:</p>
+
+<pre><code>&lt;article&gt;
+    &lt;h1&gt;Article Title&lt;/h1&gt;
+    &lt;h3&gt;Article subtitle/abstract&lt;/h3&gt;
+    
+    .... 
+&#160;    &lt;h2&gt;Article Subtitle 1&lt;/h2&gt;
+&#160;
+    ....
+&#160;    &lt;h2&gt;Article Subtitle 2&lt;/h2&gt;
+&#160;
+    ...&lt;/article&gt;
+</code></pre>
+
+<p>Другая проблема, которая здесь есть – это расположение заголовков в самой статье. Мы используем h3 для обозначения подзаголовка для статьи, с другой стороны в статье может быть будут отделены некоторые части при помощи h3 друг от друга (главы/подглавы), что тоже не очень хорошо, ведь визуально наша структура выглядит не структурированной. Для этого мы можем использовать hgroup элемент так (теперь h3 подзаголовка не будет размещаться в одном дереве с h2 элементами в этом примере):</p>
+
+<pre><code>&lt;article&gt;
+    &lt;hgroup&gt;
+        &lt;h1&gt;Article Title&lt;/h1&gt;
+        &lt;h3&gt;Article subtitle/abstract&lt;/h3&gt;
+    &lt;/hgroup&gt;    
+&#160;
+    .... 
+&#160;    &lt;h2&gt;Article Subtitle 1&lt;/h2&gt;
+&#160;
+    ....
+&#160;    &lt;h2&gt;Article Subtitle 2&lt;/h2&gt;
+&#160;
+    ...&lt;/article&gt;
+</code></pre>
+
+<p>Для обозначения дат, а так же даты публикации теперь можно так же указывать дату и время в специальном теге time, выглядеть это будет следующим образом:</p>
+
+<pre><code>&lt;article&gt;
+    &lt;hgroup&gt;
+        &lt;h3&gt;&lt;time datetime=&quot;2011-01-16T21:13:55.0700000&quot; pubdate=&quot;pubdate&quot;&gt;16.01.2011 21:13 UTC&lt;/time&gt;&lt;/h3&gt;
+        &lt;h1&gt;Article Title&lt;/h1&gt;
+        &lt;h2&gt;Article subtitle/abstract&lt;/h2&gt;
+    &lt;/hgroup&gt;    
+&#160;
+    .... 
+&#160;    &lt;h2&gt;Article Subtitle 1&lt;/h2&gt;
+&#160;
+    ....
+&#160;    &lt;h2&gt;Article Subtitle 2&lt;/h2&gt;
+&#160;
+    ...&lt;/article&gt;
+</code></pre>
+
+<p>Тег pubdate обозначает именно, то, что текущая статья опубликована в это время. </p>
+
+<p>Собственно, может возникнуть вопрос, а зачем вообще это нужно, все эти новые элементы? Ну во-первых, HTML код должен стать попроще, во-вторых упрощение варианта использования шаблонов (при динамических страницах), в-третьих нужно ждать от браузеров и поисковиков, когда они будут все больше и больше удивлять нас возможностями, реализованными в HTML5, так, например, мой Kindle 3 умеет находить на странице article тег и из него делать статью, которую удобно читать на устройстве (без этого тега он тоже умеет что-то делать: вырывает просто текст, но все же). </p>
+
+<p>В HTML5 добавились не только article, time и hgroup. А так же появились элементы header (заголовок, либо страницы, либо статьи), section (определенная секция чего-нибудь, например, комментария), nav (в этой секции список ссылок), aside (обычно на каждом сайте бывает что-то сбоку, вот все это располагаем теперь в этом элементе), footer (соответственно футер страницы или статьи). В общем-то для каждого из них более или менее понятно расположение, их я и использовал на сайте. А еще есть mark, meter, progress, и еще может чего-нибудь, элементы, которые я пока не понял зачем они мне нужны. </p>
+
+<p>Остается вопрос, что делать с IE8 и ниже, ведь они эти элементы просто пропускают? Все оказалось достаточно просто, нужно просто при помощи JavaScript создать элемент используемого типа, и тогда парсер IE8 и ниже будут добавлять элементы этих типов в DOM, сделать это можно очень просто:</p>
+
+<pre><code>&lt;!--[if lt IE 9]&gt;
+&lt;script&gt;
+  var e = (&quot;abbr,article,aside,audio,canvas,datalist,details,&quot; +
+    &quot;figure,footer,header,hgroup,mark,menu,meter,nav,output,&quot; +
+    &quot;progress,section,time,video&quot;).split(',');
+  for (var i = 0; i &lt; e.length; i++) {
+    document.createElement(e[i]);
+  }
+&lt;/script&gt;
+&lt;![endif]—&gt;
+</code></pre>
+
+<p>Либо можно подключить к себе на сайт <a href="http://code.google.com/p/html5shim/">внешний скрипт</a>, который это сделает:</p>
+
+<pre><code>&lt;!--[if lt IE 9]&gt;
+ &lt;script src=&quot;http://html5shiv.googlecode.com/svn/trunk/html5.js&quot;&gt;&lt;/script&gt;
+&lt;![endif]--&gt;
+</code></pre>
+
+<p>Ну а дальше можно валидировать свою страницу при помощи <a href="http://html5.validator.nu">http://html5.validator.nu</a>.</p>
+
+<p>Кстати, чтобы использовать HTML5 в Visual Studio нужно поставить SP1 Beta и переключить валидатор:</p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="VS_Html5" border="0" alt="VS_Html5" src="{{ site.url }}/library/2011/02/06/VS_Html5_02565CF4.png" width="747" height="430" /></p>
+
+<h2>Canvas</h2>
+
+<p>Canvas – это хороший конкурент совместно с HTML5 для Flash и Silverlight. Так, например, раньше, когда даже в enterprise приложении нужно было бы сделать интерактивный график, то в голову сразу же бы пришел Flash или Silverlight, при помощи которых это было бы намного проще реализовать, чем на голом HTML. Теперь же график может быть нарисован при помощи JavaScript и элемента Canvas. Единственное, что остается большим плюсом в Silverlight и Flash – средства разработки, отладки и т.п. В общем-то, о canvas не понятно что рассказывать, достаточно все просто, надо будет использовать кладем элемент и рисуем при помощи JavaScript: </p>
+
+<pre><code>&lt;canvas id=&quot;a&quot; width=&quot;300&quot; height=&quot;225&quot;&gt;&lt;/canvas&gt;
+&#160;&lt;script type=&quot;text/javascript&quot;&gt;
+&#160;    function draw_b() {
+      var b_canvas = document.getElementById(&quot;a&quot;);
+      var b_context = b_canvas.getContext(&quot;2d&quot;);
+      b_context.fillRect(50, 25, 150, 100);
+    }
+&#160;
+&lt;/script&gt;
+</code></pre>
+
+<p>Этот код нарисует на элементе canvas квадрат. Как видно из canvas берется context типа 2d, возникает вопрос насчет 3d: пока его нет, энтузиасты реализуют плагины, но пока только псевдо 3D графика. C canvas можно работать и с картинками: загрузить, например, одну и расплодить ее на элементе canvas. </p>
+
+<p>Возникает вопрос опять про IE8 и ниже. Для них существует библиотека <a href="http://code.google.com/p/explorercanvas/">http://code.google.com/p/explorercanvas/</a> (инструкция по-применению <a href="http://code.google.com/p/explorercanvas/wiki/Instructions">тут</a>). </p>
+Будет продолжение: Обновляем сайт до HTML 5. Часть 2.
+
+
+

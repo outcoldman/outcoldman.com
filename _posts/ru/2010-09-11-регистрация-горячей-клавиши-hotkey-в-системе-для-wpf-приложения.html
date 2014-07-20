@@ -1,0 +1,100 @@
+---
+layout: post
+title: "Регистрация горячей клавиши (hotkey) в системе для WPF приложения"
+date: 2010-09-11 11:48:09
+categories: ru
+tags: [.NET, WinAPI, WPF, Hotkey]
+alias: ru/blog/show/239
+---
+<p>Пару дней назад мне попался на форумах GotDotNet вопрос <a href="http://www.gotdotnet.ru/forums/17/132082/620975/">[C# + WPF] Отлов нажатий клавиш, хуки, горячие клавиши в проекте WPF</a>, зашел туда, посмотрел, и в голове всплыло, что год назад я реализовывал похожее на WinForms, регистрировал глобальные клавиши в системе для приложения. Делал я это для проекта <a href="/ru/tools/keys">Vista Keys Extender</a>. Так как я на 100% помнил, что у меня там все работало, я сразу предложил автору вопроса посмотреть на тот мой проект, чтобы найти нужное решение. Однако, мой проект не подошел для решения данного вопроса, так как в WPF работа с сообщениями реализовано по-другому. Все же я решился помочь автору в этом вопросе и разобраться с данной проблемой. Отталкиваться я начал опять же с <a href="/ru/blog/show/138">моего проекта</a>, шаг за шагом разбираясь, что нужно изменить и как. </p>    <p>Итак, все начинается опять с импортирования WinAPI функций:</p>  <pre><code>internal class HotKeyWinApi
+{    public const int WmHotKey = 0x0312;
+&#160;    [DllImport(&quot;user32.dll&quot;, SetLastError = true)]
+    public static extern bool RegisterHotKey(IntPtr hWnd, int id, ModifierKeys fsModifiers, Keys vk);
+&#160;    [DllImport(&quot;user32.dll&quot;, SetLastError = true)]
+    public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+}
+</code></pre>
+
+<p>В проекте Vista Keys Extender мне пришлось реализовать свой enum <em>KeyModifiers</em>, а в WPF есть реализованный enum <a href="http://msdn.microsoft.com/en-us/library/system.windows.input.modifierkeys.aspx">System.Windows.Input.ModifierKeys</a>, который полностью идентичен моему реализованному. А вот с <a href="http://msdn.microsoft.com/en-us/library/system.windows.input.key.aspx">System.Windows.Input.Key</a> такой удачи не было, этот enum полностью отличается от enum, который я использовал в проекте Keys Extender – <a href="http://msdn.microsoft.com/en-us/library/system.windows.forms.keys.aspx">System.Windows.Forms.Keys</a> от WinForms. Устанавливать зависимость на библиотеку System.Windows.Forms из-за одного enum мне не хотелось, потому я просто скопировал его полностью к себе в проект. Подготовительный этап окончен, осталось реализовать основной класс HotKey, который и будет выполнять поставленную задачу:</p>
+
+<pre><code>public sealed class HotKey : IDisposable
+{    public event Action&lt;HotKey&gt; HotKeyPressed;
+&#160;    private readonly int _id;
+    private bool _isKeyRegistered;
+    readonly IntPtr _handle;
+&#160;    public HotKey(ModifierKeys modifierKeys, Keys key, Window window)
+        : this (modifierKeys, key, new WindowInteropHelper(window))
+    {        Contract.Requires(window != null);
+    }
+&#160;    public HotKey(ModifierKeys modifierKeys, Keys key, WindowInteropHelper window)
+        : this(modifierKeys, key, window.Handle)
+    {        Contract.Requires(window != null);
+    }
+&#160;    public HotKey(ModifierKeys modifierKeys, Keys key, IntPtr windowHandle)
+    {
+        Contract.Requires(modifierKeys != ModifierKeys.None || key != Keys.None);
+        Contract.Requires(windowHandle != IntPtr.Zero);
+&#160;
+        Key = key;
+        KeyModifier = modifierKeys;
+        _id = GetHashCode();
+        _handle = windowHandle;
+        RegisterHotKey();
+        ComponentDispatcher.ThreadPreprocessMessage += ThreadPreprocessMessageMethod;
+    }
+&#160;
+    ~HotKey()
+    {
+        Dispose();
+    }
+&#160;    public Keys Key { get; private set; }
+&#160;    public ModifierKeys KeyModifier { get; private set; }
+&#160;    public void RegisterHotKey()
+    {        if (Key == Keys.None)
+            return;
+        if (_isKeyRegistered)
+            UnregisterHotKey();
+        _isKeyRegistered = HotKeyWinApi.RegisterHotKey(_handle, _id, KeyModifier, Key);        if (!_isKeyRegistered)
+            throw new ApplicationException(&quot;Hotkey already in use&quot;);
+    }
+&#160;    public void UnregisterHotKey()
+    {
+        _isKeyRegistered = !HotKeyWinApi.UnregisterHotKey(_handle, _id);
+    }
+&#160;    public void Dispose()
+    {
+        ComponentDispatcher.ThreadPreprocessMessage -= ThreadPreprocessMessageMethod;
+        UnregisterHotKey();
+    }
+&#160;    private void ThreadPreprocessMessageMethod(ref MSG msg, ref bool handled)
+    {        if (!handled)
+        {            if (msg.message == HotKeyWinApi.WmHotKey
+                &amp;&amp; (int)(msg.wParam) == _id)
+            {
+                OnHotKeyPressed();                handled = true;
+            }
+        }
+    }
+&#160;    private void OnHotKeyPressed()
+    {        if (HotKeyPressed != null)
+            HotKeyPressed(this);
+    }
+}
+</code></pre>
+
+<p>И небольшой пример использования:</p>
+
+<pre><code>public partial class MainWindow : Window
+{    private HotKey _hotkey;
+&#160;    public MainWindow()
+    {
+        InitializeComponent();
+        Loaded += (s, e) =&gt;
+                      {                          _hotkey = new HotKey(ModifierKeys.Windows | ModifierKeys.Alt, Keys.Left, this);
+                          _hotkey.HotKeyPressed += (k) =&gt; Console.Beep();
+                      };
+    }
+}
+</code></pre>
+
+<p>Посмотреть полностью и скачать исходный код этого примера можно с моего публичного SVN репозитория на <a href="https://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/WpfApplicationHotKey">assembla</a>.</p>

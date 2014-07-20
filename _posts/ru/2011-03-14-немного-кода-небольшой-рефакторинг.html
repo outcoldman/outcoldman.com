@@ -1,0 +1,65 @@
+---
+layout: post
+title: "Немного кода, небольшой рефакторинг"
+date: 2011-03-14 09:23:00
+categories: ru
+tags: [.NET, C#, Twitter, Sample, Refactoring]
+alias: ru/blog/show/277
+---
+<p>Изучал тут как-то примеры книги <a href="http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0470531320.html">Professional Twitter Development: With Examples in .NET 3.5</a>, хотел разобраться как работает эта самая OAuth авторизация для твиттера. Раньше у меня на сайте было немного действий с твиттером, подгружались мой твитты, хранились, отображались, но потом твиттер что-то поменял в авторизации, вроде разрешил только OAuth, а в тот момент я что-то не шибко разобрался с этим OAuth, да и времени не было, хотя вроде еще тогда <a href="http://linqtotwitter.codeplex.com/">LinqToTwitter</a> ее поддерживал (а я использовал именно эту библиотеку). В общем-то, просто в тот момент подумал, что тема OAuth авторизации интересна, и нужно бы посмотреть как она реализована в деталях попозже. Вот и набрел я тут недавно на книгу <a href="http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0470531320.html">Professional Twitter Development: With Examples in .NET 3.5</a>, точнее только на ее примеры, решил поковыряться. Код там был не из простых, и я просто тупо стал рефакторить его, чтобы разобрать что и как работает. Вот, например, одно из превращений, которое я уже правда публиковал в твиттере давно (и может быть вы уже видели):</p>    <p>Было:</p>  <pre><code>public static string NormalizeRequestParameters
+    (NameValueCollection parameters)
+{    var sb = new StringBuilder();
+&#160;    var list = new List&lt;NameValuePair&gt;();
+    foreach (var name in parameters.AllKeys)
+    {        var value = Uri.EscapeDataString(parameters[name]);
+        var item = new NameValuePair { Name = name, Value = value };
+&#160;        // Ensure duplicates are not included
+        if (list.Contains(item))
+        {            throw new ArgumentException(
+                &quot;Cannot add duplicate parameters&quot;);
+        }
+&#160;
+        list.Add(item);
+    }
+&#160;
+    list.Sort((left, right) =&gt;
+    {        if (left.Name.Equals(right.Name))
+        {            return left.Value.CompareTo(right.Value);
+        }
+&#160;        return left.Name.CompareTo(right.Name);
+    });
+&#160;    foreach (var item in list)
+    {        sb.Append(item.Name + &quot;=&quot; + item.Value);
+        if (list.IndexOf(item) &lt; list.Count - 1)
+        {            sb.Append(&quot;&amp;&quot;);
+        }
+    }
+&#160;    return sb.ToString();
+}
+</code></pre>
+
+<p>Стало:</p>
+
+<pre><code>public string NormalizeRequestParameters
+    (NameValueCollection collection)
+{    IEnumerable&lt;string&gt; parameters = collection.AllKeys.OrderBy(x =&gt; x)
+        .Select(x =&gt; string.Format(&quot;{0}={1}&quot;, x, Uri.EscapeDataString(collection[x])));
+&#160;    return String.Join(&quot;&amp;&quot;, parameters);
+}
+</code></pre>
+
+<p>На первый взгляд у меня опущено два момента: а) не бросается исключение б) сортировка другая, там <em>order by ключ, значение</em>, а у меня просто <em>order by ключ</em>. </p>
+
+<p>На самом деле тут просто логика самого класса NameValueCollection, если вы инициализируете его так:</p>
+
+<pre><code>new NameValueCollection { { &quot;test1&quot;, &quot;value1&quot; }, { &quot;test1&quot;, &quot;value2&quot; }};
+</code></pre>
+
+<p>то он превратится в</p>
+
+<pre><code>new NameValueCollection { { &quot;test1&quot;, &quot;value1&amp;value2&quot; }};
+</code></pre>
+
+<p>А следовательно проверки и бросания исключения не нужны, да и в OrderBy нет смысла добавлять вторым параметром значение, так как там не может повториться ключ.</p>
+
+<p>В общем, я только хотел сказать, что C# 4 отличный язык, позволяет делать действительно очень читабельным наш код. И это не значит, что я хочу принизить книгу, думаю она отлична и полезна для тех, кто хочет разработать свой твиттер клиент, или проинтегрировать свое приложение с твиттером, а так все пишут плохой код, а кто считает что нет, тот пишет код еще хуже ;)</p>
