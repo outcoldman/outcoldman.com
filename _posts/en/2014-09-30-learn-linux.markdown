@@ -46,7 +46,7 @@ At the same time start learning Terminal, Bash and all available tools. If you a
 
 Learn `vim` (editor). It is hard to find an exit from `vim`. Just launch `vimtutor` to get into tutorial to learn some basics about `vim`. After that [Vim: revisited](http://mislav.uniqpath.com/2011/12/vim-revisited/). A lot of folks use `vim` as a main editor. I am not advanced `vim` user, mostly I use it when I need to edit some configuration files.
 
-Read [Filesystem Hierarchy Standard](http://www.samba.org/~cyeoh/pub/fhs-2.3.html). It is important to understand your Filesystem hierarchy to know where you can find what.
+Read [Filesystem Hierarchy Standard](http://www.samba.org/~cyeoh/pub/fhs-2.3.html). It is important to understand your Filesystem hierarchy to know where you can find what. Also read about permissions and how to set them up `man chmod`. It is unexpected for Windows users that file need to have special permission to be executable (`chmod +x executable_file`).
 
 Use these three websites when you need help
 
