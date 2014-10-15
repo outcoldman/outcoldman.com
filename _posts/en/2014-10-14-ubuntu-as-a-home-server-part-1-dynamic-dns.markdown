@@ -4,7 +4,6 @@ title: "Ubuntu as a home server. Part 1. Dynamic DNS."
 date: 2014-10-14 00:00:00 -00:08:00
 categories: en
 tags: [Ubuntu, Namecheap, Dynamic DNS, ddclient]
-draft: true
 ---
 
 Recently I spent some time with my old Desktop PC to configure it as my home server: OpenVPN, File Share, TimeMachine Server, VMware Server with several Windows Machines (it is old Desktop, but still powerful). Just to make sure that I will not forget what and how I did that I will document it in next articles:
