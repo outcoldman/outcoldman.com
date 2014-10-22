@@ -9,7 +9,7 @@ tags: [Ubuntu, Namecheap, Dynamic DNS, ddclient]
 Recently I spent some time with my old Desktop PC to configure it as my home server: OpenVPN, File Share, TimeMachine Server, VMware Server with several Windows Machines (it is old Desktop, but still powerful). Just to make sure that I will not forget what and how I did that I will document it in next articles:
 
 1. [Dynamic DNS]({{ site.url }}/en/archive/2014/10/14/ubuntu-as-a-home-server-part-1-dynamic-dns/).
-1. OpenVPN.
+1. [OpenVPN]({{ site.url }}/en/archive/2014/10/14/ubuntu-as-a-home-server-part-2-openvpn/).
 1. AFP Server (for OS X).
 1. SMB server (for Windows).
 1. Reliability (Backups).
@@ -37,19 +37,19 @@ On `All records` page prepare records to be set via Dynamic DNS client, make sur
 
 After that you can install [ddclient](http://sourceforge.net/p/ddclient/wiki/Home/) on your home Ubuntu
 
-```
+```bash
 $ sudo apt-get install ddclient
 ```
 
 Modify your `ddclient.conf` file
 
-```
+```bash
 $ sudo vim /etc/ddclient.conf
 ```
 
 With configuration
 
-```
+```bash
 daemon=3600
 pid=/var/run/ddclient.pid
 ssl=yes
@@ -62,19 +62,19 @@ password='PasswordFromScreenshotAbove'     \
 
 Verify that configuration works
 
-```
+```bash
 $ sudo ddclient -daemon=0 -debug -verbose -noquiet
 ```
 
 At the end you should see something like 
 
-```
+```bash
 SUCCESS:  updating @: good: IP address set to XXX.XXX.XXX.XXX
 ```
 
 Restart/Start ddclient daemon with 
 
-```
+```bash
 $ sudo service ddclient restart
 ```
 
@@ -88,7 +88,7 @@ In Namecheap account for each record add one more subdomain with unique name lik
 
 After that you can change configuration to something like
 
-```
+```bash
 daemon=3600
 pid=/var/run/ddclient.pid
 ssl=yes
@@ -107,13 +107,13 @@ publicx
 
 Verify configuration 
 
-```
+```bash
 $ sudo ddclient -daemon=0 -debug -verbose -noquiet
 ```
 
 Restart `ddclient` daemon
 
-```
+```bash
 $ sudo service ddclient restart
 ```
 
@@ -128,15 +128,15 @@ Configure your router (follow Router's manual)
 
 On Ubuntu start simple web server to test that everything works
 
-```
+```bash
 $ sudo python -m SimpleHTTPServer 80 ~/
 ```
 
-Try to open page `http://vpn.example.com` in browser, you should see all files from your home directory. Don't forget to kill this web server. You are ready for the next part *Ubuntu as a home server. Part 2. OpenVPN.*
+Try to open page `http://vpn.example.com` in browser, you should see all files from your home directory. Don't forget to kill this web server. You are ready for the next part [Ubuntu as a home server. Part 2. OpenVPN.]({{ site.url }}/en/archive/2014/10/14/ubuntu-as-a-home-server-part-1-dynamic-dns/).
 
 ### Links
 
-* [Namecheap Knowledgebase - General Domain Transfer Steps and Tips](https://www.namecheap.com/support/knowledgebase/article.aspx/9175/83/general-domain-transfer-steps-and-tips)
-* [Namecheap Knowledgebase - FreeDNS](https://www.namecheap.com/support/knowledgebase/category.aspx/51/freedns)
-* [Namecheap Knowledgebase - Dynamic DNS](https://www.namecheap.com/support/knowledgebase/category.aspx/11/dynamic-dns)
-* [Ubuntu Community Help Wiki - Dynamic DNS](https://help.ubuntu.com/community/DynamicDNS)
+* [Namecheap Knowledgebase → General Domain Transfer Steps and Tips](https://www.namecheap.com/support/knowledgebase/article.aspx/9175/83/general-domain-transfer-steps-and-tips)
+* [Namecheap Knowledgebase → FreeDNS](https://www.namecheap.com/support/knowledgebase/category.aspx/51/freedns)
+* [Namecheap Knowledgebase → Dynamic DNS](https://www.namecheap.com/support/knowledgebase/category.aspx/11/dynamic-dns)
+* [Ubuntu Community Help Wiki → Dynamic DNS](https://help.ubuntu.com/community/DynamicDNS)
