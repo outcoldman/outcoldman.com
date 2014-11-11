@@ -52,8 +52,6 @@ export KEY_PROVINCE="WA"
 export KEY_CITY="Settle"
 export KEY_ORG="example"
 export KEY_EMAIL="vpn@example.com"
-export KEY_CN="vpn.example.com"
-export KEY_NAME="vpn.example.com"
 export KEY_OU="vpn.example.com"
 ```
 
@@ -79,7 +77,7 @@ Every time when you will need to generate certificates you need to be sure that 
 # this will guarantee for clients that this is your home server
 # all parameters will be defined from vars file, so just accept all of
 # them and at the end say yes for ""Sign the certificate?" and "Commit?"
-root $ ./build-key-server
+root $ ./build-key-server vpn.example.com
 # Generate Diffie Hellman parameters
 # This one is used by OpenVPN for keys exchange
 # see http://en.wikipedia.org/wiki/Diffie–Hellman_key_exchange
