@@ -89,6 +89,7 @@ All your keys and certificates will be generated in `/etc/openvpn/keys` folder. 
 For the server you will need to use 4 files which you should copy to folder `/etc/openvpn/` (this is where OpenVPN is looking for config files by default)
 
 ```bash
+root $ cd /etc/openvpn/keys
 root $ cp vpn.example.com.crt vpn.example.com.key ca.crt dh2048.pem /etc/openvpn/
 ```
 
