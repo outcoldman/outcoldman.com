@@ -9,7 +9,7 @@ tags: [Ubuntu, AFP, TimeMachine, OS X, netatalk]
 1. [Dynamic DNS]({{ site.url }}/en/archive/2014/10/14/ubuntu-as-a-home-server-part-1-dynamic-dns/).
 1. [OpenVPN]({{ site.url }}/en/archive/2014/10/14/ubuntu-as-a-home-server-part-2-openvpn/).
 1. [AFP Server (for OS X)]({{ site.url }}/en/archive/2014/11/09/ubuntu-as-home-server-part-3-afp-server/).
-1. SMB server (for Windows).
+1. [SMB server (for Windows and Linux)]({{ site.url }}/en/archive/2014/11/20/ubuntu-as-home-server-part-4-smb-server/).
 1. Reliability (Backups).
 1. Other tricks.
 
@@ -131,7 +131,7 @@ You can use more general way of sharing home folders
     basedir regex = /home
 ```
 
-But I wanted a little bit more control on shares (give read-only accesses). And also I have system accounts with their home folders, which I don't want to share, so it was easy for me to configure everything manually. Also I know that I'm not going to add new users in near future, so I did not need automation on this level.
+But I wanted a little bit more control on shares. First of all I wanted to give read-only accesses to user1 for user2 share and otherwise. Also I wanted to see folders for both users when go to this server. And also I have system accounts with their home folders, which I don't want to share, so it was easy for me to configure everything manually. Also I know that I'm not going to add new users in near future, so I did not need automation on this level.
 
 Don't forget to verify that all users have access to the TimeMachine folder, In my case I specified `users` ownership for the TimeMachine folder, gave this group access to do anything in this folder, and added both users to this group
 
@@ -153,6 +153,10 @@ $ sudo service netatalk start
 ```
 
 After that you should be able to see this server in Finder under `Shared` category. Also you should be able see this server as a TimeMachine server.
+
+### Auto mount AFP share on OS X
+
+If you want auto mount AFP share on boot - you can do it very easy for user. Just open `System Settings`, go to the `Users & Groups`, select user on left side, select `Login Items` tab on right side and just drag and drop AFP shared folder in this list.
 
 ### Links
 
