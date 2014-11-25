@@ -22,15 +22,15 @@ Starting from 2005 I participated in designing various kind of projects: web, de
 
 ### October 2013 - Present. [Splunk](http://splunk.com). Senior Software Developer.
 
-Technologies: `javascript`, `python`, `c++`, `bash`, `*nix`, `django`, `backbone`.
+Technologies: `JavaScript`, `Python`, `C++`, `bash`, `*nix`, `django`, `Backbone`.
 
 * Working on Developer Tools and Frameworks for Splunk.
 
 You can follow my blog posts on [blogs.splunk.com](http://blogs.splunk.com/author/dgladkikh/) and also see my commits on [GitHub/Splunk](https://github.com/splunk).
 
-### September 2013 - October 2013. [Microsoft](http://microsoft.com). Visual Studio Diagnostics Team. Senior SDE.
+### June 2011 - October 2013. [Microsoft](http://microsoft.com). Visual Studio Diagnostics Team. Senior SDE.
 
-Technologies: `C#`, `VS SDK`, `C++/CLI`, `C++`, `TypeScript`.
+Technologies: `C#`, `VS SDK`, `C++/CLI`, `C++`, `TypeScript`, `JavaScript`.
 
 * Supporting legacy Profiling Tools in Visual Studio 2010 and 2012. 
 * Supporting Code Analysis tools for Visual Studio (FxCop).
