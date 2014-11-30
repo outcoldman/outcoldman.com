@@ -79,6 +79,15 @@ $ sudo chmod -R o+rx /home/
 * `create mask = 0775` and `directory mask = 0775` - we want to be sure that when new directory or file will be created - other user will have read-only access to it.
 * `valid users = user1 user2` - only these two users will have access to this folder.
 
+After enable these two users for Samba server
+
+```
+$ sudo smbpasswd -a user1
+$ sudo smbpasswd -a user2
+```
+
+These two commands will prompt you to enter passwords for these users which will be used when these users will try to access network share.
+
 ### Auto mount Samba share in Linux machines
 
 For one of my other Linux machines I wanted to configure auto mounting for shared folder from my server. For this will be better to use NFS shares, but as I said in previous part - it is much harder to configure NFS shares, so I keep using Samba for this.
