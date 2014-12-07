@@ -10,7 +10,7 @@ tags: [Ubuntu, OpenVPN, Tunnelblick, easy-rsa]
 1. [OpenVPN]({{ site.url }}/en/archive/2014/10/21/ubuntu-as-a-home-server-part-2-openvpn/).
 1. [AFP Server (for OS X)]({{ site.url }}/en/archive/2014/11/09/ubuntu-as-home-server-part-3-afp-server/).
 1. [SMB server (for Windows and Linux)]({{ site.url }}/en/archive/2014/11/20/ubuntu-as-a-home-server-part-4-smb-server/).
-1. Reliability (Backups).
+1. [Reliability (Backups)]({{ site.url }}/en/archive/2014/12/06/ubuntu-as-a-home-server-part-5-reliability/).
 1. Other tricks.
 
 In part 1 we configured DNS name for our home server, which we can use outside of our network to find it. After that you have an option to make some ports available for public access, like Remote Desktop, ssh and VNC server and just protect these services by password. This solution is not very secure, because somebody can attack you in two different ways: [brute-force](http://en.wikipedia.org/wiki/Brute-force_attack) your password or use [Man-in-the-middle](http://en.wikipedia.org/wiki/Man-in-the-middle_attack) attack. You probably think that because you are not so important that nobody has a reason to attack you. This is not true, illegal botnets always are looking for new members. 

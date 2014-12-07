@@ -12,7 +12,7 @@ Recently I spent some time with my old Desktop PC to configure it as my home ser
 1. [OpenVPN]({{ site.url }}/en/archive/2014/10/21/ubuntu-as-a-home-server-part-2-openvpn/).
 1. [AFP Server (for OS X)]({{ site.url }}/en/archive/2014/11/09/ubuntu-as-home-server-part-3-afp-server/).
 1. [SMB server (for Windows and Linux)]({{ site.url }}/en/archive/2014/11/20/ubuntu-as-a-home-server-part-4-smb-server/).
-1. Reliability (Backups).
+1. [Reliability (Backups)]({{ site.url }}/en/archive/2014/12/06/ubuntu-as-a-home-server-part-5-reliability/).
 1. Other tricks.
 
 ## Dynamic DNS
