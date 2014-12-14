@@ -74,6 +74,7 @@ $ sudo apt-get install autoconf \
   tracker \
   libtracker-sparql-0.16-dev \
   libtracker-miner-0.16-dev
+$ ./bootstrap
 $ ./configure \
   --with-init-style=debian-sysv \
   --without-libevent \
