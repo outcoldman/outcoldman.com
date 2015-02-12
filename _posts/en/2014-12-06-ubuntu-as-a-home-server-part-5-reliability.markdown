@@ -141,7 +141,7 @@ As you see I scheduled two backups
 
 ### CrashPlan
 
-I love CrashPlan. I pay for [Individual](https://www.code42.com/store/) account as I backup only one Computer which is mine Ubuntu server.
+I love CrashPlan. I pay for [Individual](https://www.code42.com/store/) account as I backup only one Computer which is my Ubuntu server.
 
 Actually my first experience with it was terrible 
 

@@ -22,7 +22,7 @@ After day or two I realized that I do not have IntelliSence in Xcode. I started 
 
 I was happy, but not satisfied. I wanted to have build system as well. At first I thought that I should just write some script which will generate Xcode project system from make files. You don't know what was the relief for me when I found out about [Generators](http://www.cmake.org/cmake/help/v2.8.12/cmake.html#section_Generators) in cmake. 
 
-This means that you can use any IDE (`Xcode`, `Visual Studio` and any other) from this list for any `C++` project which supports `cmake` (cross platform make). I will show you on example of [Casablanca project](https://casablanca.codeplex.com). It is a C++ RESK SDK from Microsoft. I've used it couple times when I was working in Microsoft. From my opinion the best (and the one?) library for making REST calls from C++. 
+This means that you can use any IDE (`Xcode`, `Visual Studio` and any other) from this list for any `C++` project which supports `cmake` (cross platform make). I will show you on example of [Casablanca project](https://casablanca.codeplex.com). It is a C++ REST SDK from Microsoft. I've used it couple times when I was working in Microsoft. From my opinion the best (and the one?) library for making REST calls from C++. 
 
 > The point of next chapter is to show you that can try `cmake -g Xcode` with any `c++` project which is supporting `cmake` as a build system.
 
