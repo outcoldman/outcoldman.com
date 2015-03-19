@@ -107,7 +107,7 @@ header {
 
     header ul.social {
         text-align: center;
-        padding:4em 0 2em 0;
+        padding:2em 0 2em 0;
     }
 
         header ul.social li:not(:first-child):before {
