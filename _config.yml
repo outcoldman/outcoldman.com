@@ -28,3 +28,10 @@ github_repo_url: https://github.com/outcoldman/outcoldman.com/
 
 gems:
   - jekyll-sitemap
+
+exclude:
+  - Gruntfile.js
+  - Gemfile
+  - Gemfile.lock
+  - bower.json
+  - package.json
