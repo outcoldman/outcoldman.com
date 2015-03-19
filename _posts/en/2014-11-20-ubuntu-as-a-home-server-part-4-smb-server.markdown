@@ -11,7 +11,6 @@ tags: [Ubuntu, Samba, Windows, Linux]
 1. [AFP Server (for OS X)]({{ site.url }}/en/archive/2014/11/09/ubuntu-as-home-server-part-3-afp-server/).
 1. [SMB server (for Windows and Linux)]({{ site.url }}/en/archive/2014/11/20/ubuntu-as-a-home-server-part-4-smb-server/).
 1. [Reliability (Backups)]({{ site.url }}/en/archive/2014/12/06/ubuntu-as-a-home-server-part-5-reliability/).
-1. Other tricks.
 
 In Part 3 we have set up AFP file share for Apple devices, in this part we will configure file share for Windows devices (also this share is compatible with Linux as well). To do that we will use [Samba server](http://en.wikipedia.org/wiki/Samba_(software).
 
