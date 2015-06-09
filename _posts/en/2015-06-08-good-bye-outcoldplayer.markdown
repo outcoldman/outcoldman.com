@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Good bye outcoldplayer."
+title: "Good bye, outcoldplayer."
 date: 2015-06-08 00:00:00 -00:08:00
 categories: en
 tags: [outcoldplayer, Windows, Windows Store, Windows RT, Google Music]
