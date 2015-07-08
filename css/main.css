@@ -219,7 +219,7 @@ article .article-content, .page-content {
         opacity: 0.7;
     }
 
-    article code:not(.hljs) {
+    article code:not([data-lang]) {
         border: 1px solid #ddd;
         background: #f8f8f8;
         border-radius: 3px;
@@ -232,17 +232,16 @@ article .article-content, .page-content {
         display: block;
         overflow-x: auto;
         padding: 0.5em;
-        background: #002b36;
-        color: #839496;
+        background: #333;
+        color: #F8F8F2;
     }
 
     article pre {
-        background: #002b36;
+        background: #333;
     }
 
     article pre code {
         line-height: 1.1em;
-        font-size: 0.7em;
     }
 
 .archives h3 {

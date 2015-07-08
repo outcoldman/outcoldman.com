@@ -10,7 +10,6 @@ title: Blog about software development
 # Jekyll Settings
 #
 markdown: redcarpet
-highlighter:
 permalink: /:categories/archive/:year/:month/:day/:title/
 safe: false
 exclude: [bower_components]

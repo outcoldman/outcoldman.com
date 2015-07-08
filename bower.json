@@ -13,8 +13,8 @@
     "tests"
   ],
   "dependencies": {
-    "highlightjs": "^8.5.0",
     "normalize-css": "~3.0.3",
-    "font-awesome": "~4.3.0"
+    "font-awesome": "~4.3.0",
+    "pygments": "~2.0.2"
   }
 }
