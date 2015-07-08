@@ -65,11 +65,11 @@ If you are trying to configure RAID-0 it will be available almost right after yo
 
 ```bash
 $ watch cat /proc/mdstat
-``` 
+```
 
 After that you need to modify `/etc/mdadm/mdadm.conf` to include information about this RAID volume to make it available on startup
 
-```
+```bash
 # Tell that RAID depends on these two disks
 DEVICE /dev/sdf /dev/sdd
 # RAID configuration

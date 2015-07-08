@@ -24,7 +24,7 @@ None of examples below are real stoppers from using golang. These are just thing
 
 At first take a look on this code. Does it look like it is doing what it suppose to do (hint: no compile issues)?
 
-```
+```go
 _, err = os.Stat(filename);
 
 // Using function https://golang.org/pkg/os/#IsNotExist to check if file does not exist
@@ -44,7 +44,7 @@ But of course it does not. Second if is wrong. [Stat](https://golang.org/pkg/os/
 
 Other really annoying thing
 
-```
+```go
 type Foo struct {
     bar string
 }
@@ -61,7 +61,7 @@ In second initialization comma is required, you will get compiler issue if you w
 
 Sometimes compiler does not help when you dealing with pointers
 
-```
+```go
 package main
 
 import "fmt"

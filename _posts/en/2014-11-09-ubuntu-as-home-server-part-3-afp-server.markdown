@@ -91,7 +91,7 @@ $ sudo make install
 
 Verify that it works (also this command tells you where all the configuration files are located)
 
-```
+```bash
 $ afpd -V
 ```
 
@@ -137,7 +137,7 @@ But I wanted a little bit more control on shares. First of all I wanted to give 
 
 Don't forget to verify that all users have access to the TimeMachine folder, In my case I specified `users` ownership for the TimeMachine folder, gave this group access to do anything in this folder, and added both users to this group
 
-```
+```bash
 # Change ownership of TimeMachine folder to users group
 $ sudo chown -R root:users /mnt/BACKUP/TimeMachine
 # Add read-write access to the users group

@@ -228,6 +228,14 @@ article .article-content, .page-content {
         -webkit-border-radius: 3px;
     }
 
+    article div.highlight code {
+        display: block;
+        overflow-x: auto;
+        padding: 0.5em;
+        background: #002b36;
+        color: #839496;
+    }
+
     article pre {
         background: #002b36;
     }
@@ -278,7 +286,6 @@ ul.meta {
 ul.languages {
     font-size: 1.5em;
     padding: 0;
-    
 }
 
     ul.languages li {

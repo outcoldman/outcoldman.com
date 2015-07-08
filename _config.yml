@@ -10,10 +10,10 @@ title: Blog about software development
 # Jekyll Settings
 #
 markdown: redcarpet
-highlighter: pygments
+highlighter: none
 permalink: /:categories/archive/:year/:month/:day/:title/
 safe: false
-exclude: [bower_components, node_modules]
+exclude: [bower_components]
 
 # Disqus Comments
 disqus_short_name: outcoldman
