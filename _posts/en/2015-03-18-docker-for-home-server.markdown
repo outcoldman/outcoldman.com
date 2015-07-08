@@ -83,7 +83,7 @@ Let's take a look on this configuration in details:
 
 * I have three containers defined here. One for running `postgresql`, second for `redis` and last one is the `gitlab` container.
 * As you can see `gitlab` has links to first two containers. As you see I don't even set Database password to the `gitlab` container, as it can get it from `gitlabpostgresql` container on its own using variables defined in linked container.
-* For each container I specified `mer_limit` based on recommendations and my feeling about how I will use them.
+* For each container I specified `mem_limit` based on recommendations and my feeling about how I will use them.
 * For each container I specified `cpu_shares` where `1024` means `100%`, see [Runtime constraints on CPU and memory](https://docs.docker.com/reference/run/#runtime-constraints-on-cpu-and-memory).
 * For each container I specified restart `always` as I want to have this container booted even after I reboot my host.
 * For each container I specified `volumes`, which I want to mount to them from my host server. I want to store real data on my host server, because if I will rebuild docker container I can keep my data. You can also see that one of the volumes contains backups from GitLab.
