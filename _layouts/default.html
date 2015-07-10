@@ -6,23 +6,14 @@
         <title>{% if page.title %}{{ page.title | xml_escape }}{% else %}{{ site.title | xml_escape }}{% endif %}</title>
         <meta name="viewport" content="width=device-width">
         <meta name="author" content="{{ site.author }}">
-
         <!-- Open Sans -->
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
-
         <link rel="stylesheet" href="/css/font-awesome.min.css">
-
-        <!-- syntax highlighting CSS -->
-        <link rel="stylesheet" href="/css/highlight.css">
-
-        <!-- Custom CSS -->
+        <link rel="stylesheet" href="/css/normalize.css">
         <link rel="stylesheet" href="/css/syntax.css">
         <link rel="stylesheet" href="/css/main.css">
-
         <link rel="alternate" type="atom+xml" title="{{site.title}}" href="{% if page.categories contains 'ru' %}http://feeds.feedburner.com/outcoldman{% else %}http://feeds.feedburner.com/outcoldman_en{% endif %}" />
-
         <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-
         {% include google_analytics.html %}
     </head>
     <body>
