@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "My experienec with golang"
-date: 2015-06-08 00:00:00 -00:08:00
 categories: en
 tags: [golang, languages, go]
 ---
