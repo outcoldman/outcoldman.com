@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "My experienec with golang"
+title: "My experience with golang"
 categories: en
 tags: [golang, languages, go]
 ---
