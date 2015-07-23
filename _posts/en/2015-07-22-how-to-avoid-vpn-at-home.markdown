@@ -62,7 +62,7 @@ And the great part about SSH - you can tunnel anything from the internal network
 through SSH using next command
 
 ```
-ssh -f user@example.com -L {LOCAL_PORT}:{REMOTE_SERVICE}:{REMOTE_PORT} sleep 60
+ssh user@example.com -L {LOCAL_PORT}:{REMOTE_SERVICE}:{REMOTE_PORT}
 ```
 
 Where
@@ -72,21 +72,20 @@ Where
 - `{LOCAL_PORT}` - local port on your local machine which will be used to tunnel traffic
 - `{REMOTE_SERVICE}` - remote service which can be accessible from remote machine
 - `{REMOTE_PORT}` - port of remote service which you want to access
-- `sleep 60` - some command to execute on remote machine
 
 For example this is how you tunnel VNC
 
 ```
-ssh -f user@example.com -L 15900:127.0.0.1:5900 sleep 60
+ssh user@example.com -L 15900:127.0.0.1:5900
 ```
 
 Now you can connect to the `vnc://127.0.0.1:15900` and it will forward you to the
-`example.com:5900` using `example.com:22`. 
+`example.com:5900` using `example.com:22`.
 
 This is how you tunnel VNC for some other machine in your home network
 
 ```
-ssh -f user@example.com -L 25900:ubuntubox:5900 sleep 60
+ssh user@example.com -L 25900:ubuntubox:5900
 ```
 
 So now if you will try to connect to `vnc://127.0.0.1:25900` you will be tunneled
@@ -98,3 +97,6 @@ to the `ubuntubox:5900` in your home network.
   about how to install certificates on nginx. Nothing hard, just don't forget
   to combine three certificates in one. In other case you will see that some
   clients will reject your certificates (linux and Firefox).
+- If you will use ssh tunneling for VNC: most of the VNC clients support SSH
+  tunneling as a configuration and they will automatically set up everything.
+  I use [Jump Desktop](http://jumpdesktop.com), which has built-in configuration for SSH.
