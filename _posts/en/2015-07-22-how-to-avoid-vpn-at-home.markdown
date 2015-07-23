@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "How to avoid vpn at home"
+title: "How to avoid VPN at home"
 categories: en
-tags: [vpn, OpenVPN, SSH]
+tags: [VPN, OpenVPN, SSH, HTTPS, SSL, VNC]
 ---
 
 In October 2014 I wrote a [blog post](/en/archive/2014/10/21/ubuntu-as-a-home-server-part-2-openvpn/) 
