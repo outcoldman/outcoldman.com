@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Docker images for home server #2"
+title: "Docker images for home server. Part 2."
 categories: en
 tags: [docker, services, home server, guacamole]
 ---
@@ -11,7 +11,7 @@ for various reasons. Sometimes I just want to use something, sometimes I need it
 sometimes I just want to take a quick look on it.
 So I decided to keep sharing some useful images and tips and tricks about them with you.
 
-This blog post is numbered with #2, because I believe that I already showed you some containers in [Using docker at home](/en/archive/2015/03/18/docker-for-home-server/).
+This blog post is numbered with `Part 2`, because I believe that I already showed you some containers in [Using docker at home](/en/archive/2015/03/18/docker-for-home-server/).
 
 ## Guacamole
 
