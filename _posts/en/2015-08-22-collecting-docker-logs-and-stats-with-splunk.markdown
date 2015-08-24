@@ -224,7 +224,7 @@ These two screenshots of overall Docker information:
 
 [![Splunk Docker Dashboard 01]({{ site.url }}/library/2015/08/docker_dashboard_01.png)]({{ site.url }}/library/2015/08/docker_dashboard_01.png)
 
-[![Splunk Docker Dashboard 02]({{ site.url }}/library/2015/08/docker_dashboard_02.png)]({{ site.url }}/library/2015/08/docker_dashboard_01.png)
+[![Splunk Docker Dashboard 02]({{ site.url }}/library/2015/08/docker_dashboard_02.png)]({{ site.url }}/library/2015/08/docker_dashboard_02.png)
 
 Also I worked on Dashboard for containers, select container and you will see
 
