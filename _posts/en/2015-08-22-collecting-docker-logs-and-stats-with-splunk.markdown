@@ -3,6 +3,7 @@ layout: post
 title: "Collecting docker logs and stats with Splunk"
 categories: en
 tags: [docker, splunk, home server, syslog, logs, monitoring]
+draft: true
 ---
 
 > I'm currently working at Splunk, but this is my personal blog. I have some
