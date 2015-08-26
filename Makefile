@@ -1,16 +1,18 @@
-toolsdep:
+installtools:
 	@npm install bower
 	@rbenv install -s
 	@rbenv exec gem install bundle
 
-deps:
+updateclientdeps:
 	@bower install
-	@rbenv exec bundle install
-	@rbenv rehash
 	@cp bower_components/pygments/css/monokai.css css/syntax.css
 	@cp bower_components/normalize-css/normalize.css css/normalize.css
 	@cp bower_components/font-awesome/css/font-awesome.min.css css/font-awesome.min.css
 	@cp bower_components/font-awesome/fonts/* fonts/
+
+deps:
+	@rbenv exec bundle install
+	@rbenv rehash
 
 build:
 	@rbenv exec bundle exec jekyll build
