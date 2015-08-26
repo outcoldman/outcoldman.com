@@ -1,7 +1,9 @@
-deps:
+toolsdep:
 	@npm install bower
 	@rbenv install -s
 	@rbenv exec gem install bundle
+
+deps:
 	@bower install
 	@rbenv exec bundle install
 	@rbenv rehash
