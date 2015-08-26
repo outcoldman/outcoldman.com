@@ -2,9 +2,9 @@
 # Blog Settings
 #
 author: Denis Gladkikh
-description: Blog about software development 
+description: Blog about software development
 url: http://outcoldman.com
-title: Blog about software development 
+title: Blog about software development
 
 #
 # Jekyll Settings
@@ -29,8 +29,12 @@ gems:
   - jekyll-sitemap
 
 exclude:
-  - Gruntfile.js
+  - .gitignore
+  - .ruby-version
+  - Dockerfile
   - Gemfile
   - Gemfile.lock
+  - Makefile
+  - _local_config.yml
   - bower.json
-  - package.json
+  - docker-compose.yml
