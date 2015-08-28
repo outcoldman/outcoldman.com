@@ -14,8 +14,24 @@ deps:
 	@rbenv exec bundle install
 	@rbenv rehash
 
-build:
-	@rbenv exec bundle exec jekyll build
+build-local:
+	@rbenv exec bundle exec jekyll build --draft --config _local_config.yml
 
-local:
-	@rbenv exec bundle exec jekyll server --watch --config _local_config.yml
+build-staging:
+	@rbenv exec bundle exec jekyll build --draft --config _staging_config.yml
+
+build-production:
+	@rbenv exec bundle exec jekyll build --config _config.yml
+
+deploy-local:
+	@rbenv exec bundle exec jekyll server --watch --draft --config _local_config.yml
+
+predeploy-fix-permissions:
+	@find ./_site/ -type f -exec chmod 644 {} +
+	@find ./_site/ -type d -exec chmod 755 {} +
+
+deploy-staging: predeploy-fix-permissions
+	@rsync -r --rsh="ssh -p9022" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldbuntu:
+
+deploy-production: predeploy-fix-permissions
+	@rsync -r --rsh="ssh -p22" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldman.com:

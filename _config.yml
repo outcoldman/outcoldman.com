@@ -12,7 +12,6 @@ title: Blog about software development
 markdown: redcarpet
 permalink: /:categories/archive/:year/:month/:day/:title/
 safe: false
-exclude: [bower_components]
 
 # Disqus Comments
 disqus_short_name: outcoldman
@@ -35,6 +34,9 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - Makefile
+  - _config.yml
   - _local_config.yml
   - bower.json
+  - bower_components
   - docker-compose.yml
+  - node_modules
