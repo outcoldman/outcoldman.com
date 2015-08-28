@@ -5,6 +5,7 @@ author: Denis Gladkikh
 description: Blog about software development
 url: http://outcoldman.com
 title: Blog about software development
+deployment: production
 
 #
 # Jekyll Settings
@@ -15,14 +16,11 @@ safe: false
 
 # Disqus Comments
 disqus_short_name: outcoldman
-disqus_show_comment_count: true
+disqus_show_comment_count: false
+disqus_registered_url: http://outcoldman.com
 
 # Google Analytics
 google_analytics_tracking_id: UA-7023371-5
-
-# Github repositories
-github_user: outcoldman
-github_repo_url: https://github.com/outcoldman/outcoldman.com/
 
 gems:
   - jekyll-sitemap
@@ -36,6 +34,7 @@ exclude:
   - Makefile
   - _config.yml
   - _local_config.yml
+  - _staging_config.yml
   - bower.json
   - bower_components
   - docker-compose.yml

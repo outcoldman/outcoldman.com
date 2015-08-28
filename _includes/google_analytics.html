@@ -1,4 +1,4 @@
-{% if site.google_analytics_tracking_id %}
+{% if site.google_analytics_tracking_id and site.deployment == "production" %}
   <script type="text/javascript">
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', '{{ site.google_analytics_tracking_id }}']);

@@ -15,16 +15,16 @@ deps:
 	@rbenv rehash
 
 build-local:
-	@rbenv exec bundle exec jekyll build --draft --config _local_config.yml
+	@rbenv exec bundle exec jekyll build --draft --config=_config.yml,_local_config.yml
 
 build-staging:
-	@rbenv exec bundle exec jekyll build --draft --config _staging_config.yml
+	@rbenv exec bundle exec jekyll build --draft --config=_config.yml,_staging_config.yml
 
 build-production:
 	@rbenv exec bundle exec jekyll build --config _config.yml
 
-deploy-local:
-	@rbenv exec bundle exec jekyll server --watch --draft --config _local_config.yml
+server-local:
+	@rbenv exec bundle exec jekyll server --watch --draft --config=_config.yml,_local_config.yml
 
 predeploy-fix-permissions:
 	@find ./_site/ -type f -exec chmod 644 {} +
