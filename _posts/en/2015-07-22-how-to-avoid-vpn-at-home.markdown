@@ -45,7 +45,7 @@ expensive, and it was possible to use cheaper solutions:
 So my setup consists now from next components:
 
 - Ubuntu server with Docker. Where I host a lot of services. Also two important containers
-  are ddclient (see [Dynamic DNS](http://outcoldman.com/en/archive/2014/10/14/ubuntu-as-a-home-server-part-1-dynamic-dns/))
+  are ddclient (see [Dynamic DNS](https://outcoldman.com/en/archive/2014/10/14/ubuntu-as-a-home-server-part-1-dynamic-dns/))
   and [nginx-proxy](https://github.com/jwilder/nginx-proxy).
 - My router forwards next ports:
     - `80` to nginx-proxy, which actually always redirects to `443`.
