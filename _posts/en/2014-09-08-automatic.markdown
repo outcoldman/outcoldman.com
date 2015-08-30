@@ -28,7 +28,7 @@ You always can get access to the information where you been week ago, when and h
 
 Recently Automatic also [introduced](https://twitter.com/automatic/status/507159749519876097) web [Dashboard](https://dashboard.automatic.com), where you can see all your trips as well
 
-[![Automatic Dashboard]({{ site.url }}/library/2014/09/automatic.dashboard.png)]({{ site.url }}/library/2014/09/automatic.dashboar.full.png)
+[![Automatic Dashboard]({{ site.url }}/library/2014/09/automatic.dashboard.png)]({{ site.url }}/library/2014/09/automatic.dashboard.full.png)
 
 * Notify about aggressive driving. Do you know how aggressive you are on the road? Do you accelerate too fast? Automatic can notify you about it, like you don't know. It will notify you about all hard brakes and hard accelerations you make. Also it will notify you when you are driving above some speed, which is by default 70 miles per hour. 
 
