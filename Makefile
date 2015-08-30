@@ -34,4 +34,4 @@ deploy-staging: predeploy-fix-permissions
 	@rsync -r --rsh="ssh -p9022" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldbuntu:
 
 deploy-production: predeploy-fix-permissions
-	@rsync -r --rsh="ssh -p22" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldman.com:
+	@rsync -r --rsh="ssh -p9022" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldman.com:
