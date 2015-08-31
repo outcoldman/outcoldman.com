@@ -191,9 +191,11 @@ Few things are important in these configurations:
     Google Analytics or Disqus from local and staging deployments, like
 
 ```text
+{% raw %}
 {% if site.deployment == "production" %}
     <!-- Include disqus or Google Analytics -->
 {% endif %}
+{% endraw %}
 ```
 
 ## Setting up nginx servers
@@ -366,10 +368,9 @@ using Jenkins.
 
 ## Setting up Jenkins
 
-I use official jenkins [image](https://hub.docker.com/_/jenkins/). The only one
+I use official Jenkins [image](https://hub.docker.com/_/jenkins/). The only one
 problem I saw with it - that you need to be careful with file permissions
-as `jenkins` is using not root user, so every time you modify something - you
-need to make sure that you fixed permissions after that.
+as Jenkins is using not root user.
 
 For example when you mount `/var/jenkins_home/` you need to setup right
 permissions, this is example of my `Dockerfile` which installs some dependencies
@@ -414,22 +415,23 @@ jenkins:
     max-size: 10m
 ```
 
-I'm not going to describe all `jenkins` configurations which you should do,
+I'm not going to describe all Jenkins configurations which you should do,
 just mention important (to learn more about jenkins you can always find some
 books, like [Jenkins. The definition guide](http://www.wakaleo.com/books/jenkins-the-definitive-guide)).
 
 - If this is the first time you start it - setup security. Add users. Setup
-    access matrix.
+access matrix.
 - Setup SMTP settings if you want to get notifications about broken builds.
 - Install plugin updates.
 - Install few plugins we need, which are `rbenv` and `Gitlab Hook Plugin`. I also
-    tried to integrate `nodejs` with `bower` but `rbenv` does not work with `nodejs`
-    plugin together in the same build, see [Using both NodeJS and Rbenv build environment plugins, rbenv is unable to create .rbenv.lock directory](https://issues.jenkins-ci.org/browse/JENKINS-24425).
-- After that you need to generate SSH keys on Jenkins, just open `bash` in `jenkins`
-    container and generate SSH keys following for example GitHub documentation
-    (do not specify passphrase, as it will be hard to use this key in deployment
-    scripts, if you want to make it more secure you can use separate scripts for
-    GitLab and deployment)
+tried to integrate `nodejs` with `bower` but `rbenv` does not work with `nodejs`
+plugin together in the same build, see [Using both NodeJS and Rbenv build environment plugins, rbenv is unable to create .rbenv.lock directory](https://issues.jenkins-ci.org/browse/JENKINS-24425).
+
+After that you need to generate SSH keys on Jenkins, just open `bash` in `jenkins`
+container and generate SSH keys following for example GitHub documentation
+(do not specify passphrase, as it will be hard to use this key in deployment
+scripts, if you want to make it more secure you can use separate scripts for
+GitLab and deployment)
 
 ```
 docker exec -it jenkins_jenkins_1 bash
@@ -438,9 +440,9 @@ container$ mkdir .ssh
 container$ ssh-keygen -t rsa -b 4096 -C "someemail@myhomeserver.com"
 ```
 
-- The other step I did, I removed `StrictHostKeyChecking` on Jenkins for my
-    servers, as I recreate them very often and I don't want to upgrade fingerprint
-    so often
+The other step I did, I removed `StrictHostKeyChecking` on Jenkins for my
+servers, as I recreate them very often and I don't want to upgrade fingerprint
+so often
 
 ```
 container$ echo 'Host myhomeserver
@@ -449,23 +451,28 @@ container$ echo 'Host myhomeserver
 >     StrictHostKeyChecking no' > ~/.ssh/config
 ```
 
-- After that you need to go to the Jenkins configuration and add this key to
-    Jenkins Credentials.
-- Setup Jenkins with `GitLab` by following this [README.md](https://github.com/jenkinsci/gitlab-hook-plugin/blob/master/README.md)
-    and [GitLab documentation](http://doc.gitlab.com/ee/integration/jenkins.html)
-    (the last one is little out of date).
-    - You will need to add `id_rsa.pub` content as deploy key to GitLab.
-    - Also specify `https://jenkins.myhomeserver.com/gitlab/build_now` in WebHooks for
-        project in GitLab (don't forget to fix your domain).
-    - NOTE: the same `id_rsa.pub` we use for the nginx container above, which
-        will allow us to deploy.
-- At this point we are ready to create new project in Jenkins, where you need to
-    specify
-    - Name and type will be `Freestyle project`.
-    - Select Source Code Management `Git`, set location, choose Credentials.
-    - Select Repository Browser `GitLab`.
-    - Select `rbenv build wrapper`. Set Ruby version.
-    - Add build steps `Execute shell`
+After that you need to go to the Jenkins configuration and add generated key to
+Jenkins Credentials.
+
+Setup Jenkins with `GitLab` by following this [README.md](https://github.com/jenkinsci/gitlab-hook-plugin/blob/master/README.md)
+and [GitLab documentation](http://doc.gitlab.com/ee/integration/jenkins.html)
+(the last one is little out of date).
+
+- You will need to add `id_rsa.pub` content as deploy key to GitLab.
+- Also specify `https://jenkins.myhomeserver.com/gitlab/build_now` in WebHooks for
+    project in GitLab (don't forget to fix your domain).
+- NOTE: the same `id_rsa.pub` we use for the nginx container above, which
+    will allow us to deploy.
+
+At this point we are ready to create new project in Jenkins, where you need to
+specify
+
+- Name and type will be `Freestyle project`.
+- Select Source Code Management `Git`, set location, choose Credentials.
+- Select Repository Browser `GitLab`.
+- Select `rbenv build wrapper`. Set Ruby version.
+- Add build steps `Execute shell`
+
 ```
 make deps
 make build-staging
@@ -473,8 +480,9 @@ make deploy-staging
 make build-production
 make deploy-production
 ```
-    - Add post-build action `E-mail notification`.
 
-You are ready to build it. First build will take a lot of time, because
-Jenkins will download ruby for the first time and build it, after that it will need
-to download all gems.
+- Add post-build action `E-mail notification`.
+
+You are ready to build it. First build will take a lot of time because
+Jenkins will need to download ruby for the first time and build it,
+all next builds will be much quicker.
