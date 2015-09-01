@@ -2,7 +2,7 @@
 layout: post
 title: "Digest: August 2015"
 categories: en
-tags: [digest, llvm, dns]
+tags: [digest, llvm, dns, lmdb, bash, zsh, unix, awk]
 ---
 
 For now, every month I will try to keep posting digest with the links to all
