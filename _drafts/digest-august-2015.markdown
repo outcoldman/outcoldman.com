@@ -39,3 +39,5 @@ or maybe just interesting for myself.
     useful cheatsheet.
 - [From Bash To Z Shell](http://www.bash2zsh.com). Great book. A little bit out
     of date, but has a lot of useful information about all different kind of shells.
+- [Learn X in Y minutes](http://learnxinyminutes.com). If you want to refresh
+    your knowledge about some language you used in past - great way to start.
