@@ -24,6 +24,7 @@ google_analytics_tracking_id: UA-7023371-5
 
 gems:
   - jekyll-sitemap
+  - jekyll-redirect-from
 
 exclude:
   - .gitignore

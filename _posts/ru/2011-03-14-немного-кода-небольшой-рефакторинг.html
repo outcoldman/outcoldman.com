@@ -4,7 +4,7 @@ title: "Немного кода, небольшой рефакторинг"
 date: 2011-03-14 09:23:00
 categories: ru
 tags: [.NET, C#, Twitter, Sample, Refactoring]
-alias: ru/blog/show/277
+redirect_from: ru/blog/show/277/
 ---
 <p>Изучал тут как-то примеры книги <a href="http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0470531320.html">Professional Twitter Development: With Examples in .NET 3.5</a>, хотел разобраться как работает эта самая OAuth авторизация для твиттера. Раньше у меня на сайте было немного действий с твиттером, подгружались мой твитты, хранились, отображались, но потом твиттер что-то поменял в авторизации, вроде разрешил только OAuth, а в тот момент я что-то не шибко разобрался с этим OAuth, да и времени не было, хотя вроде еще тогда <a href="http://linqtotwitter.codeplex.com/">LinqToTwitter</a> ее поддерживал (а я использовал именно эту библиотеку). В общем-то, просто в тот момент подумал, что тема OAuth авторизации интересна, и нужно бы посмотреть как она реализована в деталях попозже. Вот и набрел я тут недавно на книгу <a href="http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0470531320.html">Professional Twitter Development: With Examples in .NET 3.5</a>, точнее только на ее примеры, решил поковыряться. Код там был не из простых, и я просто тупо стал рефакторить его, чтобы разобрать что и как работает. Вот, например, одно из превращений, которое я уже правда публиковал в твиттере давно (и может быть вы уже видели):</p>    <p>Было:</p>  <pre><code>public static string NormalizeRequestParameters
     (NameValueCollection parameters)

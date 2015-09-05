@@ -4,7 +4,7 @@ title: "Подключение по HTTPS (SSL) - TrustAllCertificatePolicy"
 date: 2010-02-09 13:04:00
 categories: ru
 tags: [SSL, Certificate, .NET, C#, https]
-alias: ru/blog/show/186
+redirect_from: ru/blog/show/186/
 ---
 <p>Когда подключаетесь по HTTPS (SSL) к веб-ресурсу – можно получить такую ошибку:</p>  <p><em>&quot;The underlying connection was closed: Could not establish trust relationship with remote server.&quot;</em></p> <lj-cut>  <p>Дело может быть в том, что сервер использует либо просроченный сертификат, либо какой-то самоизданный сертификат, сертификат УЦ которого не установлен на вашем компьютере, либо сертификат выдан на DNS имя, а подключаетесь вы по IP. В общем, причин может быть масса. Когда вы открываете веб-сайт через браузер – он вам предложит на выбор: открыть соединение или нет, программно так вам никто не сделает само собой. Проблему эту можно обойти при помощи свойства <a href="http://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.certificatepolicy.aspx">ServicePointManager.CertificatePolicy</a> и интерфейса <a href="http://msdn.microsoft.com/en-us/library/system.net.icertificatepolicy.aspx">ICertificatePolicy</a>. Пишем свой Policy, очень простой:</p>  
 

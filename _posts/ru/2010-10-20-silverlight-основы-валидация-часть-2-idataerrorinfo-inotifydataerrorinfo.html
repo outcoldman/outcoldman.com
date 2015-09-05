@@ -4,7 +4,7 @@ title: "Silverlight. Основы. Валидация. Часть 2. IDataErrorI
 date: 2010-10-20 13:51:00
 categories: ru
 tags: [Silverlight, XAML, Validation]
-alias: ru/blog/show/250
+redirect_from: ru/blog/show/250/
 ---
 <p>Буквально вчера написал <a href="/ru/blog/show/249">первую часть</a> статьи про валидацию введённых данных в Silverlight, сегодня хочу продолжить эту тему, чтобы не откладывать в дальний ящик. В этой части я попробую дополнить первую часть, скажу еще, что не сказал про DataAnnotations, а так же опишу интерфейсы <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.idataerrorinfo(VS.95).aspx">IDataErrorInfo</a> и <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifydataerrorinfo(VS.95).aspx">INotifyDataErrorInfo</a>. Рекомендую прочесть <a href="/ru/blog/show/249">первую часть статьи</a> перед прочтением этой, потому как я буду использовать все тот же пример.</p>    <h2>Еще пару слов про ValidatesOnExceptions</h2>  <p>Забыл сказать, что если вам хочется построить валидацию на исключениях, то совсем не обязательно использовать DataAnnotations, можно очень просто выбрасывать исключения прям из set методов. Например, для проверки того, что повторно введенный пароль из прошлого примера совпадает с перво-введённым паролем, можно сделать так:</p>  <pre><code>[Display(Name = &quot;New password confirmation&quot;)]
 public string NewPasswordConfirmation

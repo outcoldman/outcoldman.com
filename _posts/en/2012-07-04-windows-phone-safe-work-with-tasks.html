@@ -4,7 +4,7 @@ title: "Windows Phone: Safe work with tasks"
 date: 2012-07-04 06:34:00
 categories: en
 tags: [Silverlight, Windows Phone 7, Windows Phone, Tasks]
-alias: en/blog/show/318
+redirect_from: en/blog/show/318/
 ---
 <p>When developers use task from namespace <a href="http://msdn.microsoft.com/en-us/library/ff428753(v=vs.92).aspx">Microsoft.Phone.Tasks</a> they can do two mistakes: a) do not put some logic about that application can go to the tombstone mode, it is when phone will save all states off pages and application somewhere and when user will come back to application – phone will restore these states to application and pages; b) developers don't known that method Show can throw exception InvalidOperationException, this can happends when application is in progress of navigation, which potentially can kill your application if you do not have some exception handler, and this means that when user will go back from task to application he will see the main page of phone instead of the application's page. 
 </p><p>Ok, so let's look at simple example, my Windows Phone page will do next task: it will have some image control and button which can choose the image from library:
