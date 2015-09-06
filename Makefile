@@ -35,3 +35,24 @@ deploy-staging: predeploy-fix-permissions
 
 deploy-production: predeploy-fix-permissions
 	@rsync -r --rsh="ssh -p9022" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldman.com:
+
+FILENAME:=_drafts/$$(echo "$(name)" | tr ' ' '-' | tr '[:upper:]' '[:lower:]').markdown
+define DRAFT_YAML
+---
+layout: post
+title: "$(name)"
+categories: en
+tags: []
+---
+endef
+export DRAFT_YAML
+draft:
+	@echo $(FILENAME)
+	@echo "$$DRAFT_YAML" > $(FILENAME)
+	@vim $(FILENAME)
+
+draft-list:
+	@find ./_drafts -name "*.markdown" | nl
+
+draft-publish:
+	@find ./_drafts -name "*.markdown" | tail -n+$(draft) | head -n1 | xargs zsh -c 'mv $$0 ./_posts/en/$$(date "+%Y-%m-%d")-$${0:t}'
