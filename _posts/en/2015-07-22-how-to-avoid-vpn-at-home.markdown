@@ -5,7 +5,7 @@ categories: en
 tags: [VPN, OpenVPN, SSH, HTTPS, SSL, VNC]
 ---
 
-In October 2014 I wrote a [blog post](/en/archive/2014/10/21/ubuntu-as-a-home-server-part-2-openvpn/) 
+In October 2014 I wrote a [blog post]({{site.url}}/en/archive/2014/10/21/ubuntu-as-a-home-server-part-2-openvpn/) 
 about how to setup Open VPN at home to have access to home server and all services from outside.
 This setup worked fine for me for a last year, but there were few annoying things which I did not like:
 
@@ -26,7 +26,7 @@ and when I should not connect to my home services when I'm connected to public
 Wi-Fi hotspot.
 
 I bought a [wildcard certificate](https://www.namecheap.com/security/ssl-certificates/comodo/positivessl-wildcard.aspx)
-and using the same [docker deployment](/en/archive/2015/03/18/docker-for-home-server/)
+and using the same [docker deployment]({{site.url}}/en/archive/2015/03/18/docker-for-home-server/)
 I used with VPN. I have set it up with the help of [nginx-proxy](https://github.com/jwilder/nginx-proxy).
 Now with I can very simple to deploy any service I want on my domain. For
 example if I want to deploy Jenkins I can just pull the image, run it in docker with
