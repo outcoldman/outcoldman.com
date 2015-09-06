@@ -5,13 +5,13 @@ categories: en
 tags: [docker, services, home server, guacamole]
 ---
 
-I already told you that [I use docker at home](/en/archive/2015/03/18/docker-for-home-server/)
+I already told you that [I use docker at home]({{site.url}}/en/archive/2015/03/18/docker-for-home-server/)
 to run GitLab and Netatalk. Every month my list of containers which I host on my home server is growing
 for various reasons. Sometimes I just want to use something, sometimes I need it and
 sometimes I just want to take a quick look on it.
 So I decided to keep sharing some useful images and tips and tricks about them with you.
 
-This blog post is numbered with `Part 2`, because I believe that I already showed you some containers in [Using docker at home](/en/archive/2015/03/18/docker-for-home-server/).
+This blog post is numbered with `Part 2`, because I believe that I already showed you some containers in [Using docker at home]({{site.url}}/en/archive/2015/03/18/docker-for-home-server/).
 
 ## Guacamole
 
@@ -113,7 +113,7 @@ web:
   restart: always
 ```
 
-> `VIRTUAL_HOST` is set because I use [nginx-proxy](https://github.com/jwilder/nginx-proxy), see [Using docker at home](/en/archive/2015/03/18/docker-for-home-server/) for details.
+> `VIRTUAL_HOST` is set because I use [nginx-proxy](https://github.com/jwilder/nginx-proxy), see [Using docker at home]({{site.url}}/en/archive/2015/03/18/docker-for-home-server/) for details.
 
 And one last thing. To get access to the guacamole you will need to use path
 `/guacamole`. The root path `/` will show you default web page of TomCat server.
@@ -143,5 +143,5 @@ Disallow: /
 ```
 
 I was really surprised how great is this tool. The one problem which I could not solve
-is connection to the OS X VNC Server. But because I use [SSH tunneling](/en/archive/2015/07/22/how-to-avoid-vpn-at-home/)
+is connection to the OS X VNC Server. But because I use [SSH tunneling]({{site.url}}/en/archive/2015/07/22/how-to-avoid-vpn-at-home/)
 to access my OS X server, that wasn't an issue for me.
