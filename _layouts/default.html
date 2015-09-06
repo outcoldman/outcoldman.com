@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="/css/normalize.css">
         <link rel="stylesheet" href="/css/syntax.css">
         <link rel="stylesheet" href="/css/main.css">
-        <link rel="alternate" type="atom+xml" title="{{site.title}}" href="{% if page.categories contains 'ru' %}https://feeds.feedburner.com/outcoldman{% else %}https://feeds.feedburner.com/outcoldman_en{% endif %}" />
+        <link rel="alternate" type="application/rss+xml" title="{{site.title}}" href="{{site.url}}/feed.xml" />
         <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
         <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
         <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
@@ -64,11 +64,7 @@
                 <ul class="social">
                     <li><a class="twitter" href="https://twitter.com/outcoldman"><i class="fa fa-twitter"></i></a></li>
                     <li><a class="github" href="https://github.com/outcoldman"><i class="fa fa-github"></i></a></li>
-                    {% if page.categories contains 'ru' %}
-                    <li><a class="rss" href="https://feeds.feedburner.com/outcoldman"><i class="fa fa-rss"></i></a></li>
-                    {% else %}
-                    <li><a class="rss" href="https://feeds.feedburner.com/outcoldman_en"><i class="fa fa-rss"></i></a></li>
-                    {% endif %}
+                    <li><a class="rss" href="{{ site.url }}/feed.xml"><i class="fa fa-rss"></i></a></li>
                 </ul>
             </header>
 
