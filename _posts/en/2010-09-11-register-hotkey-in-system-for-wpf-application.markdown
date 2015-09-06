@@ -6,7 +6,7 @@ categories: en
 tags: [.NET, C#, WPF, Hotkey]
 alias: en/blog/show/240
 ---
-<p>Couple days ago I got a question about how to register hotkey in Windows for WPF application. I remembered that one year ago I was solving the same problem in WinForms application, I was registering hot keys for my application, it was <a href="/en/tools/keys">Vista Keys Extender</a> project. I knew that my project worked, so I suggested author of question to use code of my project to solve his problem. But as we learned later in WPF message handle mechanism different from WinForms. So I started to find solution for WPF application. I copied my <a href="http://keysextender.codeplex.com/SourceControl/changeset/view/51053#330409">old code</a> from my old project and started to rewrite it step-by-step.</p>    <p>First off all we need to import WinAPI methods:</p>  
+<p>Couple days ago I got a question about how to register hotkey in Windows for WPF application. I remembered that one year ago I was solving the same problem in WinForms application, I was registering hot keys for my application, it was Vista Keys Extender project. I knew that my project worked, so I suggested author of question to use code of my project to solve his problem. But as we learned later in WPF message handle mechanism different from WinForms. So I started to find solution for WPF application. I copied my <a href="http://keysextender.codeplex.com/SourceControl/changeset/view/51053#330409">old code</a> from my old project and started to rewrite it step-by-step.</p>    <p>First off all we need to import WinAPI methods:</p>  
 
 ```
 internal class HotKeyWinApi
