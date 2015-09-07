@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Digest: September 2015"
+title: "From my reading list: September 2015"
 categories: en
 tags: [digest]
 ---
@@ -17,3 +17,25 @@ In these digests I will also start to include some tools which I use.
     diffing tools. Allows you to see changes side-by-side in your terminal. When
     you install it with `homebrew` it also install a script which allows you to
     run `git icdiff`.
+- [OS-X-Yosemite-Security-and-Privacy-Guide](https://github.com/drduh/OS-X-Yosemite-Security-and-Privacy-Guide).
+    Great list of things how to make OS X Yosemite more secure and protect
+    your privacy. I have changes `0` things after I read this list, but I learned
+    some. I also saw similar for Linux, mostly about [security only](https://github.com/lfit/itpol/blob/master/linux-workstation-security.md),
+    but it wasn't really interesting for me.
+- [How does a relational database work](http://coding-geek.com/how-databases-work/).
+    I can not even imagine how much time it took Christophe to write this article.
+    Well explained. I believe that experts and beginners can find something in
+    this article. Also one more resource with good readins is [Readings in Databases](https://github.com/rxin/db-readings)
+- [Go GC: Prioritizing low latency and simplicity](https://blog.golang.org/go15gc).
+    Garbage collector in golang 1.5 has been improved, which means that golang
+    now has only one issue, which still [bothers me]({{post_url /en/2015-07-07-my-experience-with-golang}}) -
+    go dependencies (they are working on it, there are already some experimental
+    implementations around vendoring).
+- [docker-cheat-sheet](https://github.com/wsargent/docker-cheat-sheet). Nice
+    list of how to get started about docker. And if you want to learn more
+    this is an [awesome-docker](https://github.com/veggiemonk/awesome-docker)
+    list.
+- [selfspy](https://github.com/gurgeh/selfspy). I am not using it, but still
+    think that it is interesting idea. Spy on yourself, so you will be able to
+    restore files, which you forgot to save or see how much time you spent in
+    IDE and how much time in the browser.
