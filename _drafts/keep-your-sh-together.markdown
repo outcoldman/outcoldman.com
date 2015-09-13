@@ -13,6 +13,9 @@ them as one of your pet projects, which means as for any other type of project:
 - *you should* have a good way to maintain dependencies;
 - *you should* make it reusable;
 
+
+[![iTerm2]({{ site.url }}/library/2015/09/my-iterm2.png)]({{ site.url }}/library/2015/09/my-iterm2.png)
+
 ## What to use?
 
 If you were Windows user as me you probably have heard a lot of "Linux is great
@@ -63,6 +66,7 @@ Also I highly recommend to take a look on [cheatsheet](https://github.com/robbyr
 ### tmux
 
 > [tmux](http://tmux.github.io) is a terminal multiplexer
+>
 > What is a terminal multiplexer? It lets you switch easily between several
 > programs in one terminal, detach them (they keep running in the background)
 > and reattach them to a different terminal. And do a lot more. See the manual.
@@ -123,7 +127,7 @@ I tried at first to write some kind of *dotfiles framework* which can be reusabl
 and easy to maintain, but considering how often you change things - it is really
 hard to do.
 
-## zgen
+### zgen
 
 Most of the peoples use [antigen](http://antigen.sharats.me), which looks more
 like dead than alive. It has huge issue with performance, depending on how many
@@ -528,6 +532,7 @@ run '~/.tmux/plugins/tpm/tpm'
 
 I also use [tmuxinator](https://github.com/tmuxinator/tmuxinator) to predefine
 some common used session.
+
 
 ### vimrc
 
@@ -998,9 +1003,6 @@ let g:tagbar_type_go = {
 let g:pymode_rope_complete_on_dot = 0
 ```
 
-As you can see I use vundle for plugins, because I also use vundle plugin
-from oh-my-zsh I can just run `vundle-update` to update all plugins.
+As you can see I use [vundle](https://github.com/VundleVim/Vundle.Vim) for plugins.
+*Oh-my-Zsh* also has plugin for vundle, it allows to run `vundle-update` to update all plugins.
 
-## Links
-
-- [Your unofficial guide to dotfiles on GitHub.](https://dotfiles.github.io)
