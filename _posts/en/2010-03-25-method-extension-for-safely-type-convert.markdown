@@ -4,7 +4,7 @@ title: "Method extension for safely type convert"
 date: 2010-03-25 19:58:00
 categories: en
 tags: [.NET, C#, Parse, Convert, Extension Methods]
-alias: en/blog/show/196
+redirect_from: en/blog/show/196/
 ---
 <p>Recently I read good Russian post with many interesting <a href="http://nesteruk.wordpress.com/2010/03/22/extension-method-patterns/">extensions methods</a> after then I remembered that I too have one good extension method “Safely type convert”. Idea of this method I got at last job.</p>
 

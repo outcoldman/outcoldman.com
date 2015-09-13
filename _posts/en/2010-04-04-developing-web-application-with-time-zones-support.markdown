@@ -4,7 +4,7 @@ title: "Developing web application with time zones support"
 date: 2010-04-04 07:46:00
 categories: en
 tags: [ASP.NET, JavaScript, Localization, TSQL, HTML]
-alias: en/blog/show/198
+redirect_from: en/blog/show/198/
 ---
 <p>When you develop web application you should know that client PCs can be located anywhere on earth. Even if you develop app just for your country users you should remember it (in Russia now we have 9 time zones, before 28 of March we had 11 time zones). On big sites with many members do it very easy – you can place field “time zone” in member profile, in Sharepoint I saw this solution, and many enterprise app do it like this. But if we have simple website with blog publications or website with news and we don’t have member profiles on server, how we can support user’s time zones?</p>
 

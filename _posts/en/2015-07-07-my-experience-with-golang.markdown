@@ -3,6 +3,7 @@ layout: post
 title: "My experience with golang"
 categories: en
 tags: [golang, languages, go]
+redirect_from: [en/archive/2015/06/08/my-experience-with-golang/,en/archive/2015/07/08/my-experience-with-golang/]
 ---
 
 In last month I played a little with [golang](http://golang.org). Want to share my experience with you. I'm not an expert in golang.

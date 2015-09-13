@@ -4,7 +4,7 @@ title: "Small sample of using Code Contracts"
 date: 2010-09-19 17:04:39
 categories: en
 tags: [.NET, C#, WPF, Code Contract, ReSharper]
-alias: en/blog/show/242
+redirect_from: en/blog/show/242/
 ---
 <p>I had read about Code Contracts long time ago, but I didn’t see a reason to use contract instead of simple tests and argument's check with Exception's throws. Only now I’m trying to use them at real project. I didn’t see why I need to write:</p>  
 

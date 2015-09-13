@@ -4,7 +4,7 @@ title: "C# 4.0 in a Nutshell, Fourth Edition"
 date: 2010-06-15 19:03:00
 categories: en
 tags: [.NET, C#, .NET 4.0, C# 4, Dynamic, O’REILLY, C# IN A NUTSHELL, Book Review]
-alias: en/blog/show/206
+redirect_from: en/blog/show/206/
 ---
 <p><img alt="C# in Nutshell" src="{{ site.url }}/library/images/02/oreilly/01.gif" align="left" style="margin:7px" />Just became a lucky owner of this book C# IN A NUTSHELL 4th edition. This is a fourth edition of this book’s series. I saw previous third edition of this book, we presented it on one of our <a href="http://yargu.ineta.ru/events/eventMultiSessionInfo.aspx?Id=359f9e0d-2e3e-4a92-ba1a-bb452efe5597">events</a> at Yaroslavl State University, but that book was a Russian translated version and published in Russia, this is was bad side of that book – all books at Russia printed on really bad paper. I should say that I didn’t read this book by end, but already I was surprised. Why? Why I heard a lot about <em>Richter CLR via C#</em> (English version of 3rd edition of this book I already have, and this book are waiting my attention), and just a few words about C# IN A NUTSHELL, at least in my sphere. I just listen once about this book at one of the <a href="http://spbaltnet.rpod.ru/">podcast of Alt.Net group</a>, and this words was Richter it is really good book, and C# IN A NUTSHELL it is a good handbook. My opinion is - you should read Richter if you want to develop with .NET. But if you want to develop on .NET with C# you should read C# IN A NUTSHELL too.
 </p>

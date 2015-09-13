@@ -4,7 +4,7 @@ title: "Silverlight basics. Validation. Part 2. IDataErrorInfo & INotifyDataErro
 date: 2010-11-24 21:18:00
 categories: en
 tags: [Silverlight, XAML, Validation]
-alias: en/blog/show/260
+redirect_from: en/blog/show/260/
 ---
 <p>At <a href="/en/blog/show/259">previous my blog post</a> I wrote about how to implement validation with DataAnnotations. I this part of my article I will describe interfaces <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.idataerrorinfo(VS.95).aspx">IDataErrorInfo</a>and <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifydataerrorinfo(VS.95).aspx">INotifyDataErrorInfo</a>. I recommend you to read <a href="/en/blog/show/259">first part</a> before read this part. Because I use example from previous part.</p>    <h2>Few words about ValidationOnExceptions</h2>  <p>Forgot to tell you, if you want implement validation with exceptions, you may not use DataAnnotations, you can throw your own exceptions from set methods. For example, you can implement check of password confirmation like this:</p>  
 

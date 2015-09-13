@@ -4,7 +4,7 @@ title: "TSQL: Passing array/list/set to stored procedure (MS SQL Server)"
 date: 2010-08-28 09:18:00
 categories: en
 tags: [.NET, TSQL, SQL Server, Transact SQL, Bulk Insert, Table-Valued Parameters, Stored Procedures]
-alias: en/blog/show/224
+redirect_from: en/blog/show/224/
 ---
 <p>Passing array/list/set to stored procedure is fairly common task when you are working with Databases. You can meet this when you want to filter some collection. Other case – it can be an import into database from extern sources. I will consider few solutions: creation of sql-query at server code, put set of parameters to sql stored procedure’s parameter with next variants: parameters separated by comma, bulk insert, and at last table-valued parameters (it is most interesting approach, which we can use from MS SQL Server 2008).</p>
 

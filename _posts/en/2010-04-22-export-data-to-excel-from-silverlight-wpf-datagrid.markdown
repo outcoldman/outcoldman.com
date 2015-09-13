@@ -4,7 +4,7 @@ title: "Export data to Excel from Silverlight/WPF DataGrid"
 date: 2010-04-22 06:43:00
 categories: en
 tags: [Silverlight, C#, Excel, Dynamic, WPF, XAML, WPF 4, Silverlight 4, DataGrid, COM]
-alias: en/blog/show/201
+redirect_from: en/blog/show/201/
 ---
 <p>Data export from DataGrid to Excel is very common task, and it can be solved with different ways, and chosen way depend on kind of app which you are design. If you are developing app for enterprise, and it will be installed on several computes, then you can to advance a claim (system requirements) with which your app will be work for client. Or customer will advance system requirements on which your app should work. In this case you can use COM for export (use infrastructure of Excel or OpenOffice). This approach will give you much more flexibility and give you possibility to use all features of Excel app. About this approach I’ll speak below. Other way – your app is for personal use, it can be installed on any home computer, in this case it is not good to ask user to install MS Office or OpenOffice just for using your app. In this way you can use foreign tools for export, or export to xml/html format which MS Office can read (this approach used by JIRA). But in this case will be more difficult to satisfy user tasks, like create document with landscape rotation and with defined fields for printing.</p>
 

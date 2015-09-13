@@ -4,7 +4,7 @@ title: "RESTful WCF Service – How to get browser version at server code"
 date: 2010-08-14 14:55:00
 categories: en
 tags: [Silverlight, .NET, C#, Internet Explorer 8, PDF, Reports, WCF, RESTful, FireFox]
-alias: en/blog/show/215
+redirect_from: en/blog/show/215/
 ---
 <p>At our product we have a client Silverlight part and server-code part, which contains a lot of WCF methods. We don’t use ASP.NET Compatible mode, because we want to leave an opportunity to deploy server part to server without web-server role (without IIS). Really, I don’t know why we chose this way, because all of our installations at current moment are on IIS. But we have what we have, so we haven’t ASP.NET Compatible mode, and as an expected result we can’t get <i>HttpContext.Current</i> instance at server WCF methods. One of WCF Service is a <a href="http://msdn.microsoft.com/en-us/magazine/dd315413.aspx">RESTful service</a>, which at his methods returns report files, so it can handle GET-queries from browsers. This is standard code:</p>
 
