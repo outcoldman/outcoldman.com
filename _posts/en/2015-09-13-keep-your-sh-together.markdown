@@ -2,17 +2,25 @@
 layout: post
 title: "Keep your sh together"
 categories: en
-tags: []
+tags: [tmux,vim,iterm,bash,zsh,terminal,vundle,antigen,zgenjj]
 ---
 
-If you are working in terminal - one of the important things to do is to keep
-your scripts and dotfiles in the order. Which means, that you should consider
-them as one of your pet projects, which means as for any other type of project:
+If you are working in terminal - one of the important things is to keep
+your scripts and dotfiles in the order. Basically, you should consider
+them as one of your regular pet/side projects,
+and as any other of your pet projects:
 
 - *you should* be able to easily contribute to it;
 - *you should* have a good way to maintain dependencies;
 - *you should* make it reusable;
 
+I am a Terminal user, I use combination of *tmux*, *zsh* and *vim* for everyday
+development. In this post I just want to share with you my dotfiles and
+few ideas/plugins I use to maintain my scripts and configuration. Hope that it
+may be useful for you as a reference.
+
+Also I published two of my cheatsheets:
+[vim]({{site.url}}/cheatsheets/vim/) and [tmux]({{site.url}}/cheatsheets/tmux/)
 
 [![iTerm2]({{ site.url }}/library/2015/09/my-iterm2.png)]({{ site.url }}/library/2015/09/my-iterm2.png)
 
@@ -170,9 +178,10 @@ zgen/
 ```
 
 I have two submodules `zgen` and `powerline-fonts`. I may consider to actually
-move them to `install.zsh` script, so it will be easier to work with them.
+move them to `install.zsh` script, so it will be easier to work with them. But
+for now they are submodules.
 
-Also in the root I have
+Also in the root folder I have
 
 - `dots` - my dotfiles
 - `plugins` - my `zsh` plugins
@@ -347,7 +356,6 @@ if [ ! $TERM = dumb ]; then
         zgen load $DOTFILES/plugins/my-digitalocean
         zgen load $DOTFILES/plugins/rbenv
         zgen load $DOTFILES/plugins/pyenv
-        zgen load $DOTFILES/plugins/splunk
         zgen load $DOTFILES/plugins/tpm
 
         # load https://github.com/bhilburn/powerlevel9k theme for zsh
@@ -532,6 +540,8 @@ run '~/.tmux/plugins/tpm/tpm'
 
 I also use [tmuxinator](https://github.com/tmuxinator/tmuxinator) to predefine
 some common used session.
+
+Here also my [tmux cheatsheet]({{site.url}}/cheatsheets/tmux/).
 
 
 ### vimrc
@@ -1006,3 +1016,4 @@ let g:pymode_rope_complete_on_dot = 0
 As you can see I use [vundle](https://github.com/VundleVim/Vundle.Vim) for plugins.
 *Oh-my-Zsh* also has plugin for vundle, it allows to run `vundle-update` to update all plugins.
 
+Link to my [vim cheatsheet]({{site.url}}/cheatsheets/vim/).
