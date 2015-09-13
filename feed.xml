@@ -13,7 +13,7 @@
 				{% if post.author.name %}
 					<dc:creator>{{ post.author.name | xml_escape }}</dc:creator>
 				{% endif %}
-                <description>{{ post.content | xml_escape }}</description>
+				<description>{{ post.content | xml_escape }}&lt;img src=&quot;{{site.url | xml_escape}}/library/empty.gif?{{ post.url | uri_escape | xml_escape }}&quot; width=&quot;0&quot; height=&quot;0&quot; /&gt;</description>
 				<pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
 				<link>{{ site.url }}{{ post.url }}</link>
 				<guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
