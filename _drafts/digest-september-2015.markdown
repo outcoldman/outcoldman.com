@@ -39,3 +39,5 @@ In these digests I will also start to include some tools which I use.
     think that it is interesting idea. Spy on yourself, so you will be able to
     restore files, which you forgot to save or see how much time you spent in
     IDE and how much time in the browser.
+- [gdb-dashboard](https://github.com/cyrus-and/gdb-dashboard). Nice interface
+	for gdb. It is built using only native Python API. Nice to have for linux.
