@@ -41,3 +41,9 @@ In these digests I will also start to include some tools which I use.
     IDE and how much time in the browser.
 - [gdb-dashboard](https://github.com/cyrus-and/gdb-dashboard). Nice interface
 	for gdb. It is built using only native Python API. Nice to have for linux.
+- [A Visual Introduction to Machine Learning](http://www.r2d3.us/visual-intro-to-machine-learning-part-1/).
+    Just hope that they are not going to stop on first article. Really good explanation,
+    very nice animation, but very basics.
+- [Raft Consensus Algorithm](http://thesecretlivesofdata.com/raft/). Previous
+    animation reminded me about another animation I saw few months ago about
+    Raft algorithm. Link if you have not seen it.
