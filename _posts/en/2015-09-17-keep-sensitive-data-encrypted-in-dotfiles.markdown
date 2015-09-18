@@ -2,7 +2,7 @@
 layout: post
 title: "Keep sensitive data encrypted in dotfiles"
 categories: en
-tags: []
+tags: [zsh, dotfiles, passwordstore, gpg]
 ---
 
 In my previous [post]({{site.url}}{% post_url en/2015-09-13-keep-your-sh-together %})
