@@ -5,7 +5,7 @@ categories: en
 tags: []
 ---
 
-In my previous [post]({% post_url en/2015-09-13-keep-your-sh-together %})
+In my previous [post]({{site.url}}{% post_url en/2015-09-13-keep-your-sh-together %})
 I showed you how I keep all my scripts and dotfiles in sync
 between my computers using git. Also I suggested to use
 own private git repository for security reasons, as it easier to maintain
@@ -97,3 +97,6 @@ user: "Your name <someemail@somedomain>"
 
 Enter passphrase:
 ```
+
+One note that you can include `gnupg/random_seed` in `.gitignore` file as it
+will be regenerated every time you will try to get access to the database.
