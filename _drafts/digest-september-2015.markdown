@@ -47,3 +47,13 @@ In these digests I will also start to include some tools which I use.
 - [Raft Consensus Algorithm](http://thesecretlivesofdata.com/raft/). Previous
     animation reminded me about another animation I saw few months ago about
     Raft algorithm. Link if you have not seen it.
+- [Fluent Python](http://shop.oreilly.com/product/0636920032519.do). Great book
+    if you need to learn Python. It maybe not suitable for beginners, but very
+    good for people who developers in other languages and maybe had some experience
+    with Python before. A lot of links on external resources, so it is easy
+    to learn more about some topics.
+- [High Performance Python](http://shop.oreilly.com/product/0636920028963.do).
+    Mixed filling about this book. It is well written, but not what I expected.
+    Most of the perf tips I got from *Fluent Python*, so it felt like that reading
+    this book after *Fluent Python* was a waste of time. So nothing wrong with
+    this book, just does not seem like a good addition to *Fluent Python*.
