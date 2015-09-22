@@ -1,6 +1,7 @@
 ﻿body {
     font-family: Georgia, Times, "Times New Roman", serif;
     color:#333;
+    background:#333;
 }
 
 a {
@@ -162,6 +163,7 @@ footer {
 
 #center-wrapper {
     margin-left: 17em;
+    background: white;
 }
 
     #center-wrapper #center {
