@@ -141,6 +141,14 @@ header {
                 color: #eee;
             }
 
+            header ul.social li a i.number {
+                font-size: 0.3em;
+                font-family: "Open sans", sans-serif;
+                font-style:normal;
+                margin-left: 0.2em;
+                vertical-align: super;
+            }
+
 footer {
     border-top: 1px solid #aaa;
     padding-top: 0.5em;
@@ -303,7 +311,7 @@ ul.languages {
     }
 
 .index article:not(:last-child) {
-    padding-bottom: 3em; 
+    padding-bottom: 3em;
 }
 
 .index article:not(:first-child) {
@@ -311,13 +319,13 @@ ul.languages {
     padding-top: 3em;
 }
 
-@media screen and (max-width: 70em) { 
+@media screen and (max-width: 70em) {
     #center-wrapper #center #content {
         padding: 0em;
     }
 }
 
-@media screen and (max-width: 60em) { 
+@media screen and (max-width: 60em), screen and (max-height: 40em) {
     header {
         width: 100%;
         float: none;
@@ -348,12 +356,6 @@ ul.languages {
 
     #center-wrapper {
         margin-left: 0;
-    }
-
-    #center-wrapper #center {
-        margin-left: 0;
-        margin-right: 0;
-        max-width: auto;
     }
 
     h1 {
