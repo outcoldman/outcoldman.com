@@ -57,3 +57,6 @@ In these digests I will also start to include some tools which I use.
     Most of the perf tips I got from *Fluent Python*, so it felt like that reading
     this book after *Fluent Python* was a waste of time. So nothing wrong with
     this book, just does not seem like a good addition to *Fluent Python*.
+- [Launching nginScript and Looking Ahead](https://www.nginx.com/blog/launching-nginscript-and-looking-ahead/).
+    Questionable but nice addition to NGINX. You can now script NGINX with
+    JavaScript. They use their own custom VM for that.
