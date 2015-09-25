@@ -28,7 +28,7 @@ Also looking on [func (*Client) Do](https://golang.org/pkg/net/http/#Client.Do)
 
 Does it mean that next code is reusing HTTP connections?
 
-```golang
+```go
 // jsonBuffer := ...
 tr := &http.Transport{}
 client := &http.Client{Transport: tr}
@@ -124,7 +124,7 @@ Which was not what I expected. Fix was [very simple](https://github.com/golang/g
 I just need to always read whole body before closing it, one of the way to do
 that is to read to */dev/null*
 
-```golang
+```go
 io.Copy(ioutil.Discard, res.Body)
 ```
 
