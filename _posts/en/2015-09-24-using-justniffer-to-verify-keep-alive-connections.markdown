@@ -177,4 +177,4 @@ Server: Splunkd
 {"text":"Success","code":0}
 ```
 
-First request started connection and all next requests are reusing previous connection.
+First request started connection and all following requests reuse it.
