@@ -5,8 +5,6 @@ categories: en
 tags: [digest]
 ---
 
-In these digests I will also start to include some tools which I use.
-
 - [miller](http://johnkerl.org/miller/doc/). Great open source tool to work with
     CSV files. "Miller is like sed, awk, cut, join, and sort for name-indexed data such as CSV."
 - [jq](https://stedolan.github.io/jq/). The same purpose tool as `miller`, but for
