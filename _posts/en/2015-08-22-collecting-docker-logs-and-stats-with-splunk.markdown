@@ -98,7 +98,7 @@ forward all logs to this port (just don't forget to replace `YOUR_DOCKER_HOSTNAM
 Now we need to enable listening on port 1514
 
 ```bash
-docker exec -it splunk_forwarder_1 entrypoint.sh splunk add tcp 1514 -sourcetype syslog
+docker exec -it splunk_forwarder_1 entrypoint.sh splunk add udp 1514 -sourcetype syslog
 ```
 
 ## Forwarding logs from docker containers to Splunk
