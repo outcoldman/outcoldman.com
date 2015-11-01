@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Digest: October 2015"
+title: "From my reading list: October 2015"
 categories: en
 tags: [digest]
 ---
