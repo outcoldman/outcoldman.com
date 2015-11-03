@@ -12,3 +12,9 @@ tags: [digest]
     There are plenty tools in App Store on OSX which allows you to track what is
     taking so much space on your disk. But `ncdu` is free, works in terminal
     and better than others.
+- [Why Rust?](http://www.oreilly.com/programming/free/files/why-rust.pdf). 50
+    pages to learn a little about Rust.
+- [Practical Vim. Second Edition](https://pragprog.com/book/dnvim2/practical-vim-second-edition).
+    The best book about Vim just got updated. If you purchased first edition
+    before on pragprog you will get second edition for free, just go and
+    check your account.
