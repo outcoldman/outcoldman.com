@@ -18,3 +18,5 @@ tags: [digest]
     The best book about Vim just got updated. If you purchased first edition
     before on pragprog you will get second edition for free, just go and
     check your account.
+- [How to build a distributed counter](http://www.cakesolutions.net/teamblogs/how-to-build-a-distributed-counter).
+    Very simple example of *Conflict-free Replicated Data Type*.
