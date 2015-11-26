@@ -1,9 +1,11 @@
 ---
 layout: post
-title: "How to watch HD channels with Comcast"
+title: "HDHomeRunHD PRIME, Comcast and CableCARD"
 categories: en
 tags: [comcast, hd channels, tv tuner, silicondust, hdhomerun]
 ---
+
+Or better topic "How to watch HD Channels with Comcsat with your own tuner".
 
 I don't watch a lot of TV, but sometimes I do: sport or TV shows . You
 know that it is almost impossible to watch sports online in USA, and even if
@@ -18,7 +20,7 @@ advertisement.
 But still my main problem with Comcast - it is not cheap. Especially for me, as
 I said I do not watch a lot of TV and for few hours in a week - it does not
 feel right to pay what Comcast asks.
-First of all it is not cheap, becasuse Comcast requires you to upgrade your TV Tunner to HD
+First of all it is not cheap, because Comcast requires you to upgrade your TV Tunner to HD
 version if you want HD quality. This costs additional *$10-15* per month (for each TV). And
 even then you will not be able to watch shows and sports on your laptop or
 desktop (not all of them).
@@ -103,9 +105,25 @@ Below are instructions how to set it up.
 At this point you should be able to Watch HD TV from OS X or PC using
 *HDHomeRun Viewer*.
 
-## DVR
+## How to watch TV
 
-I tried several things, but not all of them.
+I tried several things
+
+- Official HDHomeRun View player. Works great.
+- [VLC Player](https://www.videolan.org/vlc/). Open it, right click on
+    *Universal Plug'n'Play* to *Enable* it
+    and after that you should see list of Tuners, one of them will be
+    *HDHomeRun* with list of channels. Just a note, if you have any other
+    application working, like *JRiver MediaCenter* which is using Plug'n'Play
+    discovery - for some reason VLC will not be able to enable Plug'n'Play. VLC
+    Player allows to record any channels right while you are watching. I guess
+    you can also schedule recording with cron.
+- [Channels for AppleTV 4th gen](http://getchannels.com) - works great. Not
+    free.
+
+## How to record (DVR)
+
+I tried few applications, obviously not all on the market.
 
 - [mythTV](https://www.mythtv.org) - I am too lazy to set it up.
 - [EyeTV](https://www.elgato.com/en/eyetv) - it does not work with PRIME, see
@@ -114,12 +132,15 @@ I tried several things, but not all of them.
     I have read that some people used old version of *EyeTV* and it worked, but
     I did not want to pay for something, which I know will not be supported in
     the future.
-- [JRiver MediaCenter](http://jriver.com) - it is just everything at once. It
-    isn't intuitive, and just could not set it up. I was not impressed with the
-    application anyway so decided not to waste more time.
+- [JRiver MediaCenter](http://jriver.com) - isn't intuitive. I could not set it
+    up, and because it had the same price as everything else I just gave up on
+    it.
 - [HDHomeRun DVR](https://www.silicondust.com/shop/) - still *Early Access*, a
     lot of issues, but I just hope that they will continue to work on it and
     get it done soon.
+
+I ended up with HDHomeRun DVR, with just a hope that they are going to finish
+it soon.
 
 ## HDHomeRun DVR Setup
 
@@ -152,7 +173,7 @@ If you have installed DVR on OSX there are few things I have learned about it:
     `/Library/LaunchDaemons/com.silicondust.dvr.plist`.
 - It does not have a lot of configurations, but has one important, if you will
     open `/Users/HDHomeRun/hdhomerun.conf` you will find that you can change
-    `RecordPath` to something different. It will use this location to write
+    `RecordPath`. It will use this location to write
     logs and recordings. Make sure that user `_HDHomeRun:_HDHomeRun` has access
     to this new folder, best way to do that is to make `_HDHomeRun` an owner of
     this directory. To restart the service you can use `launchctl`, like
@@ -162,5 +183,7 @@ sudo launchctl stop /Library/LaunchDaemons/com.silicondust.dvr.plist
 sudo launchctl start /Library/LaunchDaemons/com.silicondust.dvr.plist
 ```
 
-- It writes everything in mpeg2 format. Quicktime could not read it.
-
+- It writes everything in mpeg2 format. Quicktime could not read it. [VLC
+    Player](https://www.videolan.org/vlc/) can. You can convert to the iOS/OSX
+    compatible format using for example
+    [Adapter](https://www.macroplant.com/adapter/)
