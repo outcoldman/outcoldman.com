@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Digest: December 2015"
+title: "Digest: November 2015"
 categories: en
-tags: [digest]
+tags: [digest, tig, ncdu, vim]
 ---
 
 - [tig](http://jonas.nitro.dk/tig/). "Tig is an ncurses-based text-mode interface for git."
