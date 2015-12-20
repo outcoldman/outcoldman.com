@@ -26,3 +26,5 @@ tags: [os x, ios, emulator, ddos, http status, pkg]
     Apple pkg Package
     file?](http://superuser.com/questions/36567/how-do-i-uninstall-any-apple-pkg-package-file/)
     to find some apps/wrappers on top of *pkgutil*.
+- [The Bash Academy](http://www.bash.academy) - add to your bookmarks,
+    something really good can come out from this project.
