@@ -6,6 +6,8 @@ comments: false
 meta: false
 ---
 
+#### > Principal Software Developer @ Splunk
+
 > On this web site I publish my personal thoughts and ideas.
 > I am not speaking for any company in my blog posts.
 
