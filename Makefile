@@ -70,7 +70,7 @@ docker-aws-deploy:
 
 docker-clean:
 	-@docker kill $$(docker ps -q --filter=label=wwwoutcoldmancom=build) >/dev/null 2>&1
-	-@docker rm -v $$(docker ps -q --filter=label=wwwoutcoldmancom=build) >/dev/null 2>&1
+	-@docker rm -v $$(docker ps -aq --filter=label=wwwoutcoldmancom=build) >/dev/null 2>&1
 
 FILENAME:=_drafts/$$(echo "$(name)" | tr ' ' '-' | tr '[:upper:]' '[:lower:]').markdown
 define DRAFT_YAML
