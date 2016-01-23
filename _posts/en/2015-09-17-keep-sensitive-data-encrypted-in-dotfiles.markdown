@@ -5,7 +5,7 @@ categories: en
 tags: [zsh, dotfiles, passwordstore, gpg]
 ---
 
-In my previous [post]({{site.url}}{% post_url en/2015-09-13-keep-your-sh-together %})
+In my previous [post]({{site.url}}/en/archive/2015/09/13/keep-your-sh-together/)
 I showed you how I keep all my scripts and dotfiles in sync
 between my computers using git. Also I suggested to use
 own private git repository for security reasons, as it easier to maintain

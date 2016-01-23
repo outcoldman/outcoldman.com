@@ -1,40 +1,31 @@
-installtools:
-	@npm install bower
-	@rbenv install -s
-	@rbenv exec gem install bundle
+DOCKER_IMAGE_NAME=outcoldman/outcoldman.com
+DOCKER_CONTAINER_NAME=outcoldman.com
 
-updateclientdeps:
-	@bower install
-	@cp bower_components/pygments/css/monokai.css css/syntax.css
-	@cp bower_components/normalize-css/normalize.css css/normalize.css
-	@cp bower_components/font-awesome/css/font-awesome.min.css css/font-awesome.min.css
-	@cp bower_components/font-awesome/fonts/* fonts/
+docker-bower-build:
+	@docker run --rm --volume $$(pwd):/outcoldman.com node:latest bash -c "(\
+        npm install -g bower \
+        && mkdir -p /tmp/outcoldman.com \
+        && cd /tmp/outcoldman.com/ \
+        && bower install --allow-root normalize-css#3.0.3 font-awesome#4.3.0 pygments#2.0.2 \
+        && cp /tmp/outcoldman.com/bower_components/pygments/css/monokai.css               /outcoldman.com/css/syntax.css \
+        && cp /tmp/outcoldman.com/bower_components/normalize-css/normalize.css            /outcoldman.com/css/normalize.css \
+        && cp /tmp/outcoldman.com/bower_components/font-awesome/css/font-awesome.min.css  /outcoldman.com/css/font-awesome.min.css \
+        && cp /tmp/outcoldman.com/bower_components/font-awesome/fonts/*                   /outcoldman.com/fonts/ \
+        )"
 
-deps:
-	@rbenv exec bundle install
-	@rbenv rehash
+docker-jekyll-pull:
+	@docker pull jekyll/jekyll:2.5.3
 
-build-local:
-	@rbenv exec bundle exec jekyll build --draft --config=_config.yml,_local_config.yml
+docker-jekyll-local:
+	docker run --rm -it --volume $$(pwd):/srv/jekyll --publish 4000:80 jekyll/jekyll:2.5.3 \
+		jekyll build --draft --config _config.yml,_local_config.yml --watch
 
-build-staging:
-	@rbenv exec bundle exec jekyll build --draft --config=_config.yml,_staging_config.yml
+docker-jekyll-build:
+	docker run --rm --volume $$(pwd):/srv/jekyll jekyll/jekyll:2.5.3 \
+		jekyll build --config _config.yml
 
-build-production:
-	@rbenv exec bundle exec jekyll build --config _config.yml
-
-server-local:
-	@rbenv exec bundle exec jekyll server --watch --draft --config=_config.yml,_local_config.yml
-
-predeploy-fix-permissions:
-	@find ./_site/ -type f -exec chmod 644 {} +
-	@find ./_site/ -type d -exec chmod 755 {} +
-
-deploy-staging: predeploy-fix-permissions
-	@rsync -r --rsh="ssh -p9022" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldbuntu:
-
-deploy-production: predeploy-fix-permissions
-	@rsync -r --rsh="ssh -p9022" --checksum --delete-after --delete-excluded --numeric-ids ./_site/ root@outcoldman.com:
+docker-nginx-build:
+	@docker build -t $(DOCKER_IMAGE_NAME) --pull=true .
 
 FILENAME:=_drafts/$$(echo "$(name)" | tr ' ' '-' | tr '[:upper:]' '[:lower:]').markdown
 define DRAFT_YAML

@@ -3,6 +3,7 @@ layout: post
 title: "From my reading list January 2016"
 categories: en
 tags: []
+draft: true
 ---
 
 - [The Open Guide to Equity

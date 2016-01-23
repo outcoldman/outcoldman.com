@@ -11,7 +11,7 @@ If you don't know what is the benefit of persistent connection I highly
 recommend to read [High Performance Browser Networking](http://shop.oreilly.com/product/0636920028048.do).
 
 Week ago I was working on [Splunk logging driver for Docker](https://github.com/docker/docker/pull/16488)
-and because I do not have a [lot of experience]({{site.url}}{% post_url en/2015-07-07-my-experience-with-golang %})
+and because I do not have a [lot of experience]({{site.url}}/en/archive/2015/07/07/my-experience-with-golang)
 with golang I wasn't sure if logger was reusing connection or not.
 
 Documentation for [http package](https://golang.org/pkg/net/http/) says

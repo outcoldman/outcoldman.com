@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: 
+Disallow:
 
-Sitemap: http://outcoldman.com/sitemap.xml 
+Sitemap: https://www.outcoldman.com/sitemap.xml

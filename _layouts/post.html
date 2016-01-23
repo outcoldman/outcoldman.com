@@ -10,7 +10,7 @@ comments: true
 {% assign post_path = page.path %}
 <article itemscope itemtype="http://schema.org/BlogPosting">{% include article.html %}</article>
 
-{% if site.disqus_short_name and page.comments == true and site.deployment == "production" %}
+{% if site.disqus_short_name and page.comments != false and site.deployment == "production" %}
 <section class="comments">
     <h1>Comments</h1>
     <div id="disqus_thread">

@@ -36,7 +36,7 @@ Now let's go in details how you can do that.
 
 ## Preparing sources
 
-As I said I host my own GitLab server at home using Docker (see [Using docker at home](https://outcoldman.com/en/archive/2015/03/18/docker-for-home-server/)),
+As I said I host my own GitLab server at home using Docker (see [Using docker at home](https://www.outcoldman.com/en/archive/2015/03/18/docker-for-home-server/)),
 so at first I moved my repository from GitHub to my own GitLab (this is not a
 requirement, I just did it because it was easier for me to do).
 
@@ -135,7 +135,7 @@ As you can see I have three version of configuration for jekyll, the base one
 ```yaml
 author: Denis Gladkikh
 description: Blog about software development
-url: https://outcoldman.com
+url: https://www.outcoldman.com
 title: Blog about software development
 deployment: production
 
@@ -145,7 +145,7 @@ safe: false
 
 disqus_short_name: outcoldman
 disqus_show_comment_count: false
-disqus_registered_url: https://outcoldman.com
+disqus_registered_url: https://www.outcoldman.com
 
 google_analytics_tracking_id: UA-7023371-5
 
@@ -200,7 +200,7 @@ Few things are important in these configurations:
 
 ## Setting up nginx servers
 
-As I mentioned in [Using docker at home](https://outcoldman.com/en/archive/2015/03/18/docker-for-home-server/)
+As I mentioned in [Using docker at home](https://www.outcoldman.com/en/archive/2015/03/18/docker-for-home-server/)
 I use [nginx-proxy](https://github.com/jwilder/nginx-proxy), which allows me to
 easily host multiple websites on the same server in separate docker containers.
 My own nginx servers serve HTTP requests on `80` port, `nginx-proxy` handles

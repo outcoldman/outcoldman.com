@@ -26,7 +26,7 @@ tags: [digest]
     this article. Also one more resource with good readins is [Readings in Databases](https://github.com/rxin/db-readings)
 - [Go GC: Prioritizing low latency and simplicity](https://blog.golang.org/go15gc).
     Garbage collector in golang 1.5 has been improved, which means that golang
-    now has only one issue, which still [bothers me]({{post_url /en/2015-07-07-my-experience-with-golang}}) -
+    now has only one issue, which still [bothers me]({{site.url}}/en/archive/2015/07/07/my-experience-with-golang) -
     go dependencies (they are working on it, there are already some experimental
     implementations around vendoring).
 - [docker-cheat-sheet](https://github.com/wsargent/docker-cheat-sheet). Nice

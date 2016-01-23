@@ -3,9 +3,10 @@
 #
 author: Denis Gladkikh
 description: Blog about software development
-url: https://outcoldman.com
+url: https://www.outcoldman.com
 title: outcoldman
 deployment: production
+show_drafts: false
 
 #
 # Jekyll Settings
@@ -17,7 +18,7 @@ safe: false
 # Disqus Comments
 disqus_short_name: outcoldman
 disqus_show_comment_count: false
-disqus_registered_url: https://outcoldman.com
+disqus_registered_url: https://www.outcoldman.com
 
 # Google Analytics
 google_analytics_tracking_id: UA-7023371-5
@@ -28,15 +29,7 @@ gems:
 
 exclude:
   - .gitignore
-  - .ruby-version
   - Dockerfile
-  - Gemfile
-  - Gemfile.lock
   - Makefile
   - _config.yml
   - _local_config.yml
-  - _staging_config.yml
-  - bower.json
-  - bower_components
-  - docker-compose.yml
-  - node_modules
