@@ -48,7 +48,7 @@ docker-jekyll-build:
 		jekyll/jekyll:$(JEKYLL_VERSION) tail -F /var/log/syslog
 	@docker exec $(JEKYLL_CONTAINER_NAME) mkdir -p /usr/src/wwwoutcoldmancom/
 	@docker cp . $(JEKYLL_CONTAINER_NAME):/usr/src/wwwoutcoldmancom/
-	docker exec -it \
+	docker exec \
 		$(JEKYLL_CONTAINER_NAME) \
 		bash -c "(\
 			cd /usr/src/wwwoutcoldmancom/ \
