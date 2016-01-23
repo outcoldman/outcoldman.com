@@ -7,9 +7,7 @@ build:
   tags:
     - shell
   script:
-    - make docker-bower-pull
     - make docker-bower-build
-    - make docker-jekyll-pull
     - make docker-jekyll-build
 
 deploy:
