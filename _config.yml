@@ -3,10 +3,10 @@
 #
 author: Denis Gladkikh
 description: Blog about software development
+baseurl: "" # the subpath of your site, e.g. /blog
 url: https://www.outcoldman.com
 title: outcoldman
 deployment: production
-show_drafts: false
 
 #
 # Jekyll Settings

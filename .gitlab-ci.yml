@@ -1,0 +1,18 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  tags: shell
+  script:
+    - make docker-bower-pull
+    - make docker-bower-build
+    - make docker-jekyll-pull
+    - make docker-jekyll-build
+
+deploy:
+  stage: deploy
+  tags: shell
+  script:
+    - make docker-aws-deploy
