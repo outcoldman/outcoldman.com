@@ -29,3 +29,5 @@ clean:
 
 cache:
   untracked: true
+  paths:
+    - _site/
