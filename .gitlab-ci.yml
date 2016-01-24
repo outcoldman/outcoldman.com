@@ -26,3 +26,6 @@ clean:
   when: always
   script:
     - make docker-clean
+
+cache:
+  untracked: true
