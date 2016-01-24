@@ -66,7 +66,7 @@ docker-aws-deploy:
 		--env AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID} \
 		--env AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY} \
 		--env AWS_DEFAULT_REGION=$${AWS_DEFAULT_REGION} \
-		xueshanf/awscli aws s3 sync /usr/src/www.outcoldman.com s3://www.outcoldman.com --delete
+		xueshanf/awscli aws s3 sync /usr/src/www.outcoldman.com s3://www.outcoldman.com --delete --dryrun
 
 docker-clean:
 	-@docker kill $$(docker ps -q --filter=label=wwwoutcoldmancom=build) >/dev/null 2>&1
