@@ -8,6 +8,7 @@ PYGMENTS_VERSION=2.0.2
 
 BOWER_CONTAINER_NAME=wwwoutcoldmancom_bowerbuild
 JEKYLL_CONTAINER_NAME=wwwoutcoldmancom_jekyllbuild
+AWSSYNC_CONTAINER_NAME=wwwoutcoldmancom_awsdeploy
 
 docker-bower-build:
 	@docker run -d \
@@ -60,13 +61,22 @@ docker-jekyll-build:
 	@docker rm -v $(JEKYLL_CONTAINER_NAME)
 
 docker-aws-deploy:
-	@docker run --rm \
+	docker run -d \
+		--name $(AWSSYNC_CONTAINER_NAME) \
 		--label wwwoutcoldmancom=build \
-		--volume $$(pwd)/_site:/usr/src/www.outcoldman.com \
 		--env AWS_ACCESS_KEY_ID=$${AWS_ACCESS_KEY_ID} \
 		--env AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY} \
 		--env AWS_DEFAULT_REGION=$${AWS_DEFAULT_REGION} \
-		xueshanf/awscli aws s3 sync /usr/src/www.outcoldman.com s3://www.outcoldman.com --delete --dryrun
+		xueshanf/awscli tail -F /var/log/syslog
+	docker exec $(AWSSYNC_CONTAINER_NAME) mkdir -p /usr/src/
+	docker cp ./_site/ $(AWSSYNC_CONTAINER_NAME):/usr/src/wwwoutcoldmancom/
+	docker exec \
+		$(AWSSYNC_CONTAINER_NAME) \
+		bash -c "(\
+			 aws s3 sync /usr/src/wwwoutcoldmancom s3://www.outcoldman.com --delete \
+		)"
+	docker kill $(AWSSYNC_CONTAINER_NAME)
+	docker rm -v $(AWSSYNC_CONTAINER_NAME)
 
 docker-clean:
 	-@docker kill $$(docker ps -q --filter=label=wwwoutcoldmancom=build) >/dev/null 2>&1
