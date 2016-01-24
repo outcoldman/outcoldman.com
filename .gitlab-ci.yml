@@ -1,22 +1,24 @@
 stages:
   - build
-  - deploy
   - clean
 
 build:
   stage: build
   tags:
     - shell
+  except:
+    - master
   script:
     - make docker-jekyll-build
 
-deploy:
-  stage: deploy
+build_and_deploy:
+  stage: build
   tags:
     - shell
   only:
     - master
   script:
+    - make docker-jekyll-build
     - make docker-aws-deploy
 
 clean:
@@ -26,8 +28,3 @@ clean:
   when: always
   script:
     - make docker-clean
-
-cache:
-  untracked: true
-  paths:
-    - _site/

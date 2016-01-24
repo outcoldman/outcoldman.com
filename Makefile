@@ -58,8 +58,6 @@ docker-jekyll-build:
 	@docker cp $(JEKYLL_CONTAINER_NAME):'/usr/src/wwwoutcoldmancom/_site' .
 	@docker kill $(JEKYLL_CONTAINER_NAME)
 	@docker rm -v $(JEKYLL_CONTAINER_NAME)
-	@echo $$(pwd)
-	@ls -al
 
 docker-aws-deploy:
 	@docker run --rm \
@@ -69,8 +67,6 @@ docker-aws-deploy:
 		--env AWS_SECRET_ACCESS_KEY=$${AWS_SECRET_ACCESS_KEY} \
 		--env AWS_DEFAULT_REGION=$${AWS_DEFAULT_REGION} \
 		xueshanf/awscli aws s3 sync /usr/src/www.outcoldman.com s3://www.outcoldman.com --delete --dryrun
-	@echo $$(pwd)
-	@ls -al
 
 docker-clean:
 	-@docker kill $$(docker ps -q --filter=label=wwwoutcoldmancom=build) >/dev/null 2>&1
