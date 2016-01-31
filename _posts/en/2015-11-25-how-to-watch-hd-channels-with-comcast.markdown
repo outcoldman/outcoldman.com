@@ -179,8 +179,8 @@ If you have installed DVR on OSX there are few things I have learned about it:
     this directory. To restart the service you can use `launchctl`, like
 
 ```
-sudo launchctl stop /Library/LaunchDaemons/com.silicondust.dvr.plist
-sudo launchctl start /Library/LaunchDaemons/com.silicondust.dvr.plist
+sudo launchctl stop com.silicondust.dvr
+sudo launchctl start com.silicondust.dvr
 ```
 
 - It writes everything in mpeg2 format. Quicktime could not read it. [VLC
