@@ -16,13 +16,13 @@ meta: false
 > I'm happy with my current employer.
 
 Starting from 2005 I participated in designing various kind of projects. I worked
-in different companies and in different areas. I worked on building enterprise
+in different companies and different areas. I worked on building enterprise
 applications, applications for engineers, tools for developers, applications for
 regular users and solutions for big companies. I worked on mobile, desktop, web
 applications and distributed systems. I had experience in building software for
 Windows, Linux, OS X and Solaris. I used Visual Studio, Xcode, IDEA,
-Sublime Text and Vim for development. I am not a fan of anything, I just like
-to code. Every day I'm enjoying to be a software developer.
+Sublime Text and Vim for development. I am fan of everything. I like
+to code. Every day I'm enjoying being a software developer.
 
 You may think that I am real nerd and geek. Yes I am. But this does not stop
 me from enjoying [active and interesting life](https://instagram.com/outcoldman/).
@@ -42,7 +42,7 @@ I'm happy to answer on your questions and discuss interesting topics using
 > `c++`, `javascript`, `python`
 
 - Worked on Key Value Store in Splunk Core. Support for executing Key Value Store
-    lookups in distributed searches and accesing data in clustering
+    lookups in distributed searches and accessing data in clustering
     environments.
 - Contributing to Docker engine, building Splunk Logging Driver.
 - Participated in building development tools, sdks and frameworks.
