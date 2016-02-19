@@ -16,7 +16,7 @@ meta: false
 > I'm happy with my current employer.
 
 Starting from 2005 I participated in designing various kind of projects. I worked
-in different companies and on different areas. I worked on building enterprise
+in different companies and in different areas. I worked on building enterprise
 applications, applications for engineers, tools for developers, applications for
 regular users and solutions for big companies. I worked on mobile, desktop, web
 applications and distributed systems. I had experience in building software for
@@ -41,19 +41,21 @@ I'm happy to answer on your questions and discuss interesting topics using
 
 > `c++`, `javascript`, `python`
 
-- Building development tools and frameworks.
-- Working on Key Value Store in Splunk Core, including support for executing
-    Key Value Store lookups in distributed searches.
+- Worked on Key Value Store in Splunk Core. Support for executing Key Value Store
+    lookups in distributed searches and accesing data in clustering
+    environments.
+- Contributing to Docker engine, building Splunk Logging Driver.
+- Participated in building development tools, sdks and frameworks.
 
 You can follow my blog posts on [blogs.splunk.com](http://blogs.splunk.com/author/dgladkikh/)
 and also see my commits on [GitHub/Splunk](https://github.com/splunk).
 
 ### June 2011 - October 2013. [Microsoft](http://microsoft.com).
 
-> `c#`, `c++/cli`, `c++`, `typescript`, `javascript`.
+> `c#`, `c++`, `javascript`.
 
 - Worked in Visual Studio Diagnostics Team.
-- Building first version of [Performance and Diagnostics Hub](http://blogs.msdn.com/b/visualstudioalm/archive/2013/07/12/performance-and-diagnostics-hub-in-visual-studio-2013.aspx)
+- Worked on first version of [Performance and Diagnostics Hub](http://blogs.msdn.com/b/visualstudioalm/archive/2013/07/12/performance-and-diagnostics-hub-in-visual-studio-2013.aspx)
     in Visual Studio 2013.
 - Supporting legacy Profiling Tools in Visual Studio 2010 and 2012.
 - Supporting Code Analysis tools for Visual Studio (FxCop).
