@@ -17,3 +17,11 @@ tags: []
     a list of Free Software network services and web applications which can be
     hosted locally. Selfhosting is the process of locally hosting and managing
     applications instead of renting from SaaS providers.
+- [netdata](http://netdata.firehol.org). Really nice looking visualization for
+    metrics.
+- [Google BigQuery Public
+    Datasets](https://cloud.google.com/bigquery/public-data/). Few intersting
+    data sets for your tests.
+- [d’Oh My Zsh. How I unexpectedly built a monster of an open source
+    project](https://medium.com/@robbyrussell/d-oh-my-zsh-af99ca54212c#.d1yyiw47n).
+    The story about `Oh My Zsh`.
