@@ -2,7 +2,7 @@
 layout: post
 title: "From my reading list - March 2016"
 categories: en
-tags: []
+tags: [curl, wget, vim, netdata, bigquery, ohmyzsh, zsh]
 ---
 
 - [curl vs Wget](https://daniel.haxx.se/docs/curl-vs-wget.html). From the
