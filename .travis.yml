@@ -1,6 +1,4 @@
 sudo: required
-install: false
-language: c
 
 services:
     - docker
