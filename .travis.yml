@@ -1,0 +1,14 @@
+sudo: required
+
+services:
+    - docker
+
+script:
+    - make docker-jekyll-build
+
+deploy:
+    skip_cleanup: true
+    provider: script
+    script: make docker-aws-deploy
+    on:
+        branch: master
