@@ -1,7 +1,7 @@
 DOCKER_IMAGE_NAME=outcoldman/outcoldman.com
 DOCKER_CONTAINER_NAME=outcoldman.com
 NODE_VERSION=4.2.6
-JEKYLL_VERSION=3.0.2
+JEKYLL_VERSION=3.1.3
 FONT_AWESOME_VERSION=4.3.0
 NORMALIZE_VERSION=3.0.3
 PYGMENTS_VERSION=2.0.2
@@ -25,7 +25,7 @@ docker-bower-build:
 			font-awesome#$(FONT_AWESOME_VERSION) \
 			pygments#$(PYGMENTS_VERSION) \
         )"
-	docker cp $(BOWER_CONTAINER_NAME):'/usr/src/wwwoutcoldmancom/bower_components/pygments/css/monokai.css' 				./css/syntax.css
+	docker cp $(BOWER_CONTAINER_NAME):'/usr/src/wwwoutcoldmancom/bower_components/pygments/css/xcode.css' 					./css/syntax.css
 	docker cp $(BOWER_CONTAINER_NAME):'/usr/src/wwwoutcoldmancom/bower_components/normalize-css/normalize.css' 				./css/normalize.css
 	docker cp $(BOWER_CONTAINER_NAME):'/usr/src/wwwoutcoldmancom/bower_components/font-awesome/css/font-awesome.min.css' 	./css/font-awesome.min.css
 	docker cp $(BOWER_CONTAINER_NAME):'/usr/src/wwwoutcoldmancom/bower_components/font-awesome/fonts' 						./
@@ -33,12 +33,12 @@ docker-bower-build:
 	@docker rm -v $(BOWER_CONTAINER_NAME)
 
 docker-jekyll-local:
-	docker run -it \
+	docker run -it --rm \
 		--volume $$(pwd):/srv/jekyll \
-		--publish 4000:80 \
+		--publish 4000:4000 \
 		--env JEKYLL_ENV=development \
 		jekyll/jekyll:$(JEKYLL_VERSION) \
-		jekyll build --draft --config _config.yml,_local_config.yml --watch
+		jekyll serve --draft --config _config.yml,_local_config.yml --watch
 
 docker-jekyll-build:
 	@rm -fR ./_site/*

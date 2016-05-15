@@ -178,7 +178,7 @@ webappctl start com.mydomain.securityspy
 If it says that it cannot start, just open *Console.app*, it should show you
 what was the problem.
 
-After that open **Server.app** and go to the *Websites* page.  Make sure that it is
+After that open *Server.app* and go to the *Websites* page.  Make sure that it is
 running. Add new website by pressing `+`.
 
 [![OS X Server add WebSite]({{ site.url }}/library/2016/05/osxserver_add_website.png)]({{ site.url }}/library/2016/05/osxserver_add_website.png)
