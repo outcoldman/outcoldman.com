@@ -33,7 +33,7 @@ docker-bower-build:
 	@docker rm -v $(BOWER_CONTAINER_NAME)
 
 docker-jekyll-local:
-	@docker exec -it \
+	docker run -it \
 		--volume $$(pwd):/srv/jekyll \
 		--publish 4000:80 \
 		--env JEKYLL_ENV=development \
