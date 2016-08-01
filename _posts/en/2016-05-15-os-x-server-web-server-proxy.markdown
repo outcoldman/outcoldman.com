@@ -23,6 +23,32 @@ only with SSL.
 
 ## Setting up Let's encrypt certificates on OS X Server
 
+> UPDATE: `letsencrypt` has been renamed to `certbot`. New plugin is available
+> `webroot`, which allows to do next:
+>
+> Start web server first with python 
+>
+> ```
+> mkdir -p /tmp/certbot/public_html/
+> cd /tmp/certbot/public_html
+> python -m SimpleHTTPServer 9000
+> ```
+> 
+> Change the port on your router (see below).
+> After that just start `certbot` as
+>
+> ```
+> sudo certbot certonly --webroot -w /tmp/certbot/public_html -d myexample.com -d www.myexample.com -d spy.myexample.com
+> ```
+>
+> Or for renew
+>
+> ```
+> sudo certbot certonly --webroot -w /tmp/certbot/public_html
+> ```
+>
+
+
 You can install `letsencrypt` using [Homebrew](http://brew.sh)
 
 ```bash
