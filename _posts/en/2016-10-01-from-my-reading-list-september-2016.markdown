@@ -2,7 +2,7 @@
 layout: post
 title: "From my reading list. September 2016"
 categories: en
-tags: []
+tags: [plex,python,irc,python,blockchain]
 ---
 
 - [How a scammer stole 500$ from me and in the end begged me not to tell his parents](https://blog.haschek.at/2016/how-a-scammer-stole-500-dollars-from-me).
