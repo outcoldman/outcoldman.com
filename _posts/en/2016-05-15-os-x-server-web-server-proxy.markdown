@@ -44,7 +44,7 @@ only with SSL.
 > Or for renew
 >
 > ```
-> sudo certbot certonly --webroot -w /tmp/certbot/public_html
+> sudo certbot renew --webroot -w /tmp/certbot/public_html
 > ```
 >
 
