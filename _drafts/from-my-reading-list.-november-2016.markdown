@@ -11,3 +11,4 @@ tags: []
   Best book you can get about operating system concepts. I believe my
   university did not give me really good deep knowledge on this topic, so this
   book helped me to cover some missing parts.
+- ["The Linux Kernel Hidden Inside Windows 10" techtalk by Alex Ionescu](https://youtu.be/_p3RtkwstNk). Explains how Linux subsystem is implemneted in Windows 10.
