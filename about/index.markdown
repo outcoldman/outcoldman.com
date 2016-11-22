@@ -11,25 +11,19 @@ meta: false
 > On this web site I publish my personal thoughts and ideas.
 > I am not speaking for any company in my blog posts.
 
-> This page is my latest CV. I update it just for fun.
-> I'm not looking for a job. Please don't send me any jobs opportunities.
-> I'm happy with my current employer.
-
-Starting from 2005 I participated in designing various kind of projects. I worked
-in different companies and different areas. I worked on building enterprise
-applications, applications for engineers, tools for developers, applications for
-regular users and solutions for big companies. I worked on mobile, desktop, web
-applications and distributed systems. I had experience in building software for
-Windows, Linux, OS X and Solaris. I used Visual Studio, Xcode, IDEA,
-Sublime Text and Vim for development. I am fan of everything. I like
-to code. Every day I'm enjoying being a software developer.
-
-You may think that I am real nerd and geek. Yes I am. But this does not stop
-me from enjoying [active and interesting life](https://instagram.com/outcoldman/).
+From 2005 participated in various kind of projects, including 
+solutions for analytic, enterprise applications, CAD-software,
+tools for developers, mobile applications and big-data solutions.
+Contributed in various open source projects.
+Have experience in distributed systems, back-end, front-end and mobile applications.
+Know how to build scalable systems and design any kind of applications from the ground.
+I had experience in building software for Windows, Linux, OS X and Solaris.
+I am a geek, like to build software, like to learn, like to solve hard and interesting problems.
+You can show me how you build your project and I will show you how you can debug it.
 
 ## Contacts
 
-I'm happy to answer on your questions and discuss interesting topics using
+I'm happy to answer on your questions and discuss interesting topics
 
 * Email: public[at]denis[dot]gladkikh[one more dot]email
 * GitHub: [https://github.com/outcoldman](https://github.com/outcoldman)
@@ -37,15 +31,36 @@ I'm happy to answer on your questions and discuss interesting topics using
 
 ## Work Experience
 
-### October 2013 - Present. [Splunk](http://splunk.com).
+### October 2013 - Present. [Splunk, Inc](http://splunk.com).
 
-> `c++`, `javascript`, `python`
+> `c`, `c++`, `python`, `golang`, `javascript`
 
-- Worked on Key Value Store in Splunk Core. Support for executing Key Value Store
-    lookups in distributed searches and accessing data in clustering
-    environments.
-- Contributing to Docker engine, building Splunk Logging Driver.
-- Participated in building development tools, sdks and frameworks.
+- Splunk Core team.
+- Integrated one of the commonly used NoSQL database in Search Head layer and built
+    Key Value Store. On top of this solution we have built support for Key Value Store
+    based lookups in distributed environments, allowing to replicate from the Search Head
+    to the Indexer tier only required parts of the Key Value Store.
+    As part of this project contributed to the Mongo-C-Driver, helped to find and diagnose
+    MongoDB issues and bugs.
+- As a side project drove initiative of Splunk integration with Docker. 
+    Built Splunk Logging Driver for Docker. Built highly popular unofficial Splunk image,
+    which later on was adopted by the company and published as official Splunk image.
+    Researched possibility of running Splunk as state-full cluster in Docker environment, including
+    Docker Swarm Mode. Helped company to adopt Docker for development.
+- Worked on several project for the Splunk Cloud improvements, including
+    Monitoring, Service Discovery, Manageability. Built scalable Workflow based
+    manageability console.
+- Improved various parts of the project, including improving performance of
+    several components, helping other teams with P0 and P1 bugs, broken builds (as I am
+    one of the earliest person in the office) and compatibility with some of the newest
+    versions of operation systems.
+- Researched various projects in hackathons. 
+- Initially was hired in the application extensibility team with responsibility of
+    building SDKs, Web Frameworks and tools for developers.
+- Presented on [.conf2016](https://conf.splunk.com) and local meetups
+    with the topics about Splunk and Docker.
+- Drove several projects as Technical Lead, acted as Hiring Manager and Manager Lead
+    in time of absence of our Lead.
 
 You can follow my blog posts on [blogs.splunk.com](http://blogs.splunk.com/author/dgladkikh/)
 and also see my commits on [GitHub/Splunk](https://github.com/splunk).
@@ -54,47 +69,77 @@ and also see my commits on [GitHub/Splunk](https://github.com/splunk).
 
 > `c#`, `c++`, `javascript`.
 
-- Worked in Visual Studio Diagnostics Team.
-- Worked on first version of [Performance and Diagnostics Hub](http://blogs.msdn.com/b/visualstudioalm/archive/2013/07/12/performance-and-diagnostics-hub-in-visual-studio-2013.aspx)
-    in Visual Studio 2013.
-- Supporting legacy Profiling Tools in Visual Studio 2010 and 2012.
-- Supporting Code Analysis tools for Visual Studio (FxCop).
+- Visual Studio Diagnostics Team.
+- Designed and built Performance and Diagnostics Hub. Extensible core for writing
+    diagnostic tools in Visual Studio and Internet Explorer. It was very complex
+    system with various points of extensibility, including remote native collector,
+    Workflow based extension for Visual Studio, out of process Data Warehouse and
+    out of process HTML/JavaScript rendering. Our team have built a transparent layer
+    between all of these systems, providing simple and efficient way to communicate
+    between all of the parts of the system. Several tools were written in the first
+    year of existence of Diagnostic Hub by several teams worked closely with us.
+- Supporting legacy Profiling Tools in Visual Studio 2010 and 2012, including
+    binary instrumentation, ETW based sampling and legacy driver based sampling.
+- Supporting Code Analysis tools for Visual Studio (FxCop), including adding support
+    for newest platforms.
+- Researched few projects on hackathons, including IntelliCommand (published as
+    [open source VS extension]((https://github.com/intellicommand))) and Diagnostics Live Hub,
+    which was a vision for the future project Live Debugging in future version of
+    Visual Studio.
+- In total worked in 3 offices: started remotely from Russia, moved to Vancouver, BC
+    and ended up in headquarters in Redmond, WA.
 
 ### March 2010 - June 2011. [Mobile Systems International Ltd](http://www.msiuk.com/).
 
-> `asp.net`, `c#`, `ms-sql`, `silverlight`, `wcf`, `entity-framework`, `prism`.
+> `asp.net`, `c#`, `ms-sql`, `silverlight`
 
-- Developing Mobile network analytics application using `Silverlight` and `WCF`.
+- UK-based company. Worked remotely from Yaroslavl, Russia. We had international team,
+    worked remotely from various time zones.
+- Developed analytic application for Mobile Networks. Main features included
+    monitoring networks, reporting outages and failures based on daily KPIs, plotting
+    data on the map, building daily reports. Every day our application processed
+    billions of KPIs from hundreds cellular towers.
 
 ### Dec 2007 - Feb 2010. [FogSoft LLC](http://fogsoft.ru).
 
-> `asp.net`, `c#`, `ms-sql`, `nhibernate`, `wpf`, `winforms`, `javascript`, `sharepoint`, `wcf`, `entity-framework`.
+> `asp.net`, `c#`, `ms-sql`, `wpf`, `winforms`, `javascript`, `sharepoint`, `wcf`
 
-- Developing enterprise applications.
-- Designing solutions based on `WSS 3.0` and `MOSS 2007`.
+- Worked in Yaroslavl, Russia.
+- Building Enterprise Applications, including Trading Platforms,
+    Customer relationship management application and automation for Advertise Agencies.
+    Worked in close relationship with the customers to define business problems
+    and provide solutions.
+- Worked on designing and extending Web Framework for building Enterprise applications,
+    which was used for most of the applications built by the company.
+- Integrated Russian certified cryptographic solution for signing bids on client
+    side directly in the browser.
+
+### September 2008 - June 2011. Yaroslavl State University. Teaching Assistant.
+
+- CS courses and practicums. Lectured in groups of 20 students basics of Design Patterns.
 
 ### January 2005 - November 2007. [IT-Co](http://it-co.ru).
 
-> `c++/mfc`, `asp.net`, `c#`, `ms-sql`, `nhibernate`, `javascript`.
+> `c++`, `mfc`, `asp.net`, `c#`, `ms-sql`
 
-* Developing application for engineers.
-* Working on Add-ins for `SolidWorks`.
-* Developing `ASP.NET` enterprise applications.
+- Developed CAD-software, including desktop application built by the company and
+    Add-ins for SolidWorks.
+- Developed ASP.NET enterprise applications for electronic document management.
+- Joined the company on early stage, helped with hiring, educating and management.
 
 ## Personal projects
 
-I have a lot of pet projects, some of them visible, some of them not.
-In this section I decided to list few interesting sucesseful projects I worked
-on in my personal time.
+I have a several pet projects, some of them useful, some of them not.
+There are just few, which I believe gained the most visibility
 
-### 2013-2015. outcoldplayer (former gMusicW).
+### 2013-2015. outcoldplayer
 
 > `c#`, `windows8`, `winrt`, `sqlite`
 
-Unofficial Google Music player for Windows 8. outcoldplayer was listed on the
+Unofficial Google Music player for Windows 8. Application has been listed on the
 first place of top paid applications for several days. Version 3.0 got very
-high ratings. 1000 everyday users. It was great project, but of the lack of
-free time I stopped working on it and removed it from Windows Store.
+high ratings. More than 1000 everyday users. Closed it for several reasons, one of them
+was the problems with supporting not documented API.
 
 ### 2013-2014. Dewey
 
@@ -102,61 +147,34 @@ free time I stopped working on it and removed it from Windows Store.
 
 Open source Google Chrome application for managing bookmarks. I've built first
 version of Dewey application (former Chrome Bookmarks) on one of the hackathons
-in Seattle (won second place). After that [Jamie Wilson](https://github.com/jamiewilson)
-offered me a help for building second version, which was renamed into Dewey.
-Last time I checked this application had 1500 everyday users.
+in Seattle (second place). After that [Jamie Wilson](https://github.com/jamiewilson)
+offered me a help for building next version, which we renamed into Dewey.
+Application has more than 1500 everyday users. I always considered it just as
+fun project so never tried to spend a lot of time on it.
 
 You can download Dewey from [http://deweyapp.io/](http://deweyapp.io/) and take
 a look on source code under [GitHub/Dewey](https://github.com/deweyapp).
 
-### 2013. IntelliCommand
-
-> `c#`, `vs sdk`, `wpf`
-
-Visual Studio extension, which allows to remember shortcut keys.
-You can try it by downloading latest version from
-[Visual Studio gallery](http://visualstudiogallery.msdn.microsoft.com/83f59659-abc1-4bfa-9779-42f687af0481)
-or you can take a look on source code under [https://github.com/intellicommand](https://github.com/intellicommand).
-
 ## Education
 
-### November 2007 - June 2011. Yaroslavl State University. Postgraduate Student.
+- November 2007 - June 2011. Yaroslavl State University. Postgraduate Student.
+    Applied Mathematics and Computer Science, Department of differential equations.
+    Research on "greedy" algorithms in Marzenkewitz and Lorentz spaces.
+- September 2002 - June 2007. Yaroslavl State University. Master degree.
+    Applied Mathematics and Computer Science, Department of differential equations.
+- 2009-2010 Microsoft Certified Specialist in ASP.NET, WPF, WCF, Data Access, Windows
+    Applications, Silverlight
 
-Applied Mathematics and Computer Science, Department of differential equations.
-Research on "greedy" algorithms in Marzenkewitz and Lorentz spaces.
-
-#### Publications:
-
-- Functional languages application. Realization wavelet-compress for images with F#.
-- Images search with wavelet-transformation. Realization with F#.
-- Estimates Cordoba-Fernandez operator in Marcinkiewicz spaces.
-- Lower bounds for exponential sums in Marcinkiewicz spaces.
-
-### September 2002 - June 2007. Yaroslavl State University. Specialist / Master degree.
-
-Applied Mathematics and Computer Science, Department of differential equations.
-
-## Certifications
-
-- October 2013 – M101JS: MongoDB for Node.js Developers.
-- September 2013 – M102: MongoDB for DBAs.
-- August 2013 – M101P: MongoDB for Developers.
-- May 2009 - (MCTS) - .NET Framework 3.5, ASP.NET Applications.
-- Dec 2009 - (MCPD) - .NET Framework 3.5, ASP.NET Applications.
-- Feb 2010 - (MCTS) - .NET Framework 3.5, Windows Presentation Foundation
-- Jun 2010 - (MCTS) - .NET Framework 4, Windows Applications
-- Sep 2010 - (MCTS) - Windows Communication Foundation 4
-- Oct 2010 - (MCTS) - .NET Framework 4, Data Access
-- Oct 2010 - (MCPD) - Windows Developer 4
-- Oct 2010 - (MCTS) - Silverlight 4, Development
-
-## Honors & Awards
+## Honors & Awards & Memberships
 
 - Jule 2009 – June 2011. Microsoft Most Valuable Professional, Client App Dev.
-
-## Professional Memberships
-
-- 2009 - 2010. Microsoft Student Partner.
+- 2009 - 2010. Microsoft Student Partner. MSP Guru.
 - 2008 - 2011. Ineta User Groups - .NET Associations. Group Leader of Yaroslavl
     Student .NET Association and Speaker of Yaroslavl .NET Association.
 - 2007 - 2011. GotDotNet Team. Forum moderator and articles author.
+
+## Interests
+
+Don't know why people include it in CV, but you can find what
+I am up to [on instagram](https://instagram.com/outcoldman/).
+
