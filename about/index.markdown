@@ -11,61 +11,41 @@ meta: false
 > On this web site I publish my personal thoughts and ideas.
 > I am not speaking for any company in my blog posts.
 
-From 2005 participated in various kind of projects, including 
-solutions for analytic, enterprise applications, CAD-software,
-tools for developers, mobile applications and big-data solutions.
-Contributed in various open source projects.
-Have experience in distributed systems, back-end, front-end and mobile applications.
-Know how to build scalable systems and design any kind of applications from the ground.
-I had experience in building software for Windows, Linux, OS X and Solaris.
-I am a geek, like to build software, like to learn, like to solve hard and interesting problems.
-You can show me how you build your project and I will show you how you can debug it.
+From 2005 participated in various projects, including solutions for analytic, enterprise applications, CAD-software, tools for developers, mobile applications and big-data solutions. Contributed in several open source projects.
+Have experience in building distributed systems, back-end, front-end and mobile applications. Know how to build scalable systems and design any kind of applications from the ground.
+I have system programming experience in Windows, Linux, OS X and Solaris.
+I am a geek, like to build software, like to learn, like to solve hard and interesting problems. Share my experience on meetups, blogs posts and conference talks.
+I am experienced individual contributor with strong Technical Lead skills.
 
 ## Contacts
 
 I'm happy to answer on your questions and discuss interesting topics
 
-* Email: public[at]denis[dot]gladkikh[one more dot]email
-* GitHub: [https://github.com/outcoldman](https://github.com/outcoldman)
-* Twitter: [https://twitter.com/outcoldman](https://twitter.com/outcoldman)
+- Email: public[at]denis[dot]gladkikh[one more dot]email
+- GitHub: [https://github.com/outcoldman](https://github.com/outcoldman)
+- Twitter: [https://twitter.com/outcoldman](https://twitter.com/outcoldman)
+- Instagram: [https://instagram.com/outcoldman/](https://instagram.com/outcoldman/)
 
 ## Work Experience
 
-### October 2013 - Present. [Splunk, Inc](http://splunk.com).
+### 10/2013 - Present. [Splunk, Inc](http://splunk.com). Principal SDE.
 
-> `c`, `c++`, `python`, `golang`, `javascript`
+> `c`, `c++`, `python`, `golang`, `javascript`, `docker`, `mongodb`
 
-- Splunk Core team.
-- Integrated one of the commonly used NoSQL database in Search Head layer and built
-    Key Value Store. On top of this solution we have built support for Key Value Store
-    based lookups in distributed environments, allowing to replicate from the Search Head
-    to the Indexer tier only required parts of the Key Value Store.
-    As part of this project contributed to the Mongo-C-Driver, helped to find and diagnose
-    MongoDB issues and bugs.
-- As a side project drove initiative of Splunk integration with Docker. 
-    Built Splunk Logging Driver for Docker. Built highly popular unofficial Splunk image,
-    which later on was adopted by the company and published as official Splunk image.
-    Researched possibility of running Splunk as state-full cluster in Docker environment, including
-    Docker Swarm Mode. Helped company to adopt Docker for development.
-- Worked on several project for the Splunk Cloud improvements, including
-    Monitoring, Service Discovery, Manageability. Built scalable Workflow based
-    manageability console.
-- Improved various parts of the project, including improving performance of
-    several components, helping other teams with P0 and P1 bugs, broken builds (as I am
-    one of the earliest person in the office) and compatibility with some of the newest
-    versions of operation systems.
-- Researched various projects in hackathons. 
-- Initially was hired in the application extensibility team with responsibility of
-    building SDKs, Web Frameworks and tools for developers.
-- Presented on [.conf2016](https://conf.splunk.com) and local meetups
-    with the topics about Splunk and Docker.
-- Drove several projects as Technical Lead, acted as Hiring Manager and Manager Lead
-    in time of absence of our Lead.
+- Member of Splunk Core team.
+- Integrated one of the commonly used NoSQL database in Search Head layer and built Key Value Store. On top of this solution we have built support for Key Value Store based lookups in distributed searches, including data replication from the Search Head to the Indexers tier. As part of this project contributed to the Mongo-C-Driver, helped to find and diagnose MongoDB issues and bugs. With Splunk patented "Distributed tasks for retrieving supplemental job information".
+- As a side project drove initiative of Splunk integration with Docker. Built Splunk Logging - Driver for Docker. Built highly popular unofficial Splunk image, which later was adopted by - the company and published as official Splunk image. Researched possibility of running Splunk - as state-full cluster in Docker environment, including Docker Swarm Mode. Helped company to - adopt Docker for internal needs.
+- Worked on several projects for the Splunk Cloud, including Monitoring, Service Discovery, - Manageability. Built scalable Workflow based manageability console.
+- Improved various parts of the Splunk Core, including performance of several components, - helped other teams with P0 and P1 bugs, broken builds (as I am one of the earliest person in - the office) and compatibility with some of the newest operation system versions.
+- Researched various projects in hackathons.
+- Initially was hired in the application extensibility team with responsibility of building - SDKs, Web Frameworks and tools for developers.
+- Presented on conference .conf2016 and local meetups with the topics about Splunk and Docker.
+- Drove several projects as Technical Lead, acted as Hiring Manager and Manager Lead in time of absence of our Lead.
 
 You can follow my blog posts on [blogs.splunk.com](http://blogs.splunk.com/author/dgladkikh/)
 and also see my commits on [GitHub/Splunk](https://github.com/splunk).
 
-### June 2011 - October 2013. [Microsoft](http://microsoft.com).
+### 06/2011 - 10/2013. [Microsoft](http://microsoft.com). Senior SDE.
 
 > `c#`, `c++`, `javascript`.
 
@@ -89,7 +69,7 @@ and also see my commits on [GitHub/Splunk](https://github.com/splunk).
 - In total worked in 3 offices: started remotely from Russia, moved to Vancouver, BC
     and ended up in headquarters in Redmond, WA.
 
-### March 2010 - June 2011. [Mobile Systems International Ltd](http://www.msiuk.com/).
+### 03/2010 - 06/2011. [Mobile Systems International Ltd](http://www.msiuk.com/). Senior SDE.
 
 > `asp.net`, `c#`, `ms-sql`, `silverlight`
 
@@ -100,7 +80,7 @@ and also see my commits on [GitHub/Splunk](https://github.com/splunk).
     data on the map, building daily reports. Every day our application processed
     billions of KPIs from hundreds cellular towers.
 
-### Dec 2007 - Feb 2010. [FogSoft LLC](http://fogsoft.ru).
+### 12/2007 - 02/2010. [FogSoft LLC](http://fogsoft.ru). SDE.
 
 > `asp.net`, `c#`, `ms-sql`, `wpf`, `winforms`, `javascript`, `sharepoint`, `wcf`
 
@@ -114,11 +94,11 @@ and also see my commits on [GitHub/Splunk](https://github.com/splunk).
 - Integrated Russian certified cryptographic solution for signing bids on client
     side directly in the browser.
 
-### September 2008 - June 2011. Yaroslavl State University. Teaching Assistant.
+### 09/2008 - 06/2011. Yaroslavl State University. Teaching Assistant.
 
 - CS courses and practicums. Lectured in groups of 20 students basics of Design Patterns.
 
-### January 2005 - November 2007. [IT-Co](http://it-co.ru).
+### 01/2005 - 11/2007. [IT-Co](http://it-co.ru). SDE.
 
 > `c++`, `mfc`, `asp.net`, `c#`, `ms-sql`
 
@@ -129,8 +109,8 @@ and also see my commits on [GitHub/Splunk](https://github.com/splunk).
 
 ## Personal projects
 
-I have a several pet projects, some of them useful, some of them not.
-There are just few, which I believe gained the most visibility
+
+I have a several pet projects, some of them useful, some of them not, you can find some of my work on [GitHub](https://github.com/outcoldman) and [CodePlex](https://www.codeplex.com/site/users/view/outcoldman). There are just few projects, which I believe gained the most popularity
 
 ### 2013-2015. outcoldplayer
 
@@ -157,24 +137,18 @@ a look on source code under [GitHub/Dewey](https://github.com/deweyapp).
 
 ## Education
 
-- November 2007 - June 2011. Yaroslavl State University. Postgraduate Student.
+- 2007 - 2011. Yaroslavl State University. Postgraduate Student.
     Applied Mathematics and Computer Science, Department of differential equations.
     Research on "greedy" algorithms in Marzenkewitz and Lorentz spaces.
-- September 2002 - June 2007. Yaroslavl State University. Master degree.
+- 2002 - 2007. Yaroslavl State University. Master degree.
     Applied Mathematics and Computer Science, Department of differential equations.
-- 2009-2010 Microsoft Certified Specialist in ASP.NET, WPF, WCF, Data Access, Windows
+- 2009 - 2010. Microsoft Certified Specialist in ASP.NET, WPF, WCF, Data Access, Windows
     Applications, Silverlight
 
 ## Honors & Awards & Memberships
 
-- Jule 2009 – June 2011. Microsoft Most Valuable Professional, Client App Dev.
+- 2009 – 2011. Microsoft Most Valuable Professional, Client App Dev.
 - 2009 - 2010. Microsoft Student Partner. MSP Guru.
 - 2008 - 2011. Ineta User Groups - .NET Associations. Group Leader of Yaroslavl
     Student .NET Association and Speaker of Yaroslavl .NET Association.
 - 2007 - 2011. GotDotNet Team. Forum moderator and articles author.
-
-## Interests
-
-Don't know why people include it in CV, but you can find what
-I am up to [on instagram](https://instagram.com/outcoldman/).
-
