@@ -11,3 +11,4 @@ tags: []
 - [Tracking Down a Freaky Python Memory Leak](https://benbernardblog.com/tracking-down-a-freaky-python-memory-leak/). I believe that article could be a little bit shorter, but overall good set of tools and explanation how you can debug issues on Windows.
 - [Why does calloc exist?](https://vorpus.org/blog/why-does-calloc-exist/). Best explanation about what is virtual memory.
 - [Debugging Your Operating System: A Lesson In Memory Allocation](https://lukasa.co.uk/2016/12/Debugging_Your_Operating_System/). Related post how malloc was used instead of calloc.
+- [Learning to Read x86 Assembly Language](http://patshaughnessy.net/2016/11/26/learning-to-read-x86-assembly-language). If you want to catch up more, especially on OS X, see [OS X Assembler Reference](https://developer.apple.com/library/prerelease/content/documentation/DeveloperTools/Reference/Assembler/000-Introduction/introduction.html). 
