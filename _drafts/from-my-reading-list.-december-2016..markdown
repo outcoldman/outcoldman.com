@@ -12,3 +12,4 @@ tags: []
 - [Why does calloc exist?](https://vorpus.org/blog/why-does-calloc-exist/). Best explanation about what is virtual memory.
 - [Debugging Your Operating System: A Lesson In Memory Allocation](https://lukasa.co.uk/2016/12/Debugging_Your_Operating_System/). Related post how malloc was used instead of calloc.
 - [Learning to Read x86 Assembly Language](http://patshaughnessy.net/2016/11/26/learning-to-read-x86-assembly-language). If you want to catch up more, especially on OS X, see [OS X Assembler Reference](https://developer.apple.com/library/prerelease/content/documentation/DeveloperTools/Reference/Assembler/000-Introduction/introduction.html). 
+- [Compiler Explorer](http://godbolt.org). To the same topic. Explore compiler output right in the browser.
