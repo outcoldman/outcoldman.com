@@ -2,7 +2,7 @@
 layout: post
 title: "From my reading list. December 2016."
 categories: en
-tags: []
+tags: [htop, c, python, debugging, calloc, asm, compiler]
 ---
 
 - [htop explained](https://peteris.rocks/blog/htop/).
