@@ -131,7 +131,7 @@ On Ubuntu start simple web server to test that everything works
 $ sudo python -m SimpleHTTPServer 80 ~/
 ```
 
-Try to open page `http://vpn.example.com` in browser, you should see all files from your home directory. Don't forget to kill this web server. You are ready for the next part [Ubuntu as a home server. Part 2. OpenVPN.]({{ site.url }}/en/archive/2014/10/14/ubuntu-as-a-home-server-part-1-dynamic-dns/).
+Try to open page `http://vpn.example.com` in browser, you should see all files from your home directory. Don't forget to kill this web server. You are ready for the next part [Ubuntu as a home server. Part 2. OpenVPN.]({{ site.url }}/en/archive/2014/10/21/ubuntu-as-a-home-server-part-2-openvpn/).
 
 ### Links
 
