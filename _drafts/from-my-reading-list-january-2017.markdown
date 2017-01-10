@@ -7,4 +7,7 @@ tags: []
 
 - [Be Careful with Python's New-Style String Format](http://lucumr.pocoo.org/2016/12/29/careful-with-str-format/).
 - [Writing An Interpreter In Go](https://interpreterbook.com). Very simple and good manual for how to write your own interpreter, including how to parse, build AST and evaluate it with some simple REPL. `Go` is secondary in this language, you can think about it as a some pseudo language, the important part of this book is the step-by-step guide, not the `Go`.
+- [Building a Compiler in Swift with LLVM, Part 1: Introduction and the Lexer](https://harlanhaskins.com/2017/01/08/building-a-compiler-with-swift-in-llvm-part-1-introduction-and-the-lexer.html). Similar to previous topic, but less informative and in Swift. This is first part of coming blog post series.
 - [How we got 1 in 6 Microsoft employees to join our anonymous app.](https://hackernoon.com/how-we-got-1-in-6-microsoft-employees-to-join-our-anonymous-app-74ff6916bebd). Interesting point about how luck helps to build your startup.
+- [Measuring execution performance of C++ exceptions vs error codes](http://nibblestew.blogspot.com/2017/01/measuring-execution-performance-of-c.html). 
+- [Building a Billion User Load Balancer](https://www.usenix.org/conference/lisa16/conference-program/presentation/shuff). Talk from Facebook.
