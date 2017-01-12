@@ -12,3 +12,4 @@ tags: []
 - [How we got 1 in 6 Microsoft employees to join our anonymous app.](https://hackernoon.com/how-we-got-1-in-6-microsoft-employees-to-join-our-anonymous-app-74ff6916bebd). Interesting point about how luck helps to build your startup.
 - [Measuring execution performance of C++ exceptions vs error codes](http://nibblestew.blogspot.com/2017/01/measuring-execution-performance-of-c.html). 
 - [Building a Billion User Load Balancer](https://www.usenix.org/conference/lisa16/conference-program/presentation/shuff). Talk from Facebook.
+- [The Inside Story of BitTorrent’s Bizarre Collapse](https://backchannel.com/the-inside-story-of-bittorrents-bizarre-collapse-a0766a5442d7). Quote "Perhaps the lesson here is that sometimes technologies are not products. And they’re not companies. They’re just damn good technologies."
