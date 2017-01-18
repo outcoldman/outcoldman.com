@@ -13,3 +13,4 @@ tags: []
 - [Measuring execution performance of C++ exceptions vs error codes](http://nibblestew.blogspot.com/2017/01/measuring-execution-performance-of-c.html). 
 - [Building a Billion User Load Balancer](https://www.usenix.org/conference/lisa16/conference-program/presentation/shuff). Talk from Facebook.
 - [The Inside Story of BitTorrent’s Bizarre Collapse](https://backchannel.com/the-inside-story-of-bittorrents-bizarre-collapse-a0766a5442d7). Quote "Perhaps the lesson here is that sometimes technologies are not products. And they’re not companies. They’re just damn good technologies."
+- [why-rethinkdb-failed.md](https://github.com/coffeemug/defstartup/blob/master/_drafts/why-rethinkdb-failed.md). Sad story *the open-source developer tools market is one of the worst markets one could possibly end up in*.
