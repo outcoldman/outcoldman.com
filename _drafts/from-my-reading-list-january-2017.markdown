@@ -19,3 +19,8 @@ tags: []
 - [A categorized list of C++ resources.](https://github.com/MattPD/cpplinks).
 - [What I Wish I'd Known About Equity Before Joining A Unicorn](https://gist.github.com/yossorion/4965df74fd6da6cdc280ec57e83a202d#what-i-wish-id-known-about-equity-before-joining-a-unicorn), also good discussion on <https://news.ycombinator.com/item?id=13426494>.
 - [Dismissing Python Garbage Collection at Instagram](https://engineering.instagram.com/dismissing-python-garbage-collection-at-instagram-4dca40b29172#.32yhi9sx9). 
+- [PVS-Studio project - 10 years of failures and successes](http://www.viva64.com/en/b/0465/)
+- [How PVS-Studio does the bug search: methods and technologies](http://www.viva64.com/en/b/0466/)
+- [Misunderstanding mlock(2) and mlockall(2)](https://eklitzke.org/mlock-and-mlockall)
+- [How and why the leap second affected Cloudflare DNS](https://blog.cloudflare.com/how-and-why-the-leap-second-affected-cloudflare-dns/)
+- [Using C++17 Attributes Today](https://infektor.net/posts/2017-01-19-using-cpp17-attributes-today.html)
