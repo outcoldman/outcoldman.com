@@ -24,3 +24,4 @@ tags: []
 - [Misunderstanding mlock(2) and mlockall(2)](https://eklitzke.org/mlock-and-mlockall)
 - [How and why the leap second affected Cloudflare DNS](https://blog.cloudflare.com/how-and-why-the-leap-second-affected-cloudflare-dns/)
 - [Using C++17 Attributes Today](https://infektor.net/posts/2017-01-19-using-cpp17-attributes-today.html)
+- [Sublime Tutor. An interactive in-editor keyboard shortcuts tutorial for Sublime Text 3](https://sublimetutor.com)
