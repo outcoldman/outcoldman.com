@@ -28,3 +28,4 @@ tags: [debugger, python, interpreter, golang, compiler, llvm, swift, rethinkdb, 
 - [Lock-Free Bugs](https://research.swtch.com/lockfree)
 - Debugging with the natives. [Part 1](http://www.cl.cam.ac.uk/~srk31/blog/2016/02/25/#native-debugging-part-1). [Part 2](http://www.cl.cam.ac.uk/~srk31/blog/2017/01/30/#native-debugging-part-2).
 - [Announcing Pipenv!](https://www.kennethreitz.org/essays/announcing-pipenv). Pipfile, Pip, & Virtualenv with just one CLI.
+- [Fission: Serverless Functions as a Service for Kubernetes](http://blog.kubernetes.io/2017/01/fission-serverless-functions-as-service-for-kubernetes.html)
