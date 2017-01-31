@@ -2,7 +2,7 @@
 layout: post
 title: "From my reading list. January 2017"
 categories: en
-tags: []
+tags: [debugger, python, interpreter, golang, compiler, llvm, swift, rethinkdb, pvs, c++]
 ---
 
 - [Be Careful with Python's New-Style String Format](http://lucumr.pocoo.org/2016/12/29/careful-with-str-format/).
