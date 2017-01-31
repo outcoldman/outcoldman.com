@@ -26,3 +26,4 @@ tags: []
 - [Using C++17 Attributes Today](https://infektor.net/posts/2017-01-19-using-cpp17-attributes-today.html)
 - [Sublime Tutor. An interactive in-editor keyboard shortcuts tutorial for Sublime Text 3](https://sublimetutor.com)
 - [Lock-Free Bugs](https://research.swtch.com/lockfree)
+- Debugging with the natives. [Part 1](http://www.cl.cam.ac.uk/~srk31/blog/2016/02/25/#native-debugging-part-1). [Part 2](http://www.cl.cam.ac.uk/~srk31/blog/2017/01/30/#native-debugging-part-2).
