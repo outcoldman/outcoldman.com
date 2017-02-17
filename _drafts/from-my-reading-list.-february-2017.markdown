@@ -16,6 +16,7 @@ tags: []
 - [Optimizations in Syntax Highlighting](https://code.visualstudio.com/blogs/2017/02/08/syntax-highlighting-optimizations).
 - [Top mentioned books on stackoverflow.com](http://www.dev-books.com).
 - [Write your own compiler - Introduction](http://blog.klipse.tech/javascript/2017/02/08/tiny-compiler-intro.html).
+- [The Internals of PostgreSQL](http://www.interdb.jp/pg/index.html).
 
 ## Non tech
 
