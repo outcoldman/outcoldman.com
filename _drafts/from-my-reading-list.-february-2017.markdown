@@ -17,6 +17,7 @@ tags: []
 - [Top mentioned books on stackoverflow.com](http://www.dev-books.com).
 - [Write your own compiler - Introduction](http://blog.klipse.tech/javascript/2017/02/08/tiny-compiler-intro.html).
 - [The Internals of PostgreSQL](http://www.interdb.jp/pg/index.html).
+- [Advanced Programming in the UNIX® Environment](http://www.apuebook.com). Finally have finished this book. Must read.
 
 ## Non tech
 
