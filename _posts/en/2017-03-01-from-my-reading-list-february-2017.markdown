@@ -2,7 +2,8 @@
 layout: post
 title: "From my reading list. February 2017"
 categories: en
-tags: []
+tags: [ascii, gitlab, python, ast, compilers, google, postgresql, rethinkdb,
+unix]
 ---
 
 - [Four Column
