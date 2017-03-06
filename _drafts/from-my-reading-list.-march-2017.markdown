@@ -13,3 +13,4 @@ tags: []
 - [802.eleventy what? A deep dive into why Wi-Fi kind of
   sucks](https://arstechnica.com/information-technology/2017/03/802-eleventy-what-a-deep-dive-into-why-wi-fi-kind-of-sucks/).
 - [Time](https://unix4lyfe.org/time/)
+- [A Programmer’s Introduction to Unicode](http://reedbeta.com/blog/programmers-intro-to-unicode/). Great basic explanation of Unicode and UTF-8, and if you have never seen [The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/), has some more details.
