@@ -6,7 +6,7 @@ comments: false
 meta: false
 ---
 
-#### > Principal Software Developer @ Splunk
+#### > Software Developer @ Stripe
 
 > On this web site I publish my personal thoughts and ideas.
 > I am not speaking for any company in my blog posts.
@@ -24,11 +24,14 @@ I'm happy to answer on your questions and discuss interesting topics
 - Email: public[at]denis[dot]gladkikh[one more dot]email
 - GitHub: [https://github.com/outcoldman](https://github.com/outcoldman)
 - Twitter: [https://twitter.com/outcoldman](https://twitter.com/outcoldman)
-- Instagram: [https://instagram.com/outcoldman/](https://instagram.com/outcoldman/)
 
 ## Work Experience
 
-### 10/2013 - Present. [Splunk, Inc](http://splunk.com). Principal SDE.
+### 03/2017 - Present. [Stripe](https://stripe.com)
+
+- Seattle
+
+### 10/2013 - 03/2017. [Splunk, Inc](https://splunk.com). Principal SDE.
 
 > `c`, `c++`, `python`, `golang`, `javascript`, `docker`, `mongodb`
 
