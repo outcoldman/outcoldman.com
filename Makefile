@@ -47,16 +47,16 @@ docker-jekyll-build:
 		--label wwwoutcoldmancom=build \
 		--env JEKYLL_ENV=production \
 		jekyll/jekyll:$(JEKYLL_VERSION) tail -F /var/log/syslog
-	@docker exec $(JEKYLL_CONTAINER_NAME) mkdir -p /usr/src/wwwoutcoldmancom/
-	@docker cp . $(JEKYLL_CONTAINER_NAME):/usr/src/wwwoutcoldmancom/
+	@docker exec $(JEKYLL_CONTAINER_NAME) mkdir -p /srv/jekyll
+	@docker cp . $(JEKYLL_CONTAINER_NAME):/srv/jekyll
 	docker exec \
 		$(JEKYLL_CONTAINER_NAME) \
 		bash -c "(\
-			cd /usr/src/wwwoutcoldmancom/ \
-			&& chown -R jekyll:jekyll /usr/src/wwwoutcoldmancom/ \
+			cd /srv/jekyll \
+			&& chown -R jekyll:jekyll /srv/jekyll \
 			&& JEKYLL_ENV=production jekyll build --config _config.yml \
 		)"
-	@docker cp $(JEKYLL_CONTAINER_NAME):'/usr/src/wwwoutcoldmancom/_site' .
+	@docker cp $(JEKYLL_CONTAINER_NAME):'/srv/jekyll/_site' .
 	@docker kill $(JEKYLL_CONTAINER_NAME)
 	@docker rm -v $(JEKYLL_CONTAINER_NAME)
 
