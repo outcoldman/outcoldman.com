@@ -1,7 +1,7 @@
 DOCKER_IMAGE_NAME=outcoldman/outcoldman.com
 DOCKER_CONTAINER_NAME=outcoldman.com
-NODE_VERSION=4.2.6
-JEKYLL_VERSION=3.1.3
+NODE_VERSION=latest
+JEKYLL_VERSION=latest
 FONT_AWESOME_VERSION=4.3.0
 NORMALIZE_VERSION=3.0.3
 PYGMENTS_VERSION=2.0.2
@@ -38,7 +38,7 @@ docker-jekyll-local:
 		--publish 4000:4000 \
 		--env JEKYLL_ENV=development \
 		jekyll/jekyll:$(JEKYLL_VERSION) \
-		jekyll serve --draft --config _config.yml,_local_config.yml --watch
+		jekyll serve --draft --config _config.yml,_local_config.yml --watch --incremental
 
 docker-jekyll-build:
 	@rm -fR ./_site/*
