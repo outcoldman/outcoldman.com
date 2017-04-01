@@ -21,3 +21,4 @@ tags: [payments, c++, time, unicode, systems we love, c, curl]
 - [Systems We Love: San Francisco 2016 Videos](https://systemswe.love/archive/san-francisco-2016).
     All talks are great. Some are better than others, but I would recommend to watch
     all of them. Minneapolis videos are on my list.
+- [Payments Systems in the U.S. - Second Edition](https://www.goodreads.com/book/show/20968289-payments-systems-in-the-u-s---second-edition).
