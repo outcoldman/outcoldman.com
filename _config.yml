@@ -22,7 +22,7 @@ disqus_registered_url: https://www.outcoldman.com
 # Google Analytics
 google_analytics_tracking_id: UA-7023371-5
 
-plugins:
+gems:
   - jekyll-sitemap
   - jekyll-redirect-from
 
