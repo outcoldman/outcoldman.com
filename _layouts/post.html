@@ -1,6 +1,5 @@
 ---
 layout: default
-comments: true
 ---
 
 {% assign post_date = page.date %}
@@ -10,11 +9,10 @@ comments: true
 {% assign post_path = page.path %}
 <article itemscope itemtype="http://schema.org/BlogPosting">{% include article.html %}</article>
 
-{% if site.disqus_short_name and page.comments != false and site.deployment == "production" %}
-<section class="comments">
-    <h1>Comments</h1>
-    <div id="disqus_thread">
-      <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    </div>
-</section>
-{% endif %}
+<blockquote>
+    Have a question? Want to follow up? Send a comment? Or just ask for help?
+    I can help and provide professional consultation about many topics, including
+    kubernetes, docker, aws, splunk, elasticsearch, metrics, logging, distributed
+    systems, databases, performance tunning.
+    Send me an email at public[at]denis[dot]gladkikh[one more dot]email.
+</blockquote>

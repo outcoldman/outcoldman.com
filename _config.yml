@@ -14,11 +14,6 @@ deployment: production
 permalink: /:categories/archive/:year/:month/:day/:title/
 safe: false
 
-# Disqus Comments
-disqus_short_name: outcoldman
-disqus_show_comment_count: false
-disqus_registered_url: https://www.outcoldman.com
-
 # Google Analytics
 google_analytics_tracking_id: UA-7023371-5
 

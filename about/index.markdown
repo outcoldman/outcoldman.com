@@ -2,7 +2,6 @@
 layout: post
 title: "Denis Gladkikh"
 date: 2014-04-27 00:00:00
-comments: false
 meta: false
 ---
 

@@ -8,9 +8,6 @@
 <ul class="meta">
   <li><i class="fa fa-calendar"></i>{{ post_date | date_to_string }}</li>
   <li><i class="fa fa-tags"></i>{{ post_tags | join: ', ' }}</li>
-{% if site.disqus_short_name and site.deployment == "production" %}
-  <li><i class="fa fa-comments"></i><a href="{{ post_url }}#disqus_thread" data-disqus-identifier="{% if page.disqus_identifier %}{{ page.disqus_identifier}}{% else %}{{ post_url }}{% endif %}">0 comments</a></li>
-{% endif %}
 </ul>
 {% endif %}
 

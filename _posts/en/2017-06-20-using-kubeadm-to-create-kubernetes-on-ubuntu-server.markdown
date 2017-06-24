@@ -188,3 +188,5 @@ $ kubectl proxy
 ```
 
 And open http://localhost:8001/ui
+
+**[Some follow up](/en/archive/2017/06/23/kubectl-setting-up-the-network/)**
