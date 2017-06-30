@@ -14,9 +14,6 @@ deployment: production
 permalink: /:categories/archive/:year/:month/:day/:title/
 safe: false
 
-# Google Analytics
-google_analytics_tracking_id: UA-7023371-5
-
 gems:
   - jekyll-sitemap
   - jekyll-redirect-from
