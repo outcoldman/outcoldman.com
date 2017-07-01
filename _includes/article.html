@@ -1,16 +1,19 @@
 <h1 itemprop="name">
-  <a href="{{ post.url }}" itemprop="url">
-    {{ post_title | xml_escape }}
+  <a href="{{ include.article.url }}" itemprop="url">
+    {{ include.article.title | xml_escape }}
   </a>
 </h1>
 
-{% if page.meta != false %}
 <ul class="meta">
-  <li><i class="fa fa-calendar"></i>{{ post_date | date_to_string }}</li>
-  <li><i class="fa fa-tags"></i>{{ post_tags | join: ', ' }}</li>
+  {% if include.article.date %}
+  <li>{{ include.article.date | date_to_string }}</li>
+  {% endif %}
+  {% if include.article.tags %}
+  <li>{{ include.article.tags | array_to_sentence_string }}</li>
+  {% endif %}
+  <li>{{ include.article.content | number_of_words }} words</li>
 </ul>
-{% endif %}
 
 <div class="article-content" itemprop="articleBody" >
-  {{ content }}
+  {{ include.article.content }}
 </div>

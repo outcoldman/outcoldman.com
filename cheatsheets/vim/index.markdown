@@ -1,8 +1,6 @@
 ---
-layout: post
+layout: markdown_page
 title: "Cheatsheet: Vim"
-tags: [vim,cheatsheet]
-date: 2015/09/13
 ---
 
 ## Code formatting

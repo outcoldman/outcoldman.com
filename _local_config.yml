@@ -1,2 +1,2 @@
 url: http://localhost:4000
-deployment: local
+show_drafts: true

@@ -1,6 +1,7 @@
 ---
 layout: default
 categories: en
+redirect_from: en/blog/index/
 ---
 
 <h1>Blog archives</h1>
@@ -26,10 +27,5 @@ categories: en
 <hr />
 
 <div class="archives" itemscope itemtype="http://schema.org/Blog">
-{% for post in site.categories.en reverse %}
-{% if post.layout == 'post' %}
-  {% include archive_post.html %}
-{% endif %}
-{% endfor %}
-  </ul>
+{% include list_posts_by_year.html posts=site.categories.en %} 
 </div>

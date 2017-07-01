@@ -9,7 +9,6 @@
         <!-- Open Sans -->
         <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Inconsolata:400&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="/css/font-awesome.min.css?v1">
         <link rel="stylesheet" href="/css/normalize.css?v1">
         <link rel="stylesheet" href="/css/syntax.css?v2">
         <link rel="stylesheet" href="/css/main.css?v2">
@@ -39,32 +38,29 @@
     <body>
         <div id="container">
             <header>
-                <div class="profile">
-                    <a href="/">
-                        <img src="https://www.gravatar.com/avatar/50ec75bf23983807a18359d58a2f5a92.png?s=160" 
-                             width="160"
-                             height="160">
-                     </a>
+                <div>
+                    <div class="profile">
+                        <a href="/">
+                            {% include avatar.html %}
+                         </a>
+                    </div>
+                    <hgroup>
+                        <h1><a href="/">Denis Gladkikh</a></h1>
+                        <h2><a href="/">outcoldman</a></h2>
+                        <h3>My personal blog about software development</h3>
+                    </hgroup>
+                    <ul class="social">
+                        <li><a class="twitter" href="https://twitter.com/outcoldman"><i class="number">1200</i></a></li>
+                        <li><a class="github" href="https://github.com/outcoldman"><i class="number">105</i></a></li>
+                        <li><a class="rss" href="{{ site.url }}/feed.xml"><i class="number">866</i></a></li>
+                    </ul>
                 </div>
-
-                <hgroup>
-                    <h1><a href="/">Denis Gladkikh</a></h1>
-                    <h2><a href="/">outcoldman</a></h2>
-                    <h3>My personal blog about software development</h3>
-                </hgroup>
-
                 <nav>
                     <ul>
                         <li><a href="/about">about</a></li>
                         <li><a href="/{% if page.categories %}{{ page.categories }}{% else %}en{% endif %}">archives</a></li>
                     </ul>
                 </nav>
-
-                <ul class="social">
-                    <li><a class="twitter" href="https://twitter.com/outcoldman"><i class="fa fa-twitter"></i><i class="number">1200</i></a></li>
-                    <li><a class="github" href="https://github.com/outcoldman"><i class="fa fa-github"></i><i class="number">105</i></a></li>
-                    <li><a class="rss" href="{{ site.url }}/feed.xml"><i class="fa fa-rss"></i><i class="number">866</i></a></li>
-                </ul>
             </header>
 
             <div id="center-wrapper">

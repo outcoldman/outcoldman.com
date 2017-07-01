@@ -1,8 +1,6 @@
 ---
-layout: post
+layout: markdown_page
 title: "Cheatsheet: tmux"
-tags: [tmux,cheatsheet]
-date: 2015/09/13
 ---
 
 ## Command line

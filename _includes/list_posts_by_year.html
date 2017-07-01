@@ -1,0 +1,16 @@
+{% assign postsByYear = include.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+{% for year in postsByYear %}
+  <h2 class="year">{{ year.name }}</h2>
+  <ul>
+    {% for post in year.items %}
+    <li>
+      <h3><a href="{{ post.url }}">{{post.title | xml_escape}}</a></h3>
+
+      <ul class="meta">
+        <li><time datetime="{{ post.date | datetime | date_to_xmlschema }}" itemprop="datePublished">{{ post.date | date: "%b %e" }}</time></li>
+        <li>{{ post.tags | array_to_sentence_string }}</li>
+      </ul>
+    </li>
+    {% endfor %}
+  </ul>
+{% endfor %}

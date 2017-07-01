@@ -1,0 +1,91 @@
+---
+layout: post
+title: "WPF – MenuItem и важное свойство CommandTarget"
+date: 2009-08-05 21:12:00
+categories: ru
+tags: [.NET, C#, WPF, XAML]
+redirect_from: 
+  - ru/blog/show/148/
+  - ru/archive/2009/08/05/wpf-menuitem-и-важное-свойство-commandtarget/
+---
+<p>Предположим перед вами стоит простая задача – сделать Toolbar контрол, который будет отображаться на каждой странице и он так же будет состоять из меню. Один из вариантов – это разместить все необходимое на UserControl и размещать данный контор на каждом окне. </p> 
+
+<p>В нашем случае UserControl – это Toolbar с меню:</p>  
+
+
+<pre><code>&lt;UserControl x:Class="WpfApplicationMenuSample.MainUserControl" 
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             x:Name="_this" &gt; 
+    &lt;UserControl.Resources&gt; 
+        &lt;RoutedCommand x:Key="MenuCommand" /&gt; 
+    &lt;/UserControl.Resources&gt; 
+    &lt;UserControl.CommandBindings&gt; 
+        &lt;CommandBinding Command="{StaticResource ResourceKey=MenuCommand}"  
+                        Executed="MenuCommand_Executed"  
+                        CanExecute="MenuCommand_CanExecute"/&gt; 
+    &lt;/UserControl.CommandBindings&gt; 
+    &lt;ToolBar HorizontalAlignment="Stretch" &gt; 
+        &lt;Menu&gt; 
+            &lt;MenuItem Header="Menu1" &gt; 
+                &lt;MenuItem CommandParameter="Menu11"  
+                          Command="{StaticResource ResourceKey=MenuCommand}"  
+                          Header="Menu11" /&gt; 
+            &lt;/MenuItem&gt; 
+            &lt;MenuItem Header="Menu2" &gt; 
+                &lt;MenuItem CommandParameter="Menu21"  
+                          Command="{StaticResource ResourceKey=MenuCommand}"  
+                          Header="Menu21" /&gt; 
+            &lt;/MenuItem&gt; 
+        &lt;/Menu&gt; 
+    &lt;/ToolBar&gt; 
+&lt;/UserControl&gt;</code></pre>
+
+<p>В данном примере меню состоит из двух подменю, на которые привешена команда MenuCommand, методы команды простейшие:</p>
+
+<pre><code>private void MenuCommand_Executed(object sender, ExecutedRoutedEventArgs e) 
+{ 
+    MessageBox.Show(e.Parameter.ToString()); 
+} 
+&nbsp;
+private void MenuCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) 
+{ 
+    e.CanExecute = true; 
+}</code></pre>
+
+<p>То есть MenuCommand_CanExecute – гарантирует нам, что вызвать данное меню можно всегда, а MenuCommand_Executed – просто выполняет небольшую логику, просто для примера. </p>
+
+<p>Следующие действие: кладем данный контрол на главное окно приложения:</p>
+
+<pre><code>&lt;Window x:Class="WpfApplicationMenuSample.MainWindow" 
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+       xmlns:WpfApplicationMenuSample="clr-namespace:WpfApplicationMenuSample" 
+        Title="Sample" Height="150" Width="300"&gt; 
+    &lt;DockPanel&gt; 
+        &lt;WpfApplicationMenuSample:MainUserControl DockPanel.Dock="Top"/&gt; 
+        &lt;DockPanel&gt; 
+            &lt;TextBox DockPanel.Dock="Top"/&gt; 
+            &lt;Button &gt;Click&lt;/Button&gt; 
+        &lt;/DockPanel&gt; 
+    &lt;/DockPanel&gt; 
+&lt;/Window&gt;</code></pre>
+
+<p>Итак, в окне мы разместили наш MainUserControl, а так же поле для ввода и кнопку для примера. После запуска мы видим, что все работает, до того момента, пока мы не перевели фокус в TextBox или не нажали на кнопку Click, после этого мы видим, что MenuItem стали неактивными:</p>  
+
+<p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Untitled" border="0" alt="Untitled" src="{{ site.url }}/library/images/01/0000038.png" width="298" height="147" /> </p>  
+
+<p>Догадаться, почему пункты меню стали не активными – сложно, но можно. Нужно обратить внимание на свойство <a href="http://msdn.microsoft.com/ru-ru/library/system.windows.controls.menuitem.commandtarget.aspx">MenuItem.CommandTarget</a>:</p> 
+
+<p><em>Свойство CommandTarget указывает элемент, где исполняется команда. Если CommandTarget не задано, команду получает элемент, на котором находится фокус клавиатуры. </em></p>  <p>А так как фокус находится на элементе TextBox, то вот и получается, что команда выполниться не может. Вообще какая-то странная логика. И, самое интересное, если разместить все то, что находится на UserControl в окно и там же описаться команду и биндинги команды, то все будет работать нормально. </p>  <p>А решить проблему можно указав CommandTarget (заметим, что UserControl имеет имя _this):</p>  
+
+<pre><code>&lt;MenuItem CommandParameter="Menu11" CommandTarget="{Binding ElementName=_this}" 
+          Command="{StaticResource ResourceKey=MenuCommand}"  
+          Header="Menu11" /&gt;</code></pre>
+
+  <p>После этого все будет работать.</p>  
+  
+  <h4>Скачать пример  <a href="/library/content/01/WpfApplicationMenuSample.zip">WpfApplicationMenuSample.zip</a> (VS 2010).</h4> 
+  <p>
+
+</p>

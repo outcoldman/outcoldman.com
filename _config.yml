@@ -3,16 +3,15 @@
 #
 author: Denis Gladkikh
 description: Blog about software development
-baseurl: "" # the subpath of your site, e.g. /blog
 url: https://www.outcoldman.com
 title: outcoldman
-deployment: production
 
 #
 # Jekyll Settings
 #
 permalink: /:categories/archive/:year/:month/:day/:title/
-safe: false
+timezone: Etc/UTC
+encoding: utf-8
 
 gems:
   - jekyll-sitemap
@@ -20,7 +19,6 @@ gems:
 
 exclude:
   - .gitignore
-  - Dockerfile
   - Makefile
   - _config.yml
   - _local_config.yml

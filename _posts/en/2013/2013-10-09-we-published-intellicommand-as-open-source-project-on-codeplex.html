@@ -1,0 +1,28 @@
+---
+layout: post
+title: "We published IntelliCommand as open source project on CodePlex"
+date: 2013-10-09 05:46:25
+categories: en
+tags: [Visual Studio 2010, CodePlex, Visual Studio 2012, Visual Studio Extension, IntelliCommand, OSS]
+redirect_from: 
+    - en/blog/show/337/
+    - en/archive/2013/10/08/we-published-intellicommand-as-open-source-project-on-codeplex/
+---
+<p>Almost year ago we published IntelliCommand extension on <a href="http://visualstudiogallery.msdn.microsoft.com/83f59659-abc1-4bfa-9779-42f687af0481">Visual Studio Gallery</a>. This extension helps you to learn shortcut keys in Visual Studio (check screenshots on Gallery site). IntelliCommand was a result of Visual Studio hackathon event, which I built with my coworkers (btw, we took first place).</p>
+
+<p>For last year IntelliCommand has been downloaded more than 12 000 times. I think that this is good number for so small extension.</p>
+
+<p>Today we decided to publish source code of this extension on <a href="https://intellicommand.codeplex.com">CodePlex</a>. Feel free to take a look on it, fix any bugs you've seen or add any features you always wanted.</p>
+
+<p>If you want to build this solution you need to have Visual Studio 2010 with Service Pack 1 and <a href="http://visualstudiogallery.msdn.microsoft.com/25622469-19d8-4959-8e5c-4025d1c9183d">Visual Studio 2010 SDK SP1</a>. We used Visual Studio 2010 on purpose, because we know that there are a lot of people who still use Visual Studio 2010 as main IDE, and also we know that Visual Studio has very good back compatibility model. We built this extension only for Visual Studio 2010, <a href="https://intellicommand.codeplex.com/SourceControl/latest#IntelliCommand/source.extension.vsixmanifest">specified</a> that it can be used in Visual Studio 2012 and 2013 and at the end it works on all three versions of Visual Studio. Pretty cool, right?</p>
+
+<p>If you will decide to look deeper in source code, there are some help for you:</p>
+<ul>
+<li><a href="https://intellicommand.codeplex.com/SourceControl/latest#IntelliCommand/Services/CommandScopeService.cs">CommandScopeService.cs</a> - this class helps us to find out current scope in Visual Studio. We need it, because different scopes have different set of shortcut keys. For example WinForms designer has completely different set of shortcut keys than Editor.</li>
+<li><a href="https://intellicommand.codeplex.com/SourceControl/latest#IntelliCommand/Services/KeyboardListenerService.cs">KeyboardListenerService.cs</a> - global keyboard listener, which also can filter keyboard events per current process.</li>
+<li><a href="https://intellicommand.codeplex.com/SourceControl/latest#IntelliCommand/Models/CommandInfosLoader.cs">CommandInfosLoader.cs</a> - loads all command bindings available in Visual Studio instance and store all them in <a href="https://intellicommand.codeplex.com/SourceControl/latest#IntelliCommand/Models/CommandsContainer.cs">CommandsContainer</a>.</li>
+<li><a href="https://intellicommand.codeplex.com/SourceControl/latest#IntelliCommand/Presentation/CommandsPresenter.cs">CommandsPresenter.cs</a> - main class which stitch everything together.</li>
+<li><a href="https://intellicommand.codeplex.com/SourceControl/latest#IntelliCommand/Presentation/CommandsPanel.cs">CommandsPanel.cs</a> - special WPF panel, which can calculate size of the panel based on the list of shortcut keys available.</li>
+</ul>
+
+<p>Code is not perfect, because this project always was just a prototype. But I hope that it will give you some knowledge about how to build Visual Studio extensions, and maybe will give you some ideas about some new cool extensions for Visual Studio. </p>

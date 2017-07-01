@@ -1,0 +1,18 @@
+---
+layout: post
+title: "Пропал IntelliSense при редактировании XAML/XML файлов в Visual Studio 2008"
+date: 2010-01-29 12:22:00
+categories: ru
+tags: [XML, XAML, Visual Studio 2008]
+redirect_from: 
+    - ru/blog/show/172/
+    - ru/archive/2010/01/29/пропал-intellisense-при-редактировании-xaml-xml-файлов-в-visual-studio-2008/
+---
+<p>Каким-то чудесным образом пропал <em>IntelliSense</em> при редактировании XML файлов, заметил открыв<em> web.config</em> файл. Первое, что пришло в голову – сделать Repair студии – не помогло, сброс настроек из <em>Tools-&gt;Import and Exports Settings…</em> тоже не дал результатов. В настройках (Tools-&gt;Options) зато увидел, что есть проблемы на вкладках настройки Text Editor-&gt;XML: на последних двух виднеется только текст, что настройки не удалось прочитать. </p>  <p>Немного погуглив, набрел на эту тему на <a href="http://stackoverflow.com">http://stackoverflow.com</a>: <a href="http://stackoverflow.com/questions/859335/visual-studio-2008-xaml-editor-not-working-disappeared">Visual Studio 2008 Xaml Editor not working / disappeared</a></p>  <p>Из консоли вызвал пару раз </p>  
+
+<pre><code>"%ProgramFiles%\Microsoft Visual Studio 9.0\Common7\ide\devenv" /resetSkipPkgs
+"%ProgramFiles%\Microsoft Visual Studio 9.0\Common7\ide\devenv" /resetsettings</code></pre>
+
+<p>
+Я запускал cmd из под администратора (Windows 7) и там уже набирал эти команды. Вроде помогло.
+</p>

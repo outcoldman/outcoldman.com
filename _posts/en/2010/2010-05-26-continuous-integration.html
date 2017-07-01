@@ -1,0 +1,43 @@
+---
+layout: post
+title: "Continuous integration"
+date: 2010-05-26 18:39:00
+categories: en
+tags: [TDD, CCNet, CruiseControl, NDepend, NCover, Unit, Continuous Integration]
+redirect_from: en/blog/show/203/
+---
+<p>Few days ago I have an experience with setting CCNet build server for continuous integration environment. What is it continuous integration and why you need to know it you can learn from many articles, and the better of course is article written by Martin Fowler. Also you can read a book <i>Continuous Integration: Improving Software Quality and Reducing Risk</i>, which Martin Fowler advises well. </p>
+
+<p>Below I will try to tell you main steps of setting continuous integration environment and will give you some advices. Also I will glad to look response and advices from you. So, what is it continuous  integration? In this case word integration mean integration not across some systems (applications), as you can think when you will heart this phrase first time (this was my case). In this case this word means integration across team members.</p>
+
+<h2>Requirements</h2>
+
+<p>Firs requirement for team is all source code should store in some source code repository (it is doesn’t matter which you want to use). You can find this requirement very simple, because is really rarely case that some team doesn’t use repository for source code, but this case can be. However, this requirement expect from you more, you need to store not only source code but all binaries or resources that needed by your application (within reason). Of course if you will write some application which use .Net you don’t need to store .net base libraries. But in case when you use some additional libraries like Silverlight/WPF toolkits or MS MVC, MS Charts for .Net, etc. – this is libraries which you need to install separate should store in repository too. So if some team member wants to use new additional library – he should place it in repository first than add reference to this library with relative path. So at next day other team members will not have problems with building when they get last source code. Also with this approach we don’t need to install these libraries on build server.</p>
+
+<p>So with this approach we provide that all team member or new team member can at any point get last code and this code must be built. Also we have human factor that each team member publish to repository only code which can be built locally. However, sometimes we will have problems with building because we have really bad systems for store source code (unfortunately I’m working with one of them at current moment).</p>
+
+<p>If code can be built at every moment doesn’t mean that new code of one team member hasn’t an influence on code of other team member. I mean that you can use code (classes, methods) of your colleague not like this code should be used. More complex case when you change code which wrote your colleague. In this case if this new code written with some mistakes of business rules you can find problems very late – on the test step or when you will show your app to client. If you don’t want to get these problems you should use tests jointly with build server. It is clear that in case when you have large project have a requirement to launch all tests locally before publish code to repository it is not a good solution. And of course It is can’t guarantee that they will do this. But you can set build server that it will launch tests. So, after each code publishing build server will compile application and then launch tests for checking code stability. In this case time of tests execution in summary can’t took a long enough period of time in building process. If it is your case when you have so many tests than they take a long time period you can solve this problem with next solutions. In most cases we have rather small projects for Business Process Automation and it is a really rare case when your test will have execution time that will occupy a whole day (but of course it depends on how these tests written). In case when you have a really big project you can solve it with separating tests by commands. That’s mean you are developing <i>a big</i> application with independent modules (or weakly dependent), in this case you have tests which check only separate module which developed by one of your team, and also you have tests which check module integration (we can say that it is various levels of integration in one project). So you can run tests for modules frequent – after each building, and test for modules integration once at night. However, maybe you can’t use this approach (not modular application or else) – so you need a small system with AI which will set priority to your tests. So this AI will run tests when it is possibly and first it will run test with highest priority: tests which were broken by this moment or tests which most often were broken. If it is your case I recommend you to find some scientist articles with this term, I listen some of lectures with this term on scientific conferences.</p>
+
+<h2>Setting</h2>
+
+<p>Let’s look which next necessary steps we can set for build server. First build server should notify members when build is broken. Easy way to do it – using emails. Some companies use funny tee-shirts with suitable text (it is really sure method so developers doesn’t want to wear it again). Next will be great if build server show some code statistics, like serious depended classes or methods, or libraries which has deep code coverage. As well if build server show duplicate code in projects. These is really frequent cases when young team member just copy some code from one place to other, because he doesn’t know how to write it clear, how to extract logic of method to separate method or some class. Other frequent case when developers have a weak relation, so they don’t know what code other developer writes and they write same code. </p>
+
+<p>As well we can set build version with build server for each build. In most cases build server increment version of each project, so we can use this version for mark project’s libraries. .NET libraries always have labelling with this format x.x.x.x, where with first two numbers you can set real library (application) version: first is stages of developing, second is improvement of each stage. Third number is iteration number inside stage (or improvement), and the last one is build number inside iteration. So first two numbers depend on your imagination and other two numbers depend on time and managed by build server. With this marking you can at every moment find which version your client has and maybe solve problem with upgrading. </p>
+
+<p>Also you can set build server so it will create deploy package or installation package. It can be simple zip package or full-fledged installation package – it depends on claim of your project. Pluses of having at every moment working application (installation package) transparent: manager or tester can at every moment get last version of application without asking developers (you know what is – draw developer attention away from developing). It is easy when you have windows application, in web app cases you can set build server, so it will auto deploy last version on some demo server.</p>
+
+<h2>What next?</h2>
+
+<p>It is first article. I will write several articles with term continuous integration in future. I will tell about how to set database upgrading, how to keep up to date databases for developing and demo servers. At next articles I will write about practical’s aspects of setting build server. I will tell about setting CCNet server. About which problems you can find with setting and how you can solve this problems. About additional features like nAnt, Semian, NDepend, NCover. And after then we moving to TFS server I will compare TFS with CCNet. And the main term for me is setting continuous integration environment for developing Silverlight application. </p>
+
+<h2>Links</h2>
+
+<ol>
+  <li><a href="http://martinfowler.com/articles/continuousIntegration.html">Martin Fowler - Continuous Integration</a> </li>
+
+  <li><a href="http://www.amazon.com/Continuous-Integration-Improving-Software-Reducing/dp/0321336380">Continuous Integration: Improving Software Quality and Reducing Risk</a></li>
+
+  <li><a href="http://www.ibm.com/developerworks/java/library/j-ap11297/index.html?S_TACT=105AGX99&amp;S_CMP=CP">Automation for the people: Continuous Integration anti-patterns</a></li>
+
+  <li><a href="http://www.ibm.com/developerworks/java/library/j-ap03048/index.html?S_TACT=105AGX99&amp;S_CMP=CP">Automation for the people: Continuous Integration anti-patterns, Part 2</a></li>
+</ol>

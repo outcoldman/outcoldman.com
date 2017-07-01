@@ -38,7 +38,7 @@ docker-jekyll-local:
 		--publish 4000:4000 \
 		--env JEKYLL_ENV=development \
 		jekyll/jekyll:$(JEKYLL_VERSION) \
-		jekyll serve --draft --config _config.yml,_local_config.yml --watch --incremental
+		jekyll serve --config _config.yml,_local_config.yml --watch --incremental --trace
 
 docker-jekyll-build:
 	@rm -fR ./_site/*

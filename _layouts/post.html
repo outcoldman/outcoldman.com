@@ -2,12 +2,9 @@
 layout: default
 ---
 
-{% assign post_date = page.date %}
-{% assign post_tags = page.tags %}
-{% assign post_title = page.title %}
-{% assign post_url = page.url %}
-{% assign post_path = page.path %}
-<article itemscope itemtype="http://schema.org/BlogPosting">{% include article.html %}</article>
+<article itemscope itemtype="http://schema.org/BlogPosting">
+    {% include article.html article=page %} 
+</article>
 
 <blockquote>
     Have a question? Want to follow up? Send a comment? Or just ask for help or consultation?

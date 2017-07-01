@@ -1,8 +1,6 @@
 ---
-layout: post
+layout: markdown_page
 title: "Denis Gladkikh"
-date: 2014-04-27 00:00:00
-meta: false
 ---
 
 #### > Software Developer @ Stripe

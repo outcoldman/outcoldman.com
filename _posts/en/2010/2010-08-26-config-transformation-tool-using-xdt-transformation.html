@@ -1,0 +1,89 @@
+---
+layout: post
+title: "Config Transformation Tool: Using XDT Transformation"
+date: 2010-08-26 20:47:00
+categories: en
+tags: [ASP.NET 4, XDT, XML-Document-Transform, Config Transformation Tool]
+redirect_from: en/blog/show/223/
+---
+<p>XDT Transformation is a new feature of ASP.NET 4.0 named Web.Config Transformation.</p>
+
+<p>Scott Guthrie: &quot;<i>In most real-world deployment scenarios, the web.config file you use for development is different than the one you use for production deployment. Typically you want to change environment settings like database connection-strings, making sure debug is turned off, and enabling custom errors so that end-users (and hackers) don’t see the internals of your application.</i>&quot;</p>
+
+<p>But the chief problem of this feature - is working only with web.config files. </p>
+
+<p>I investigated this problem, and wrote Config Transformation Tool, which gives opportunity to use XDT Transformation Syntax like at <a href="http://msdn.microsoft.com/en-us/library/dd465326.aspx">Deployment Web Application Project</a> for any files. This tool is very easy, it just run msbuild task, which do this transformation.</p>
+
+<p>You just need to set source file, transformation file and destination file at arguments and run this tool. You can use it for app.config files for WinForms, WPF or Console projects and any other files. You can set this transformation task with nAnt or just set it in Post-Build Event for Project.</p>
+
+<p>Below little example of using:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&#160;&lt;configuration&gt;
+&#160;    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;True&quot; /&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;600&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;True&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>transform.config file content:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;configuration xmlns:xdt=&quot;http://schemas.microsoft.com/XML-Document-Transform&quot;&gt;
+    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;601&quot; xdt:Transform=&quot;Replace&quot;  xdt:Locator=&quot;Match(key)&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Run tool from command line with arguments</p>
+
+<p><i>ctt.exe s:source.config t:transform.config d:destination.config</i></p>
+
+<p><img alt="Config Transformation Tool In Action" src="{{ site.url }}/library/images/02/ctt/02.png" /></p>
+
+<p>Tool will generate us destination.config file with content:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&#160;&lt;configuration&gt;
+&#160;    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;True&quot; /&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;601&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;True&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>To get more details about transform file syntax go to <a href="http://msdn.microsoft.com/en-us/library/dd465326.aspx">http://msdn.microsoft.com/en-us/library/dd465326.aspx</a></p>
+
+<p>Project's URL at CodePlex <a href="http://ctt.codeplex.com/">http://ctt.codeplex.com/</a>.</p>
+
+<p>Current version <a href="http://ctt.codeplex.com/releases/view/51231">Config Transformation Tool 1.0.3890.17440</a>.</p>

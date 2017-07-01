@@ -1,0 +1,40 @@
+---
+layout: post
+title: "Небольшой баг с IE8 и filter:AlphaImageLoader"
+date: 2009-08-12 21:12:00
+categories: ru
+tags: [Web Design, Internet Explorer 8, PNG]
+redirect_from: 
+  - ru/blog/show/151/
+  - ru/archive/2009/08/12/небольшой-баг-с-ie8-и-filter-alphaimageloader/
+---
+<p>Встретил необычный баг с IE8 и указанием в CSS следующего фильтра и использованием png с альфа каналами (полупрозрачными тонами):</p>  
+
+<pre><code>filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='ie8_AlphaImageLoader_bug', sizingMethod='scroll');</code></pre>
+
+<p>О данном баге (я его считаю багом) уже написал в newsgroup по теме IE 8, вы можете посмотреть сообщение по <a href="http://www.microsoft.com/communities/newsgroups/list/en-us/default.aspx?dg=microsoft.public.internetexplorer.general&amp;cat=en_us_28cca3eb-7037-4d4f-bde1-d8efee1f1420&amp;lang=en&amp;cr=us&amp;mid=3e5cd82f-362f-4024-a25b-4e003105e851&amp;tid=3e5cd82f-362f-4024-a25b-4e003105e851">этому</a> адресу. К сожалению как отправить feedback для IE8 я не нашел на <a href="http://connect.microsoft.com">http://connect.microsoft.com</a> по теме <a href="https://connect.microsoft.com/IE">IE8</a>, потому и скинул в newsgroup. </p>  <p>Итак, я подготовил пример, который можно посмотреть по этому <a href="http://outcoldman.studenthost.ru/tpublic/ie8_AlphaImageLoader_bug.html">адресу</a>. </p> 
+
+<p>Вот скриншот с двумя окнами, оба IE8 (справа – проблема есть, а слева нет):</p>  <p><a href="/library/images/01/0000042.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="Compare" border="0" alt="Compare" src="{{ site.url }}/library/images/01/0000043.png" width="644" height="404" /></a> </p>  <p>На том компьютере, на котором данная проблема есть я пробовал так же смотреть с запуском IE без addon’ов (<em>Internet Explorer (No Add-ons)</em>), результат тот же:</p>  <p><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="without addons" border="0" alt="without addons" src="{{ site.url }}/library/images/01/0000044.png" width="640" height="405" /> </p>  <p>Сразу скажу, что Windows 7 тут не при чем. Проблема была и в Vista x64. И самое интересное, на машине, если зайти другим (новым) пользователем - то картинка отображается нормально. И данная проблема вылазила не только на моем компьютере. Пишите, если есть догадки из-за чего это может быть, интересно докопаться до истины.</p>  <p>Еще скажу зачем это вообще нужно. IE8 и сам может показывать png с альфа каналами, а вот IE6 – нет. Потому и пришлось написать данный фильтр в css классе, чтобы везде выглядело одинаково. Пока проблему решили при помощи CSS Hack’ов, а именно:</p> 
+
+<pre><code>&lt;html&gt; 
+&lt;style&gt; 
+  .welcome-logo 
+  { 
+   position:absolute; 
+   background: url(ie8_AlphaImageLoader_bug.png) no-repeat 0px 0px; 
+   WIDTH: 96px; 
+   HEIGHT: 96px; 
+   TOP: 0px; 
+   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='ie8_AlphaImageLoader_bug', sizingMethod='scroll'); 
+   filter /*\**/:none\9; 
+  } 
+&lt;/style&gt; 
+&lt;/html&gt; 
+&lt;body&gt; 
+  &lt;div class="welcome-logo" /&gt; 
+&lt;/body&gt;</code></pre>
+
+<p>Последний filter в css классе .welcome-logo не видим для IE6, но IE8 читает его нормально.</p> 
+
+<p>
+</p>
