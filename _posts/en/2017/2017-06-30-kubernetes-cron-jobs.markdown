@@ -10,7 +10,7 @@ data retention, clean ups and some monitoring as well.
 
 [Cron Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/) 
 feature is still in alpha. It is not enabled by default in 
-Kubernetes 1.6](https://github.com/kubernetes/kubernetes.github.io/pull/4185)
+[Kubernetes 1.6](https://github.com/kubernetes/kubernetes.github.io/pull/4185)
 (and possible in 1.7 as well). 
 
 If you have Kubernetes setup by kubeadm, just find the file

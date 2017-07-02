@@ -21,10 +21,10 @@ a:visited {
 }
 
 header {
-    float: none;
-    width: 100%;
-    position: static;
-    min-height: auto;
+    float: left;
+    width: 17em;
+    min-height: 100%;
+    position: fixed;
     background: #333;
     color: #aaa;
 }
@@ -86,7 +86,6 @@ header {
 
     header nav {
         margin: 3em 1.5em 0 1.5em;
-        text-align: center;
     }
 
         header nav ul {
@@ -97,12 +96,6 @@ header {
 
         header nav ul li {
             line-height: 1.8em;
-            display: inline-block;
-        }
-
-        header nav ul li:not(:first-child):before {
-            content: '\2219';
-            padding: 0 1.2em 0 1em;
         }
 
         header nav a, header nav a:visited {
@@ -170,6 +163,7 @@ footer {
     }
 
 #center-wrapper {
+    margin-left: 17em;
     background: white;
 }
 
@@ -326,10 +320,29 @@ ul.languages {
 }
 
 @media screen and (max-width: 60em), screen and (max-height: 40em) {
+    header {
+        width: 100%;
+        float: none;
+        position: static;
+        min-height: auto;
+    }
+
         header hgroup {
             text-align: center;
         }
 
+        header nav {
+            text-align: center;
+        }
+
+            header nav li {
+                display: inline-block;
+            }
+
+            header nav li:not(:first-child):before {
+                content: '\2219';
+                padding: 0 1.2em 0 1em;
+            }
 
         header ul.social {
             padding:0em 0 2em 0;

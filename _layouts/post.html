@@ -1,12 +1,11 @@
 ---
 layout: default
 ---
-
-<article itemscope itemtype="http://schema.org/BlogPosting">
-    {% include article.html article=page %} 
+<article>
+<header>
+<time>{{ page.date | date_to_string }}</time>
+<h1><a href="{{ page.url }}">{{ page.title | xml_escape }}</a></h1>
+<sub>{{ page.tags | array_to_sentence_string }}</sub>
+</header>
+{{ page.content }}
 </article>
-
-<blockquote>
-    Have a question? Want to follow up? Send a comment? Or just ask for help or consultation?
-    Send me an email at public[at]denis[dot]gladkikh[one more dot]email.
-</blockquote>

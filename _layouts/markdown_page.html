@@ -1,13 +1,9 @@
 ---
 layout: default
 ---
-
 <article>
-<h1>
-  {{ page.title | xml_escape }}
-</h1>
-
-<div class="article-content" >
-  {{ page.content | markdownify }}
-</div>
-</article
+<header>
+<h1><a href="{{ page.url }}">{{ page.title | xml_escape }}</a></h1>
+</header>
+{{ page.content | markdownify }}
+</article>

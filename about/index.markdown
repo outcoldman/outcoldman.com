@@ -3,8 +3,6 @@ layout: markdown_page
 title: "Denis Gladkikh"
 ---
 
-#### > Software Developer @ Stripe
-
 > On this web site I publish my personal thoughts and ideas.
 > I am not speaking for any company in my blog posts.
 
@@ -16,9 +14,7 @@ I am experienced individual contributor with strong Technical Lead skills.
 
 ## Contacts
 
-I'm happy to answer on your questions and discuss interesting topics
-
-- Email: public[at]denis[dot]gladkikh[one more dot]email
+- Email: [public@denis.gladkikh.email](mailto:public@denis.gladkikh.email)
 - GitHub: [https://github.com/outcoldman](https://github.com/outcoldman)
 - Twitter: [https://twitter.com/outcoldman](https://twitter.com/outcoldman)
 

@@ -3,11 +3,17 @@ layout: default
 redirect_from:
   - ru/tools/regex/
   - ru/tools/keys/index/
+  - en/
 ---
-<div class="index" itemscope itemtype="http://schema.org/Blog">
-{% for post in site.categories.en limit:3 %}
-    <article itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-        {% include article.html article=post %} 
-    </article>
-{% endfor %}
-</div>
+
+<h1>Blog</h1>
+<ul>
+  <li>English</li>
+  <li><a href="/ru">Russian</a></li>
+</ul>
+{% include list_posts_by_year.html posts=site.categories.en %} 
+<h2>Cheatsheets</h2>
+<ul>
+  <li><a href="{{site.url}}/cheatsheets/tmux/">tmux</a></li>
+  <li><a href="{{site.url}}/cheatsheets/vim/">vim</a></li>
+</ul>
