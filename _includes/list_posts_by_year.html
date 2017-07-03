@@ -9,27 +9,25 @@
   ul.blog-list > li > a {
     margin: 0 0 0 0;
     display: block;
-    margin-left: 6em;
+    margin-left: 3em;
   }
   ul.blog-list > li > time {
-    font-size: 1em;
-    font-weight: normal;
     color: #555;
-    width: 6em;
+    width: 3em;
     float: left;
   }
   ul.blog-list > li > sup {
     font-family: monospace;
     font-weight: normal;
     color: #555;
-    margin-left: 9em;
+    margin-left: 4.5em;
     display: block;
   }
 </style>
 <ul class="blog-list">
   {% for post in year.items %}
   <li>
-    <time>{{ post.date | date_to_string }}</time>
+    <time>{{ post.date | date: "%m/%d" }}</time>
     <a href="{{ post.url }}">{{post.title | xml_escape}}</a>
     <sup>{{ post.tags | array_to_sentence_string }}</sup>
   </li>

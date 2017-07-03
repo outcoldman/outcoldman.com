@@ -85,18 +85,18 @@ body > div:first-child > div a {
   display: block;
   width: 100%;
 }
+body > div:first-child > div a {
+  font-family: monospace;
+  margin: 0 0 0 0.2em;
+}
 body > div:first-child > div a:first-child {
   font-size: 3em;
-  font-family: monospace;
   text-transform: uppercase;
-  margin: 0 0 0 0.2em;
 }
 body > div:first-child > div a:last-child {
   font-size: 1em;
-  font-family: sans-serif;
-  margin: 0.2em 0 0 0.2em;
 }
-body > div:first-child > *:not(:last-child) {
+body > div:first-child > a, body > div:first-child > div {
   float: left;
 }
 body > div:first-child > nav {
@@ -172,6 +172,12 @@ body > div:nth-last-child(-n+2) > p {
   margin: 0;
 }
 @media screen and (max-width: 30em) {
+  body > div:first-child > div {
+    float: right;
+  }
+  body > div:first-child > nav {
+    margin-top: 0.2em;
+  }
   body > div:first-child > nav > ul li {
     display: inline-block;
     margin-right: 0.4em;
@@ -180,6 +186,11 @@ body > div:nth-last-child(-n+2) > p {
   }
   body > div:first-child > nav > ul li:not(:first-child) {
     margin-top: 0.2em;
+  }
+}
+@media screen and (max-width: 20em) {
+  body > div:first-child > div a:first-child {
+    font-size: 2em;
   }
 }
 /* Default.css from https://github.com/richleland/pygments-css */
