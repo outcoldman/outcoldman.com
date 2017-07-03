@@ -6,6 +6,8 @@
   <title>{% if page.title %}{{ page.title | xml_escape }}{% else %}{{ site.title | xml_escape }}{% endif %}</title>
   <meta name="viewport" content="width=device-width">
   <meta name="author" content="{{ site.author }}">
+  <meta name="description" content="{% if page.summary %}{{ page.summary | escape }}{% else %}{{ page.title | escape }}{% endif %}">
+  <meta name="keywords" content="{% if page.tags %}{{ page.tags | escape | join: ',' }}{% else %}outcoldman, elasticsearch, splunk, kubernetes, consultation{% endif %}">
   <link rel="alternate" type="application/rss+xml" title="{{site.title}}" href="{{site.url}}/feed.xml" />
   <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
   <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
@@ -275,7 +277,7 @@ body > div:nth-last-child(-n+2) > p {
   {{ content }}
 
   <div>
-    <p>Have feedback or a question? Looking for consultation?</p>
+    <p>Have feedback or questions? Looking for consultation?</p>
     <p>My expertise: MongoDB, ElasticSearch, Splunk, and other databases. Docker, Kubernetes. Logging, Metrics. Performance, memory leaks.</p>
     <p>Send me an email to <a href="mailto:public@denis.gladkikh.email">public@denis.gladkikh.email</a>.</p>
   </div>
