@@ -22,3 +22,16 @@ exclude:
   - Makefile
   - _config.yml
   - _local_config.yml
+
+defaults:
+  -
+    scope:
+      path: "_posts"
+    values:
+      layout: "post"
+      categories: "en"
+  -
+    scope:
+      path: "_posts/ru"
+    values:
+      categories: "ru"
