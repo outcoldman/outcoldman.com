@@ -13,7 +13,7 @@ permalink: /:categories/archive/:year/:month/:day/:title/
 timezone: Etc/UTC
 encoding: utf-8
 
-gems:
+plugins:
   - jekyll-sitemap
   - jekyll-redirect-from
 
