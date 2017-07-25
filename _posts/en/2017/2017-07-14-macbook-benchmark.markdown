@@ -1,30 +1,30 @@
 ---
-title: "Macbook: benchmarks for developers"
+title: "MacBook: benchmarks for developers"
 tags: [macbook, benchmarks]
 ---
 
-Few weeks ago I decided to get myself a Macbook. Wanted compact, lightweight Macbook, and good battery life.
-I started to consider Macbook instead of Macbook Pro, but wanted to be sure that performance will not be a problem.
-Few years ago I have heard that Macbooks were very slow, but this year Geekbench showed very promising
+Few weeks ago I decided to get myself a MacBook. Wanted compact, lightweight MacBook, and good battery life.
+I started to consider MacBook instead of MacBook Pro, but wanted to be sure that performance will not be a problem.
+Few years ago I have heard that MacBooks were very slow, but this year Geekbench showed very promising
 [results](https://www.reddit.com/r/apple/comments/6jdfcz/geekbench_average_cpu_scores_for_all_2017/).
 So I got it, now I am trying to test it as much as I can to be sure that there are will be no surprises in performance.
 Also I am comparing performance to other Apple devices I have.
 
 For my tests I used
 
-1. Macbook (Retina, 12-inch, 2017), 1.4GHz Intel Core i7, 16 GB 1867MHz LPDDR3, Intel Graphics 615 1536 MB, 256 GB SSD
-2. Macbook Pro (13-inch, 2016, Four Thunderbolt 3 Ports), 3.3 GHz Intel Core i7, 16 GB 2133 MHz LPDDR3, Intel Graphics 550 1536 MB, 512 GB SSD.
+1. MacBook (Retina, 12-inch, 2017), 1.4GHz Intel Core i7, 16 GB 1867MHz LPDDR3, Intel Graphics 615 1536 MB, 256 GB SSD
+2. MacBook Pro (13-inch, 2016, Four Thunderbolt 3 Ports), 3.3 GHz Intel Core i7, 16 GB 2133 MHz LPDDR3, Intel Graphics 550 1536 MB, 512 GB SSD.
 3. Mac mini (Late 2014), 2.6GHz Intel Core i5, 8 GB 1600MHz DDR3, Intel Iris 1536MB, 256 GB SSD
 4. iMac (Retina 5K, 27-inch, Late 2015), 4GHz Intel Core i7, 24 GB 1867 MHz DDR3, AMD Radeon R9 M395X 4096 MB, 513 GB SSD.
 
-> To make it clear, Macbook Pro is not mine, so I am not looking for another laptop, I am actually considering the
+> To make it clear, MacBook Pro is not mine, so I am not looking for another laptop, I am actually considering the
 > only one laptop for myself.
 
-All of them have macOS Sierra 10.12.5 intalled. Both Macbooks have Firevault enabled.
+All of them have macOS Sierra 10.12.5 intalled. Both MacBooks have Firevault enabled.
 
 ## Geekbench
 
-I don't really trust Geekbench. But my original decision to buy Macbook was based on the results from this website, so
+I don't really trust Geekbench. But my original decision to buy MacBook was based on the results from this website, so
 I collected benchmarks myself.
 
 No surprises here, you can see detailed results on my [profile](https://browser.geekbench.com/user/133014), and this is
@@ -33,7 +33,7 @@ a summary
 ![macbook geekbench]({{ site.url }}/library/2017/07/macbook/macbook-geekbench.png)
 
 iMac has best performance, and Mac mini shows the lowest performance, it is 2.5 years old and had low end CPU.
-Macbook Pro from the last year shows the same performance as this year Macbook.
+MacBook Pro from the last year shows the same performance as this year MacBook.
 
 Also GPU tests just for reference
 
@@ -71,12 +71,12 @@ If you are not familiar with output of `time` utility, *real* time is how long i
 *user* is for how long this utility was scheduled on CPU (sum of all cores), and system is the time of system overhead
 (not really important for us).
 
-Let's look first on difference between Macbook Pro and iMac. iMac has CPU speed of 4.0GHz (turbo boost up to 4.2GHz), Macbook Pro
+Let's look first on difference between MacBook Pro and iMac. iMac has CPU speed of 4.0GHz (turbo boost up to 4.2GHz), MacBook Pro
 has 3.3GHz (turbo boost up to 3.7GHz), their user CPU time is very close, but because iMac has two
 times more cores it took 2 times less of real time.
 
-Macbook has 1.4GHz speed with turbo boost up to 3.6GHz, but it cannot keep turbo boost for long time. This is
-why it is 1.6x times slower than Macbook Pro. Geekbench tests are very short, so they reflect mostly turbo boost speed.
+MacBook has 1.4GHz speed with turbo boost up to 3.6GHz, but it cannot keep turbo boost for long time. This is
+why it is 1.6x times slower than MacBook Pro. Geekbench tests are very short, so they reflect mostly turbo boost speed.
 But long running CPU jobs aren't showing the same results as Geekbench.
 
 And as you can see Mac Mini showed very good results. Also considering that it has issues with SSD drive.
@@ -139,42 +139,44 @@ All macs had the same configuration of 2 CPU and 4GB given to Docker for Mac.
 
 At first I built docker development container with `time make BIND_DIR=. shell`. Results aren't so interesting, because
 this command has many dependencies on external services. All macs showed very similar results between 7 and 11
-minutes. Macbook was faster than Macbook Pro in this run, so I decided not to share this result, did not want to
+minutes. MacBook was faster than MacBook Pro in this run, so I decided not to share this result, did not want to
 confuse.
 
 After that I run `time hack/make.sh binary` inside container
 
 ![macbook docker]({{ site.url }}/library/2017/07/macbook/macbook-docker-in-docker.png)
 
-Very good results for Macbook.
+Very good results for MacBook.
 
 ## Battery test
 
-To test the battery I charged both Macbooks to `100%`. Turned the screen brigtness to `100%`. Disabled *Slightly dim the
+To test the battery I charged both MacBooks to `100%`. Turned the screen brigtness to `100%`. Disabled *Slightly dim the
 display while on batery power* and *Automatically adjust brightness*. And compiled llvm again
 
 ![macbook battery]({{ site.url }}/library/2017/07/macbook/macbook-battery.png)
 
-Macbook run for 1 hour and 10 minutes and took 35% of battery. Macbook Pro run for 51 minutes and took 61% of battery.
-With Macbook I could run another test with brigtness set to minimum, it run for 67 minutes and took another 32% of
-battery. Macbook pro could not finish the second run.
+MacBook run for 1 hour and 10 minutes and took 35% of battery. MacBook Pro run for 51 minutes and took 61% of battery.
+With MacBook I could run another test with brigtness set to minimum, it run for 67 minutes and took another 32% of
+battery. MacBook pro could not finish the second run.
 
-To be honest they both showed pretty bad results. When I owned Macbook Pro 15-inch Late 2013 I could easily compile
-several times similar in size project without any issues. The only problem I had with that Macbook - the discrete graphic.
+To be honest they both showed pretty bad results. When I owned MacBook Pro 15-inch Late 2013 I could easily compile
+several times similar in size project without any issues. The only problem I had with that MacBook - the discrete graphic.
 Sometimes Chrome could turn it on and that could drain battery pretty quickly. That was a time when I started to dream about
-13-inch Macbook Pro without discrete graphic card. But seems like battery life is getting worse these days, when you
+13-inch MacBook Pro without discrete graphic card. But seems like battery life is getting worse these days, when you
 run your laptop on full speed.
 
 ## Summary
 
-- So far I like Macbook, it certainly slower than other Macbooks, but overall gives ok performance. Considering that my
-main home workstation is iMac, Macbook feels good as a secondary Mac, and very mobile laptop. I have 2 weeks to decide
-if I really want to keep it, or get Macbook Pro instead.
+- So far I like MacBook, it certainly slower than other MacBooks, but overall gives ok performance. Considering that my
+main home workstation is iMac, MacBook feels good as a secondary Mac, and very mobile laptop. I have 2 weeks to decide
+if I really want to keep it, or get MacBook Pro instead.
 - Using IntelliJ IDEA on full speed certainly kills the battery. I used WebStorm to write this blog post, and it felt
-like it used ~20-30% of battery in hour or a little more than that. This could be a reason, why I could return Macbook.
-- Macbook quiality, comparing to Macbook Pro, feels like it is a successor of Macbook Air. Feels cheaper, display is not
-so bright as Macbook Pro, Touch Pad is not as good as Macbook Pro. Maybe it is just because I used Macbook Pro for a
+like it used ~20-30% of battery in hour or a little more than that. This could be a reason, why I could return MacBook.
+- MacBook quiality, comparing to MacBook Pro, feels like it is a successor of MacBook Air. Feels cheaper, display is not
+so bright as MacBook Pro, Touch Pad is not as good as MacBook Pro. Maybe it is just because I used MacBook Pro for a
 long time before.
-- In process of installation, enabling FireVault, downloading emails, photos, music, etc - Macbook froze once.
+- In process of installation, enabling FireVault, downloading emails, photos, music, etc - MacBook froze once.
 Also in the moment of setting it up it felt very slow. After Spotlight and Photos have finished first indexation -
 everything feels normal.
+
+[Update](https:///www.outcoldman.com/en/archive/2017/07/24/macbook-returned/)
