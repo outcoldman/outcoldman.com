@@ -1,6 +1,6 @@
 ---
-title: "MacBook: returned. Got MacBook Pro 13" without TB"
-tags: [macbook, return, macbook pro without touchbar]
+title: "MacBook: returned. Got MacBook Pro 13 without TB"
+tags: [macbook, macbook pro without tb]
 ---
 
 After 10 days decided to return MacBook 2017. Got MacBook Pro 13" without TB instead.
@@ -21,7 +21,7 @@ at the same time it is too small. Area for palms is not large enough. Hard to
 explain, maybe I could get use to it with a time. But MacBook Pro 13 feels better.
 - If you owned MacBook Air and MacBook Pro, you probably know the feeling that
 Air is not the same quality as MacBook Pro. The same about MacBook and MacBook Pro.
-Trackpad is not the same. Keyboard is not the same. Screen.
+TrackPad is not the same. Keyboard is not the same. Screen.
 
 Where MacBook shines:
 
