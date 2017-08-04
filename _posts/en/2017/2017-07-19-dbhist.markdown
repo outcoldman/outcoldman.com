@@ -36,6 +36,10 @@ commands in history with time in Unixtime format. After that source the file
 $ source dbhist.sh
 ```
 
+> Update (2017-08-04): thanks to [Johan Carlquist](https://twitter.com/theseal),
+> we have a homebrew formula [homebrew-dbhist](https://github.com/theseal/homebrew-dbhist).
+> See [How to Create and Maintain a Tap](https://github.com/Homebrew/brew/blob/master/docs/How-to-Create-and-Maintain-a-Tap.md#installing) for installation instructions.
+
 > I have verified that it works with Bash 3.2 (default on macOS) and 4.x.
 
 To get help
