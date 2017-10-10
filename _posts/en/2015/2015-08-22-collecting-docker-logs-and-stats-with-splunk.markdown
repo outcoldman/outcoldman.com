@@ -5,6 +5,9 @@ categories: en
 tags: [docker, splunk, home server, syslog, logs, monitoring]
 ---
 
+*UPDATE:* Take a look on our applications for monitoring Docker and Kubernetes
+[https://www.outcoldsolutions.com](https://www.outcoldsolutions.com)
+
 > I'm currently working at Splunk, but this is my personal blog. I have some
 > knowledge about Splunk obviously, but you should not consider this as an
 > official Splunk manual. Everything I did here - I did only for my personal
