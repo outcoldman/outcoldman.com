@@ -6,6 +6,9 @@ tags: [kubernetes, monitoring, cadvisor, prometheus, influxdb, elasticsearch, gr
 You know that monitoring is a hot topic this year when you see such
 variety of ways how you can monitor kubernetes cluster.
 
+> If you are using Splunk - we provide solution to monitor and collect logs from
+> Kubernetes. Please take a look on [Monitoring Kubernetes](https://www.outcoldsolutions.com/docs/monitoring-kubernetes/).
+
 ## cAdvisor
 
 It all starts from [cAdvisor](https://github.com/google/cadvisor). Kubelet is built
