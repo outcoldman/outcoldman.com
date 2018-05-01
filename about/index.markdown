@@ -14,15 +14,20 @@ I am experienced individual contributor with strong Technical Lead skills.
 
 ## Contacts
 
-- Email: [public@denis.gladkikh.email](mailto:public@denis.gladkikh.email)
+- Email: [public@denis.gladkikh.email](mailto:denis@gladkikh.email)
 - GitHub: [https://github.com/outcoldman](https://github.com/outcoldman)
 - Twitter: [https://twitter.com/outcoldman](https://twitter.com/outcoldman)
 
 ## Work Experience
 
-### 03/2017 - Present. [Stripe](https://stripe.com)
+### 12/2017 - Present. [Outcold Solutions](https://www.outcoldsolutions.com)
+
+- Co-founder, engineering
+
+### 03/2017 - 04/2018. [Stripe](https://stripe.com)
 
 - Seattle
+- Search infrastructure.
 
 ### 10/2013 - 03/2017. [Splunk, Inc](https://splunk.com). Principal SDE.
 
