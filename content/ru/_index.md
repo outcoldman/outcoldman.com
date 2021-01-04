@@ -1,6 +1,5 @@
 ---
-categories: en
-tags:
+categories: ru
 title: Blog (Russian)
 ---
 

@@ -1,6 +1,5 @@
 ---
 categories: en
-tags:
 title: Blog
 ---
 
