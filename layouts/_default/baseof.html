@@ -8,7 +8,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="author" content="Denis Gladkikh">
 		<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
-		<link rel="alternate" type="application/rss+xml" title="outcoldman" href="https://www.outcoldman.com/feed.xml" />
 		<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
 		<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
 		<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
@@ -29,11 +28,9 @@
 		<meta name="msapplication-TileColor" content="#2d89ef">
 		<meta name="msapplication-TileImage" content="/mstile-144x144.png">
 		<meta name="theme-color" content="#ffffff">
-
 		{{ range .AlternativeOutputFormats -}}
 		{{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
 		{{ end -}}
-
 		{{ if not .Site.IsServer }}
 		<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-7023371-5"></script>
