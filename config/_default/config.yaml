@@ -1,12 +1,21 @@
 baseURL: https://www.outcoldman.com
 title: outcoldman
 languageCode: en-us
-
+copyright: "This work is licensed under a Creative Commons CC BY 4.0."
 enableRobotsTXT: true
 disableKinds: ["taxonomy", "term"]
 enableGitInfo: true
+rssLimit: 10
 
 permalinks:
   en: /en/archive/:year/:month/:day/:slug/
   ru: /ru/archive/:year/:month/:day/:slug/
   cheatsheets: /cheatsheets/:filename/
+
+outputs:
+  section:
+    - HTML
+
+outputFormats:
+  RSS:
+    baseName: "feed"
