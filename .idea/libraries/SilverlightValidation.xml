@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SilverlightValidation">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/static/library/content/03/SLValidation/SilverlightValidation.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

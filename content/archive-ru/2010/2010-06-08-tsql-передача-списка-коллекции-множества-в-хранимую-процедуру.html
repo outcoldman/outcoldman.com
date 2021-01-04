@@ -1,0 +1,385 @@
+---
+categories: ru
+date: "2010-06-08T20:04:00Z"
+redirect_from: ru/blog/show/204/
+tags:
+- .NET
+- TSQL
+- SQL Server
+- Transact SQL
+- Bulk Insert
+- Table-Valued Parameters
+- Stored Procedures
+title: 'TSQL: Передача списка/коллекции/множества в хранимую процедуру'
+slug: "tsql-передача-списка-коллекции-множества-в-хранимую-процедуру"
+---
+<p>Передача множества в хранимую процедуру довольно-таки частая задача. Встречается, например, при фильтрации какой-нибудь коллекции. Так же это может быть импорт данных в базу данных из внешних источников. Я рассмотрю несколько вариантов, которые можно использовать в вашем приложении: склеивание SQL запроса, передача строки списка параметров, разделенных запятой, Bulk Insert, а так же table-valued parameters (самый интересный вариант, пришедший с MS SQL Server 2008).</p>
+
+<p>Предположим у нас есть список товаров и нам нужно отфильтровать его в зависимости от некоторых категорий товаров (“Телевизоры”, “Игровые приставки”, “DVD-плееры” или списка фирм “Фирма 1”, “Фирма 2”, “Фирма 3”). Изобразим как это может выглядеть в нашей Базе Данных</p>
+
+<p><img src="/library/images/02/tableparameters/01.png" /></p>
+
+<p>Ну и чтобы совсем было понятно, накидаем приблизительно интерфейс, который обычно бывает в таких случаях:</p>
+
+<p>
+
+<div style="border-bottom: gray 2px solid; border-left: gray 2px solid; padding-bottom: 5px; padding-left: 5px; padding-right: 5px; border-top: gray 2px solid; border-right: gray 2px solid; padding-top: 5px">
+  <fieldset>
+    <legend>Фильтр</legend>
+
+	<div style="width:600px;height:170px">
+    <div style="float: left; width: 300px"><b>Категории</b> 
+
+      <ul>
+        <li><input type="checkbox" />Телевизоры </li>
+
+        <li><input type="checkbox" />Игровые приставки </li>
+
+        <li><input type="checkbox" />DVD-плееры </li>
+
+        <li><input type="checkbox" />Холодильники </li>
+
+        <li><input type="checkbox" />Пылесосы </li>
+      </ul>
+    </div>
+
+    <div style="float: left; width: 300px"><b>Фирмы</b> 
+
+      <ul>
+        <li><input type="checkbox" />Фирма 1 </li>
+
+        <li><input type="checkbox" />Фирма 2 </li>
+
+        <li><input type="checkbox" />Фирма 3 </li>
+
+        <li><input type="checkbox" />Фирма 4 </li>
+
+        <li><input type="checkbox" />Фирма 5 </li>
+      </ul>
+    </div>
+	</div>
+	
+     <input type="button" value="Поиск" style="float:right" /><input type="button" value="Очистить" style="float:right" /> 
+	
+</fieldset>
+
+  <fieldset >
+    <legend>Товары</legend>
+
+    <table style="border:gray solid 1px; width:600px"><tbody>
+        <tr>
+          <th>Товар</th>
+
+          <th>Категория</th>
+
+          <th>Фирма</th>
+        </tr>
+
+        <tr>
+          <td>Телевизор 32</td>
+
+          <td>Телевизоры</td>
+
+          <td>Фирма 1</td>
+        </tr>
+
+        <tr>
+          <td>Пылесос</td>
+
+          <td>Пылесосы</td>
+
+          <td>Фирма 3</td>
+        </tr>
+
+        <tr>
+          <td>Игровая приставка</td>
+
+          <td>Игровые приставки</td>
+
+          <td>Фирма 5</td>
+        </tr>
+      </tbody></table>
+  </fieldset>
+</div>
+</p>
+
+<p>То есть у нас есть запрос выводящий нам список товаров, и есть возможность отфильтровать его по категориям или по фирмам, причем фильтровать конечно же будем по идентификаторам. Задача ясна. Как же теперь ее решать? Самый просто способ, который используют Junior программисты – это склейка SQL инструкции в коде C#, примерно, это может выглядеть так</p>
+
+<pre><code>List&lt;int&gt; categories = new List&lt;int&gt;() { 1, 2, 3 };
+&#160;StringBuilder sbSql = new StringBuilder();
+sbSql.Append(  @&quot;
+    select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+    from Item i
+      inner join Firm f on i.FirmId = f.FirmId
+      inner join Category c on i.CategoryId = c.CategoryId    where c.CategoryId in (&quot;);
+if (categories.Count &gt; 0)
+{  for (int i = 0; i &lt; categories.Count; i ++)
+  {    if (i != 0)
+      sbSql.Append(&quot;,&quot;);
+    sbSql.Append(categories[i]);
+  }
+}else
+{  sbSql.Append(&quot;-1&quot;); // It is for empty result when no one category selected
+}sbSql.Append(&quot;)&quot;);
+&#160;string sqlQuery = sbSql.ToString();
+&#160;DataTable table = new DataTable();
+using (SqlConnection connection = new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+{
+  connection.Open();  using (SqlCommand command = new SqlCommand(sqlQuery, connection))
+  {    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+    {
+      dataAdapter.Fill(table);
+    }
+  }
+}
+&#160;//TODO: Working with table
+</code></pre>
+
+<p>Для того, чтобы писать поменьше кода будем фильтровать только по категориям. В приведенном коде первая строка – это список идентификаторов категорий, которые выбрал пользователь (выбранные checkbox'ы), само собой нам нет необходимости хранить имена категорий, для фильтрации хватит и идентификаторов. Проблемы этого решения очевидны – в некоторых случаях подверженность SQL-инъекциям (например, в случае строк-идентификаторов, которые мы получаем с веб-формы - пользователь с легкостью может их подменить), не очень приятное сопровождение кода, при достаточно большом количестве категорий в фильтре строка запроса будет быстро расти. И еще одна проблема – такой код невозможно поместить в хранимую процедуру (можно конечно клеить запрос и на SQL сервере). Это решение можно назвать Решение 0, так как оно применяется либо из-за лени, либо потому что так быстро.</p>
+
+<h2>Решение 1. Строка – список значений, разделенных запятой</h2>
+
+<p>Все остальные варианты будут использоваться в связке с хранимыми процедурами. Первый вариант – это передача параметра – строки, которая состоит из списка идентификаторов, разделенных запятой, например так <em>‘1,2,3,4,’</em>. Первое, что нужно сделать - это создать функцию, которая будет из этой строки создавать таблицу и возвращать ее, назовем данную функцию Split:</p>
+
+<pre><code>if object_id('Split') is not null 
+    drop function split
+go
+&#160;create function dbo.Split
+(    @String int
+)returns @SplittedValues table
+(    Id varchar(50) primary key
+)as
+begin
+    declare @SplitLength int, @Delimiter varchar(5)
+    set @Delimiter = ','
+    while len(@String) &gt; 0
+    begin 
+        select @SplitLength = (case charindex(@Delimiter,@String) when 0 then
+            len(@String) else charindex(@Delimiter,@String) -1 end)
+&#160;        insert into @SplittedValues
+        select cast(substring(@String,1,@SplitLength) as int)
+        select @String = (case (len(@String) - @SplitLength) when 0 then  ''
+            else right(@String, len(@String) - @SplitLength - 1) end)
+    end 
+return  
+end 
+</code></pre>
+
+<p>Теперь мы можем использовать эту функцию в нашей хранимой процедуре для поиска продуктов</p>
+
+<pre><code>if object_id('FindItems') is not null 
+    drop proc FindItems
+go
+&#160;set ansi_nulls on
+go 
+set quoted_identifier on
+go
+&#160;create proc FindItems
+(    @categories varchar(max)
+)as
+begin
+  select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+  from Item i
+    inner join Firm f on i.FirmId = f.FirmId
+    inner join Category c on i.CategoryId = c.CategoryId
+    inner join dbo.Split(@categories) cf on c.CategoryId = cf.Id
+end 
+</code></pre>
+
+<p>Ну и соответственно C# код, при помощи которого мы сможем получить список продуктов:</p>
+
+<pre><code>List&lt;int&gt; categories = new List&lt;int&gt;() { 1, 2, 3 };
+&#160;DataTable table = new DataTable();
+using (SqlConnection connection = new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+{  connection.Open();
+  using (SqlCommand command = new SqlCommand(&quot;FindItems&quot;, connection) { CommandType = CommandType.StoredProcedure })
+  {    command.Parameters.AddWithValue(&quot;@categories&quot;, string.Join(&quot;,&quot;, categories));
+    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+    {      dataAdapter.Fill(table);
+    }
+  }
+}
+&#160;//TODO: Working with table
+</code></pre>
+
+
+<p>Недостатки данного подхода так же очевидны, если это будут строки с возможными запятыми или объекты с композитными ключами то с данным подходом будут трудности. Но в простых случаях он более чем достоин внимания и используется повсеместно.</p>
+
+<h2>Решение 2. BULK INSERT</h2>
+
+<p>Проблемы, которые были в Решение 1 можно решить при помощи Bulk Insert – эта процедура будет копировать из серверного кода C# из объекта DataTable в экземпляр SQL приложения во временную таблицу данные, с которыми мы потом сможем работать. Давайте сначала перепишем нашу процедуру FindItems</p>
+
+<pre><code>if object_id('FindItems') is not null 
+    drop proc FindItems
+go
+&#160;set ansi_nulls on
+go 
+set quoted_identifier on
+go
+&#160;create proc FindItems
+as
+begin
+    if object_id('tempdb..#FilterCategory') is null 
+    begin
+        raiserror('#FilterCategory(id int) should be created', 16, 1)
+        return
+    end
+    select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+    from Item i
+        inner join Firm f on i.FirmId = f.FirmId
+        inner join Category c on i.CategoryId = c.CategoryId
+        inner join #FilterCategory cf on c.CategoryId = cf.Id
+end 
+</code></pre>
+
+<p>Теперь эта процедура будет ожидать, что перед тем как ее будут использовать создадут временную табличку #FilterCategory, которую она уже будет использовать. Кода на C# нам придется писать побольше чем в прошлый, давайте создадим отдельный класс-репозиторий ItemsRepository</p>
+
+<pre><code>public class ItemsRepository
+{  public static DataTable FindItems(List&lt;int&gt; categories)
+  {    DataTable tbCategories = new DataTable(&quot;FilterCategory&quot;);
+    tbCategories.Columns.Add(&quot;Id&quot;, typeof (int));
+    categories.ForEach(x =&gt; tbCategories.Rows.Add(x));
+&#160;    using (
+      SqlConnection connection =        new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+    {
+      connection.Open();      using (SqlTransaction transaction = connection.BeginTransaction())
+      {        try
+        {          string tableName = string.Format(&quot;tempdb..#{0}&quot;, tbCategories.TableName);
+&#160;
+          CreateTableOnSqlServer(connection, transaction, tbCategories, tableName);
+          CopyDataToSqlServer(connection, transaction, tbCategories, tableName);
+&#160;          DataTable result = new DataTable();
+          using (SqlCommand command = new SqlCommand(&quot;FindItems&quot;, connection, transaction)
+                                        {CommandType = CommandType.StoredProcedure})
+          {            using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+            {
+              dataAdapter.Fill(result);
+            }
+          }
+          transaction.Commit();          return result;
+        }        catch
+        {
+          transaction.Rollback();          throw;
+        }
+      }
+    }
+  }
+&#160;  private static void CopyDataToSqlServer(SqlConnection connection, SqlTransaction transaction, DataTable table,
+                                          string tableName)
+  {    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, transaction)
+                                    {
+                                      DestinationTableName = tableName
+                                    })
+    {
+      bulkCopy.WriteToServer(table);
+    }
+  }
+&#160;  private static void CreateTableOnSqlServer(SqlConnection connection, SqlTransaction transaction, DataTable table,
+                                             string tableName)
+  {    StringBuilder sb = new StringBuilder();
+&#160;    sb.AppendFormat(&quot;create table {0}(&quot;, tableName);
+    foreach (DataColumn column in table.Columns)
+    {      sb.AppendFormat(&quot;{0} {1} {2}&quot;,
+                      table.Columns.IndexOf(column) == 0 ? string.Empty : &quot;,&quot;,
+                      column.ColumnName, GetSqlType(column.DataType));
+    }    sb.Append(&quot;)&quot;);
+&#160;    using (SqlCommand command = new SqlCommand(sb.ToString(), connection, transaction))
+    {
+      command.ExecuteNonQuery();
+    }
+  }
+&#160;  private static string GetSqlType(Type type)
+  {    if (type == typeof (string))
+      return string.Format(&quot;{0}(max)&quot;, SqlDbType.VarChar);
+    else if (type == typeof (int))
+      return SqlDbType.Int.ToString();
+    else if (type == typeof (bool))
+      return SqlDbType.Bit.ToString();
+    else if (type == typeof (DateTime))
+      return SqlDbType.DateTime.ToString();
+    else if (type == typeof (Single))
+      return SqlDbType.Float.ToString();
+    else throw new NotImplementedException();
+  }
+}
+</code></pre>
+
+
+<p>Метод FindItems создает объект DataTable, записывает в него список идентификаторов категорий, по которым хотим отфильтровать, дальше метод открывает новую транзакцию, создает на сервере временную табличку #FilterCategories, копирует содержимое DataTable в эту таблицу и вызывает хранимую процедуру FindItems. Замечу, что временные таблицы tempdb..#&lt;TableName&gt; живут только в определенном Scope, в нашем случае это транзакция (потому если несколько пользователей вызовут этот метод в один момент, то ничего страшного не будет и они друг другу не помешают), и потому что таблица живет только на время жизни транзакции, то и удалится она при завершении транзакции (правда, все равно рекомендуют удалять временные таблицы самим именно тогда, когда она уже вам не нужна). </p>
+
+<p>Я этот подход особенно часто использовал при импорте данных из внешних источников, вроде Excel файлы или какие-нибудь другие.</p>
+
+<p>Давайте найдем минусы данного подхода. Минус “больше кода” сразу выбрасываем, так как это все можно зарефакторить и вынести в специальные классы во внутренний фреймворк и забыть. Другие минусы – это лишние создания временных таблиц, ну и соответственно лишние запросы к базе данных. Так же могут быть проблемы, если внутри одной хранимой процедуры запускаете другую, которая может сама создает временную таблицу с таким же именем, либо когда происходит рекурсивный вызов. Еще недостаток данного подхода в тестировании самой процедуры, в смысле в работе с ней из Management Studio, нужно постоянно писать скрипт для создания временной таблицы (а это еще нужно вспомнить какая у нее структура, да как называется).</p>
+
+<pre><code>create table #FilterCategory(id int)
+insert into #FilterCategory ( id ) values  ( 1  )
+insert into #FilterCategory ( id ) values  ( 2 )
+insert into #FilterCategory ( id ) values  ( 3  )
+insert into #FilterCategory ( id ) values  ( 4  )
+&#160;exec FindItems
+&#160;drop table  #FilterCategory
+</code></pre>
+
+<h2>Решение 3. Table-Valued Parameters (Database Engine)</h2>
+
+<p>И последнее решение – это использование table-valued parameters (о которых к сожалению я узнал не так давно, надо внимательнее смотреть <em>What’s new </em>в новых версиях продуктов, которые мы используем). Этот подход очень похож на BULK-INSERT, только немного упрощает его. Использовать его можно с базами данных MS SQL 2008 и выше. Опять переписываем процедуру FindItems, не забываем создать тип-таблицу Identifiers</p>
+
+
+<pre><code>if object_id('FindItems') is not null 
+    drop proc FindItems
+go
+&#160;if exists(select * from sys.types where name = 'Identifiers')
+    drop type Identifiers
+go
+&#160;create type Identifiers AS TABLE 
+( id int primary key);
+go
+&#160;set ansi_nulls on
+go 
+set quoted_identifier on
+go
+&#160;create proc FindItems
+(
+    @categories Identifiers readonly
+)as
+begin
+    select i.Name as ItemName, f.Name as FirmName, c.Name as CategoryName 
+    from Item i
+        inner join Firm f on i.FirmId = f.FirmId
+        inner join Category c on i.CategoryId = c.CategoryId
+        inner join @categories cf on c.CategoryId = cf.Id
+end 
+go
+</code></pre>
+
+<p>Ну и переписываем теперь серверный код</p>
+
+<pre><code>List&lt;int&gt; categories = new List&lt;int&gt;() { 1, 2, 3 };
+&#160;DataTable tbCategories = new DataTable(&quot;FilterCategory&quot;);
+tbCategories.Columns.Add(&quot;Id&quot;, typeof(int));
+categories.ForEach(x =&gt; tbCategories.Rows.Add(x));
+&#160;DataTable table = new DataTable();
+using (SqlConnection connection = new SqlConnection(&quot;Data Source=(local);Initial Catalog=TableParameters;Integrated Security=SSPI;&quot;))
+{
+  connection.Open();  using (SqlCommand command = new SqlCommand(&quot;FindItems&quot;, connection) { CommandType = CommandType.StoredProcedure })
+  {    command.Parameters.AddWithValue(&quot;@categories&quot;, tbCategories);
+    using (SqlDataAdapter dataAdapter = new SqlDataAdapter(command))
+    {
+      dataAdapter.Fill(table);
+    }
+  }
+}
+&#160;
+</code></pre>
+
+<p>Он стал намного проще, чем был с Bulk Insert и работать в Management Studio с процедурой стало чуть-чуть попроще</p>
+
+<pre><code>declare @categories Identifiers
+&#160;insert into @categories ( id ) values  ( 1  )
+insert into @categories ( id ) values  ( 2 )
+insert into @categories ( id ) values  ( 3  )
+insert into @categories ( id ) values  ( 4  )
+&#160;exec FindItems @categories
+</code></pre>
+
+<p>У table-valued parameters есть некоторые ограничения, вроде того, что данные параметры всегда должны быть readonly. По поводу производительности в сравнении с Bulk Insert в этой статье <a href="http://msdn.microsoft.com/en-us/library/bb510489.aspx">Table-Valued Parameters (Database Engine)</a> приводится таблица, в которой поясняется когда лучше использовать table-valued parameters, а когда Bulk Insert. А в целом когда какой подход выбирать – решать вам.</p>

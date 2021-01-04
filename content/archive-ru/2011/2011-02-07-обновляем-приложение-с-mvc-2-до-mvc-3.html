@@ -1,0 +1,194 @@
+---
+categories: ru
+date: "2011-02-07T07:01:00Z"
+redirect_from: ru/blog/show/272/
+tags:
+- ASP.NET
+- MVC
+- Razor
+- ASP.NET MVC 3
+- ASP.NET MVC 2
+- ASPX
+title: Обновляем приложение с MVC 2 до MVC 3
+slug: "обновляем-приложение-с-mvc-2-до-mvc-3"
+---
+<p>Уже год мой сайт (блог) живет на самописном движке, который я сделал при помощи ASP.NET MVC 2. Конечно же я мог пользоваться бесплатными площадками для блогов, но мне пока интересно развиваться по многим направлениям. И если моя основная специальность сейчас Silverlight/WPF, то я все равно стараюсь не забыть про старый добрый веб, без него никуда в нынешнее время. Ну и нужно быть на гребне волны, потому я и решил что пора бы проапгрейдить свой сайт с MVC2 до MVC3. Зачем? А просто, чтобы было. Чтобы в будущем, когда захочется что-то допилить или доделать, а у меня уже была последняя версия, и я мог использовать последние фичи технологии. </p>    <h2>Обновляем проект с MVC2 до MVC3</h2>  <p>Первое задание, которое нужно выполнить для обновления на новую версию – это обновить сам проект и библиотеки. Если еще сама платформа не скачена, тогда идем на официальный сайт ASP.NET MVC и качаем третью версию отсюда <a href="http://www.asp.net/mvc/mvc3">http://www.asp.net/mvc/mvc3</a>. Дальше нам нужно просто поменять references с библиотек версии 2.0 на версию 3.0. Делается это очень просто, качаем <a href="http://aspnet.codeplex.com/releases/view/59008">ASP.NET MVC 3 Application Upgrader</a> (все бы производители фреймворков так заботились о разработчиках), запускаем, указываем путь до sln файла проекта и ждем результата. Эта тулза так же положит последние версии файлов jQuery фреймворка вам на сайт, но так как я использую Google jQuery CDN (чего и вам советую), то я просто вынес эти файлы из своего проекта и просто поменял ссылку на версию jQuery файла с <a href="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">1.4.2</a> на <a href="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js">1.4.4</a>. Еще эта библиотека заменила references во всех моих проектах этого солюшена с MVC 2.0 на MVC 3.0 (и добавила ссылки на две дополнительные библиотеки), как и должна была, а так же обновила web.config файл, а именно добавила в appSettings пару параметров, предназначения которых я пока не знаю:</p>  <pre><code>&lt;add key=&quot;ClientValidationEnabled&quot; value=&quot;false&quot; /&gt;
+&lt;add key=&quot;UnobtrusiveJavaScriptEnabled&quot; value=&quot;false&quot; /&gt;
+</code></pre>
+
+<p>Потом разберемся, что это значит. </p>
+
+<p>В web.config прописала ссылки на библиотеки (желтым - новое):</p>
+
+<pre><code>&lt;compilation debug=&quot;true&quot; targetFramework=&quot;4.0&quot;&gt;
+    &lt;assemblies&gt;
+        &lt;add assembly=&quot;System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot; /&gt;
+        &lt;add assembly=&quot;System.Web.Abstractions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot; /&gt;
+        &lt;add assembly=&quot;System.Web.Routing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot; /&gt;
+        &lt;add assembly=&quot;System.Web.Helpers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot; /&gt;
+        &lt;add assembly=&quot;System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot; /&gt;
+    &lt;/assemblies&gt;
+&lt;/compilation&gt;
+</code></pre>
+
+<p>Добавила пару namespace (чтобы на страницах можно было использовать без подключения этих namespace):</p>
+
+<pre><code>&lt;pages controlRenderingCompatibilityVersion=&quot;3.5&quot; clientIDMode=&quot;AutoID&quot;&gt;
+   &lt;namespaces&gt;
+       &lt;add namespace=&quot;System.Web.Mvc&quot; /&gt;
+       &lt;add namespace=&quot;System.Web.Mvc.Ajax&quot; /&gt;
+       &lt;add namespace=&quot;System.Web.Mvc.Html&quot; /&gt;
+       &lt;add namespace=&quot;System.Web.Routing&quot; /&gt;
+       &lt;add namespace=&quot;System.Web.Helpers&quot; /&gt;
+       &lt;add namespace=&quot;System.Web.WebPages&quot; /&gt;
+   &lt;/namespaces&gt;
+&lt;/pages&gt;
+</code></pre>
+
+<p>Ну и конечно, прописала asssemblyBinding для того, чтобы не было конфликтов версий (в случае, если используются какие-то библиотеки, которые были скомпилированы с версией MVC 2.0):</p>
+
+<pre><code>&lt;runtime&gt;
+    &lt;assemblyBinding xmlns=&quot;urn:schemas-microsoft-com:asm.v1&quot;&gt;
+        &lt;dependentAssembly&gt;
+           &lt;assemblyIdentity name=&quot;System.Web.Mvc&quot; publicKeyToken=&quot;31bf3856ad364e35&quot; /&gt;
+            &lt;bindingRedirect oldVersion=&quot;1.0.0.0-2.0.0.0&quot; newVersion=&quot;3.0.0.0&quot; /&gt;
+        &lt;/dependentAssembly&gt;
+    &lt;/assemblyBinding&gt;
+&lt;/runtime&gt;
+</code></pre>
+
+<p>Так же был подправлен файл web.config, который находится в папке Views (добавился обработчик Razor, ну и поменяли версию библиотек со второй на третью). </p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;configuration&gt;
+  &lt;configSections&gt;
+    &lt;sectionGroup name=&quot;system.web.webPages.razor&quot; type=&quot;System.Web.WebPages.Razor.Configuration.RazorWebSectionGroup, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot;&gt;
+      &lt;section name=&quot;host&quot; type=&quot;System.Web.WebPages.Razor.Configuration.HostSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot; requirePermission=&quot;false&quot; /&gt;
+      &lt;section name=&quot;pages&quot; type=&quot;System.Web.WebPages.Razor.Configuration.RazorPagesSection, System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35&quot; requirePermission=&quot;false&quot; /&gt;
+    &lt;/sectionGroup&gt;
+  &lt;/configSections&gt;
+&#160;  &lt;system.web&gt;
+    &lt;httpHandlers&gt;
+      &lt;add path=&quot;*&quot; verb=&quot;*&quot; type=&quot;System.Web.HttpNotFoundHandler&quot; /&gt;
+    &lt;/httpHandlers&gt;
+&#160;    &lt;pages validateRequest=&quot;false&quot; 
+        pageParserFilterType=&quot;System.Web.Mvc.ViewTypeParserFilter, System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot; 
+        pageBaseType=&quot;System.Web.Mvc.ViewPage, System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot; 
+        userControlBaseType=&quot;System.Web.Mvc.ViewUserControl, System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot;&gt;
+      &lt;controls&gt;
+        &lt;add assembly=&quot;System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot; namespace=&quot;System.Web.Mvc&quot; tagPrefix=&quot;mvc&quot; /&gt;
+      &lt;/controls&gt;
+    &lt;/pages&gt;
+  &lt;/system.web&gt;
+&#160;  &lt;system.webServer&gt;
+    &lt;validation validateIntegratedModeConfiguration=&quot;false&quot; /&gt;
+    &lt;handlers&gt;
+      &lt;remove name=&quot;BlockViewHandler&quot; /&gt;
+      &lt;add name=&quot;BlockViewHandler&quot; path=&quot;*&quot; verb=&quot;*&quot; preCondition=&quot;integratedMode&quot; type=&quot;System.Web.HttpNotFoundHandler&quot; /&gt;
+    &lt;/handlers&gt;
+  &lt;/system.webServer&gt;
+&#160;  &lt;system.web.webPages.razor&gt;
+    &lt;host factoryType=&quot;System.Web.Mvc.MvcWebRazorHostFactory, System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35&quot; /&gt;
+    &lt;pages pageBaseType=&quot;System.Web.Mvc.WebViewPage&quot;&gt;
+      &lt;namespaces&gt;
+        &lt;add namespace=&quot;System.Web.Mvc&quot; /&gt;
+        &lt;add namespace=&quot;System.Web.Mvc.Ajax&quot; /&gt;
+        &lt;add namespace=&quot;System.Web.Mvc.Html&quot; /&gt;
+        &lt;add namespace=&quot;System.Web.Routing&quot; /&gt;
+      &lt;/namespaces&gt;
+    &lt;/pages&gt;
+  &lt;/system.web.webPages.razor&gt;
+&#160;
+  &lt;appSettings&gt;
+    &lt;add key=&quot;webpages:Enabled&quot; value=&quot;false&quot; /&gt;
+  &lt;/appSettings&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Можем скомпилировать наше приложение и запустить. У меня так все заработало с первого раза. Если не компилируется или не запускается, то читаем документацию по MVC 3 об изменениях. </p>
+
+<h2>Выкладываем на хостинг</h2>
+
+<p>Очевидно, что сейчас мало хостеров поддерживают ASP.NET MVC 3, потому нужно вместе со своим веб-приложением так же поместить в bin директорию библиотеки MVC 3. Как оказалось выложить просто 3 новых библиотеки System.Web.Mvc, System.Web.Helpers и System.Web.WebPages в bin папку к хостеру не достаточно. Эти библиотеки тянут за собой еще список других. Я не стал разбираться с тем, чтобы понять какой именно список библиотек мне нужен, а просто скопировал в bin к хостеру все из папки:</p>
+
+<blockquote>
+  <p>c:\Program Files (x86)\Microsoft ASP.NET\ASP.NET Web Pages\v1.0\Assemblies\</p>
+</blockquote>
+
+<p>Предполагаю, что список необходимых библиотек такой:</p>
+
+<ul>
+  <li>Microsoft.Web.Infrastructure.dll</li>
+
+  <li>System.Web.Helpers.dll</li>
+
+  <li>System.Web.Razor.dll</li>
+
+  <li>System.Web.WebPages.dll</li>
+
+  <li>System.Web.WebPages.Deployment.dll</li>
+
+  <li>System.Web.WebPages.Razor.dll</li>
+</ul>
+
+<h2>Проблема с MembershipProvider</h2>
+
+<p>При запуске приложения у хостера получил ошибку (у меня используется свой MembershipProvider, какой именно - расскажу потом)</p>
+
+<blockquote>
+  <p>This method cannot be called during the application's pre-start initialization stage.</p>
+</blockquote>
+
+<p>Лечится очень просто, идем на статью <a href="http://www.asp.net/learn/whitepapers/mvc3-release-notes">ASP.NET MVC 3 Release Notes</a>, находим <a href="http://www.asp.net/learn/whitepapers/mvc3-release-notes#0.1__Toc274034230">Known Issues</a>, добавляем:</p>
+
+<pre><code>&lt;appSettings&gt;
+  &lt;add key=&quot;enableSimpleMembership&quot; value=&quot;false&quot; /&gt;
+  &lt;add key=&quot;autoFormsAuthentication&quot; value=&quot;false&quot; /&gt;
+&lt;/appSettings&gt;
+</code></pre>
+
+<p>Проблема решена.</p>
+
+<h2>Обновление представлений с ASPX на Razor</h2>
+
+<p>Ну раз переходим на новый фреймворк, то нужно бы использовать новый View Engine под названием Razor, так как с виду он действительно немного удобнее чем ASPX. Когда я обновлял свое приложение, я пытался найти какую-нибудь утилиту для конвертации, нашел я только проект <a title="http://aspx2razor.codeplex.com/" href="http://aspx2razor.codeplex.com/">http://aspx2razor.codeplex.com/</a>, у которого до сих пор нет готовой сборки. Я попытался собрать это творение, но там какие-то непонятные reference на библиотеку Antlr3.Runtime.dll, я ее ни разу вроде не использовал, за минуту я не нашел, где мне ее скачать можно, тогда и написал в твиттере:</p>
+
+<blockquote>
+  <p>Выкладывайте в SVN все библиотеки, которые вы скачивали, даже из toolkit! Не все их ставят, и версии бывают разные!</p>
+</blockquote>
+
+<p>Ну действительно, если уж публикуете код, то делайте его так, чтобы любой 5 летний ребенок мог просто запустить VS и скомпилировать проект, а не вот так вот:</p>
+
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; margin-left: auto; border-top: 0px; margin-right: auto; border-right: 0px; padding-top: 0px" title="reference" border="0" alt="reference" src="/library/2011/01/29/reference_01460050.png" width="729" height="45" /></p>
+
+<p>В общем, я просто забил и не стал дальше мучиться с этим проектом, не думаю, что там выйдет что-то хорошее.</p>
+
+<p>Переводил я проект с версии 2.0 на 3.0 уже как пару недель назад, и вот недавно свершилось чудо, Telerik <a href="http://blogs.telerik.com/blogs/posts/11-01-19/webforms_to_razor_view_converter_tool.aspx">опубликовал</a> код своей библиотеки, которая умеет переводить ASPX страницы в Razor. Для этого идем скачивать исходный код библиотеки с <a href="https://github.com/telerik/razor-converter">GitHub</a>, компилируем и запускаем проект <strong>aspx2razor</strong> (консольное приложение). Я его, правда, немного подпилил, чтобы была возможность сразу запустить эту тулзу по всем папкам, и сложить их так же по отдельным папкам, как они и были в исходнике, для этого я поправил строки с 64 по 77 файла Program.cs:</p>
+
+<pre><code>foreach (var file in Directory.GetFiles(inputDirectory, inputFilter, SearchOption.AllDirectories))
+{    Console.Write(&quot;Converting {0}... &quot;, Path.GetFileName(file));
+    
+    var webFormsPageSource = File.ReadAllText(file, Encoding.UTF8);
+    var webFormsDocument = Parser.Parse(webFormsPageSource);
+    var razorDom = Converter.Convert(webFormsDocument);
+    var razorPage = Renderer.Render(razorDom);
+&#160;    string directoryName = Path.GetDirectoryName(file).Substring(inputDirectory.Length + 1);
+&#160;    string outDirectory = Path.Combine(outputDirectory, directoryName);
+    if (!Directory.Exists(outDirectory))
+        Directory.CreateDirectory(outDirectory);
+&#160;    var outputFile = Path.Combine(outDirectory, Path.GetFileNameWithoutExtension(file) + &quot;.cshtml&quot;);
+    File.WriteAllText(outputFile, razorPage, Encoding.UTF8);    Console.WriteLine(&quot;done&quot;);
+}
+</code></pre>
+
+<p>Код не будет работать, если будут не абсолютные директории и еще может в паре случаях, но вот на таком примере работает отлично:</p>
+
+<blockquote>
+  <p>aspx2razor.exe c:\Projects\PersonalWeb\PersonalWeb\Views\*.aspx c:\Projects\PersonalWeb\Razor\Views\</p>
+</blockquote>
+
+<p>Он нашел все файлы с расширением aspx и сделал cshtml файлы, причем все разложил так же по папкам, как и было первоначально. Конвертация Master страниц не поддерживается, потому пока не обновил свой блог на Razor (<a href="/ru/blog/show/272#comment_1250">в итоге обновил</a>), с этим отдельно буду разбираться, как там Master страницы при помощи его описываются. </p>
+
+<h2>Если существуют еще проблемы и решения</h2>
+
+<p>Если существуют еще проблемы или решения, с которыми вы не можете разобраться при обновлении, то можете попробовать спросить меня, постараюсь помочь. А если знаете еще какие-то стандартные проблемы или решения, которые стоит предпринять при обновлении, то поделитесь, пожалуйста, советом-комментарием. </p>

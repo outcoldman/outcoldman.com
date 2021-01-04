@@ -1,0 +1,38 @@
+---
+categories: ru
+date: "2011-04-25T11:58:23Z"
+redirect_from: ru/blog/show/288/
+tags:
+- Silverlight
+- XAML
+- MVP
+- MVVM
+- Bug
+- Sample
+- Silverlight 5
+title: Эти непростые XAML Namescopes
+slug: "эти-непростые-xaml-namescopes"
+---
+<p>На прошлой неделе я, просто ради интереса, подготовил 4 примера в <a href="/ru/blog/show/286">Еще одно сравнение паттернов MVVM и MVP для Silverlight</a>. Примеры возникли не случайно, просто, попался на эту проблему пару недель назад. Там же был опросник о том, какие из примеров рабочие. Определить просил просто, посмотрев на код. Было получено 56 (вместе с моим) ответов, и только два из них были верными (вместе с моим). В этих примерах я уточнил, что опрос касается Silverlight, так как в WPF все немного по-другому. </p>    <p>Результаты ответов вы можете посмотреть на графике: </p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/library/2011/04/25/Capture_3C43D4E2.png" width="840" height="228" /></p>  <p>Честно говоря, я ожидал совершенно другие ответы, и для меня было не понятно, почему многие считали, что примеры, выполненные с паттерном MVP, не рабочие. Я вот надеялся, что сейчас MVP выйдет в лидеры, и я спокойно скажу – ага, видите, как легко определить в MVP что работает, а что нет. А в MVVM сложнее. Что ж мой эксперимент не удался. И не понятно, почему вышел вперед первый пример с MVVM.</p>  <p>Правильный ответ такой: только первый пример, сделанный на MVVM, не работает (в WPF оба MVVM примера не работают). Почему так? Нужно, наверное, обратиться к статье о <a href="http://msdn.microsoft.com/en-us/library/cc189026(v=vs.95).aspx">XAML Namescopes</a>. Честно говоря, точного ответа я не получил там, но, думаю, что можно начинать раскопки от предложения:</p>  <blockquote>   <p>Generally, each name specified within the XAML is added to the default XAML namescope, which is associated with the root element in the XAML markup provided. </p> </blockquote>  <p>И все дело в том, что ContextMenu имеет свой Root Element с типом Popup (это скриншот из Silverlight Spy):</p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="CaptureSilverlightSpy" border="0" alt="CaptureSilverlightSpy" src="/library/2011/04/25/CaptureSilverlightSpy_4E3FF2A2.png" width="230" height="136" /></p>  <p>Но! Почему тогда работает второй пример, сделанный на MVVM? Думаю, что тут у нас работает специальное отношение к контролам, наследуемым от ItemsControl. </p>  <p>Самое интересное начинается, когда захочется назначить имя для элемента ContextMenu. В первом примере назвать его ParentElement нельзя, так как все лежит в одном XAML файле, а так как компилятор генерирует поля для элементов, у которых есть имена, то там сгенерируется два поля с одинаковым именем. Примерно, так:</p>  <pre><code>public partial class MainPage : System.Windows.Controls.UserControl {
+    internal System.Windows.Controls.UserControl ParentControl;
+    internal System.Windows.Controls.Grid LayoutRoot;
+    internal System.Windows.Controls.ContextMenu ParentControl;
+    private bool _contentLoaded;
+    /// &lt;summary&gt;
+    /// InitializeComponent
+    /// &lt;/summary&gt;
+    [System.Diagnostics.DebuggerNonUserCodeAttribute()]    public void InitializeComponent() {
+        if (_contentLoaded) {
+            return;
+        }        _contentLoaded = true;
+        System.Windows.Application.LoadComponent(this, new System.Uri(&quot;/SilverlightApplication3;component/MainPage.xaml&quot;, System.UriKind.Relative));
+        this.ParentControl = ((System.Windows.Controls.UserControl)(this.FindName(&quot;ParentControl&quot;)));
+        this.LayoutRoot = ((System.Windows.Controls.Grid)(this.FindName(&quot;LayoutRoot&quot;)));
+        this.ParentControl = ((System.Windows.Controls.ContextMenu)(this.FindName(&quot;ParentControl&quot;)));
+    }
+}
+</code></pre>
+
+<p>А во втором случае мы можем это сделать без проблем, так как в случае ItemsControl, каждый элемент из коллекции будет иметь свой собственный XAML Namescope, и здесь мы просто перекроем именем ParentElement root элемент из XAML.</p>
+
+<p>В общем-то, доказывать тут нечего. Реализация в моих примерах сильно хромает, и мои непростые ссылки на DataContext главного элемента можно быстро поменять на более правильное и красивое в реализации (по этому, наверное, большинство выбрало 5-й вариант в опроснике). Но факт в том, что уж очень не просто разобраться в байндингах этого Silverlight, и не просто так разработчики просят дебаггер для Silverlight байндинга (который уже есть в 5-й бета версии). И это не первая непонятная ситуация, которая возникает в байндинге Silverlight для меня. В WPF, честно говоря, вопросов намного меньше возникало. </p>

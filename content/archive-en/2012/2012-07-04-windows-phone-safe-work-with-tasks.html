@@ -1,0 +1,34 @@
+---
+categories: en
+date: "2012-07-04T06:34:00Z"
+redirect_from:
+- en/blog/show/318/
+- en/archive/2012/07/03/windows-phone-safe-work-with-tasks/
+tags:
+- Silverlight
+- Windows Phone 7
+- Windows Phone
+- Tasks
+title: 'Windows Phone: Safe work with tasks'
+slug: "windows-phone-safe-work-with-tasks"
+---
+<p>When developers use task from namespace <a href="http://msdn.microsoft.com/en-us/library/ff428753(v=vs.92).aspx">Microsoft.Phone.Tasks</a> they can do two mistakes: a) do not put some logic about that application can go to the tombstone mode, it is when phone will save all states off pages and application somewhere and when user will come back to application – phone will restore these states to application and pages; b) developers don't known that method Show can throw exception InvalidOperationException, this can happends when application is in progress of navigation, which potentially can kill your application if you do not have some exception handler, and this means that when user will go back from task to application he will see the main page of phone instead of the application's page. 
+</p><p>Ok, so let's look at simple example, my Windows Phone page will do next task: it will have some image control and button which can choose the image from library:
+</p><p><img src="/library/2012/07/04/070412_0634_WindowsPhon1.png" alt=""/>
+	</p><p>I have next code behind:
+</p><p><img src="/library/2012/07/04/070412_0634_WindowsPhon2.png" alt=""/>
+	</p><p>So, how much problems you see in this code? 
+</p><h2>Problem #1. Tombstone mode.
+</h2><p>If you will have closer look on MSDN documentation, for example on <a href="http://msdn.microsoft.com/en-us/library/microsoft.phone.tasks.photochoosertask(v=VS.92).aspx">PhotoChooserTask</a> – you will see the Important Note which tells us about Tombstone Mode. This is big mistake to think that your application is not really huge and there are a little chance that phone can send your application to Tombsone Mode (especially when we got users with just 512Mb devices). It is very simple to test your application on how it can handle Tombstone Mode, you just need to set the checkbox in Debug setting of your project properties:
+</p><p><img src="/library/2012/07/04/070412_0634_WindowsPhon3.png" alt=""/>
+	</p><p>If you will try to use my example you will see that after you will choose the image – the application will do nothing. You will see this behavior because phone will kill all instances of pages and instance of application when task will be launched. And after user will come back to your application – the phone will recreate all instances of pages and instance of application. If you need to store some data between the time when it kills and restores the instances of the application and pages you can use the States of pages and application to store some data. Be careful, because all objects in states will be serialized and deserialized, so if you will try to save a very huge graph of objects – phone can throws exception. Also phone knows what task you've invoked on your page and when phone will navigate back to your page from tombstone mode it will also invokes the event of the task like Completed. So this is how we can solve problem with tombstone mode in my example:
+</p><p><img src="/library/2012/07/04/070412_0634_WindowsPhon4.png" alt=""/>
+	</p><p>Of course in most cases you will need to have some association between the image and data in your application model. For example you want to store the icon for some contact in application. So we need to get knowledge how to work with States: <a href="How%20to:%20Preserve%20and%20Restore%20Page%20State%20for%20Windows%20Phone.">How to: Preserve and Restore Page State for Windows Phone</a>. Actually the solution will be pretty simple: a) we need to save data in method OnNavigatedFrom b) and in method OnNavigatedTo we need to read from State this data and after that subscribe to Completed event of the task. You will need to have subscription exactly in an OnNavigatedTo method, because if you will still have a subscription in constructor – phone will invokes the handler when State will not be loaded yet. You can use State only after OnNavigatedTo will be invoked. So, I will need to change my example to this:
+</p><p><img src="/library/2012/07/04/070412_0634_WindowsPhon5.png" alt=""/>
+	</p><h2>Problem #2. Method Show can throw exceptions.
+</h2><p>The method Show can throw exception. It is very easy to reproduce this. Just double click on button from previous example. After you will do this – after you will choose the image the phone will show you main screen instead of your application's pages. This is because your application will not catch exception on second button's click, so on first click you will launch the task, and on second click method Show will throw exception "<em>System.InvalidOperationException: Not allowed to call Show() multiple times before a Chooser returns</em>". So you need always to have a try-catch blocks on top of Show invokes. I solved this problem for me very easy: I just wrote couple wrappers which do all work like catch exception. You can look on the code in my <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/TaskProblems/TaskProblems/TaskWrapper.cs">repository</a>. 
+</p><p>So, the previous example will be next (if we will not need the States to store something when Task will be launched):
+</p><p><img src="/library/2012/07/04/070412_0634_WindowsPhon6.png" alt=""/>
+	</p><p>And to invoke tasks which don't have ChooserTask as a base class (which just shows something and you do not expect to get some data from them) you will need to write the next code:
+</p><p><img src="/library/2012/07/04/070412_0634_WindowsPhon7.png" alt=""/>
+	</p><p>Let's do our windows phone application more stable! Example with my wrappers and all other my source code you can find at my <a href="http://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/TaskProblems/TaskProblems/TaskWrapper.cs">repository</a>.</p>

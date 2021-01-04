@@ -1,0 +1,125 @@
+---
+categories: ru
+date: "2010-03-02T13:04:00Z"
+redirect_from:
+- ru/blog/show/188/
+- ru/archive/2010/03/02/wpf-4-0-что-нового-часть-4-/
+tags:
+- .NET
+- .NET 4.0
+- WPF
+- WPF 4
+- Visual Studio 2010
+title: WPF 4.0. Что нового? Часть 4.
+slug: "wpf-4-0-что-нового-часть-4"
+---
+<p>Четвертая часть из серии нововведений WPF 4.0 (Предыдущие записи: <a href="/ru/blog/show/168">1</a>, <a href="/ru/blog/show/169">2</a>, <a href="/ru/blog/show/170">3</a>). Думал, что это будет заключительная, но все же откопал еще несколько вкусностей на следующую часть. В этой же серии в основном будет информация о нововведениях связанных с XAML разметкой и биндингом.</p> 
+
+<h2>XAML</h2>  <h3>Built in Types</h3>  <p>В XAML добавилась возможность использовать стандартные типы .NET в разметке без указания лишних namespace, для чего это стало нужно видно в нижеописанных возможностях. Если раньше для описания в XAML объекта типа string приходилось писать:</p>  
+
+<pre><code>&lt;s:String xmlns:s="clr-namespace:System;assembly=mscorlib"&gt; Foo &lt;/s:String&gt;</code></pre>
+
+<p>Теперь же</p>
+
+<pre><code>&lt;x:String &gt; Foo &lt;/s:String&gt;</code></pre>
+
+<p>Все типы перечислены тут - <a href="http://blogs.msdn.com/llobo/archive/2009/11/05/xaml-2009-features-built-in-types.aspx">Xaml 2009 Features: Built in Types</a>.</p>
+
+<h3>Поддержка Generics</h3>
+
+<p>Этого давно не хватало, а именно с выпуска первого WPF. Как часто хотелось объявить в XAML ObservableCollection с типом вроде Person, а для этого нам приходилось создавать новый тип и наследовать его от коллекции, либо инкапсулировать ее:</p>
+
+<pre><code>class PersonCollection:ObservableCollection&lt;Person&gt;{}</code></pre>
+
+<p>и уже этот новый класс объявлять в ресурсах:</p>
+
+<pre><code>&lt;l:PersonCollection&gt;
+    &lt;Person Name="Tom" /&gt;
+&lt;/l:PersonCollection&gt;</code></pre>
+
+<p>Теперь же этого можно избежать, теперь в XAML можно объявлять и инициализировать generics следующим образом:</p>
+
+<pre><code>&lt;ObservableCollection x:TypeArguments='local:Person' xmlns='clr-namespace:System.Collections.ObjectModel;assembly=System'  &gt;
+    &lt;local:Person Name='Tom' Age='21' /&gt;
+&lt;/ObservableCollection&gt;</code></pre>
+
+<p>Интересные примеры с объявлением Dictionary&lt;Key,Value&gt; можно посмотреть здесь - <a href="http://blogs.msdn.com/llobo/archive/2009/11/19/xaml-2009-features-generics-support.aspx">XAML 2009 Features: Generics Support</a>.</p>
+
+<h3>FactoryMethod\Arguments</h3>
+
+<p>Еще одна возможность, которую хотели уже давно. Возможность использовать методы для инициализации объектов, а так же конструкторы, которые принимают параметры. Для того чтобы создать объект такого типа:</p>
+
+<pre><code>public class Person 
+{
+    public Person (string name, int age)
+    {
+        Name = name;
+        Age = age;
+    }
+ 
+    public string Name {get;set;}
+    public int Age {get;set;}
+}</code></pre>
+
+<p>В XAML теперь можно написать </p>
+
+<pre><code>&lt;local:Person&gt;
+    &lt;x:Arguments&gt;
+        &lt;x:String&gt;Tom&lt;/x:String&gt;
+        &lt;x:Int32&gt;21&lt;/x:Int32&gt;  
+    &lt;/x:Arguments&gt; 
+&lt;/local:Person&gt;</code></pre>
+
+
+
+<p>Более того для создания объекта теперь можно использовать FactoryMethod, самый простой пример – это Guid.NewGuid():</p>
+
+<pre><code>&lt;p:Guid x:FactoryMethod='NewGuid'/&gt;</code></pre>
+
+<p>Или более сложный пример с передачей параметров:</p>
+
+<pre><code>&lt;coll:List x:Key='list' x:TypeArguments='x:String' x:FactoryMethod='local:Factory.CreateStringList'&gt;
+    &lt;x:Arguments&gt;
+        &lt;x:String&gt;Mickey,Donald&lt;/x:String&gt;
+    &lt;/x:Arguments&gt;
+&lt;/coll:List&gt;</code></pre>
+
+<h3>Named Object References</h3>
+
+<p>Тут все просто, такой биндинг:</p>
+
+<pre><code>&lt;Label Target='{Binding ElementName=firstNameBox}' &gt;_Target&lt;/Label&gt;
+&lt;TextBox Name='firstNameBox'&gt;Uses Binding&lt;/TextBox&gt;</code></pre>
+
+
+<p>Теперь можно записать при помощи x:Reference</p>
+
+<pre><code>&lt;Label Target= '{x:Reference secondNameBox}'&gt;_Second Target&lt;/Label&gt;</code></pre>
+
+<p>Или даже так:</p>
+
+<pre><code>&lt;Label Target= 'thirdNameBox' &gt;_Third Target&lt;/Label&gt;</code></pre>
+
+<h3>Binding to Dynamic Objects</h3>
+
+<p>.NET 4 приходит вместе с dynamic, потому и в WPF добавили возможность биндить к свойствам dynamic объектов. Если мы установим такие свойства у объекта:</p>
+
+<pre><code>dynamic dynamicObj = BindPanel.DataContext ;
+dynamicObj.A = "Simple Binding";
+dynamicObj.B = new DynamicObjectClass(); 
+dynamicObj.B.C = "Nested Prop Binding";
+dynamicObj.AddItem("item 0");
+dynamicObj[0] = "Indexer Binding";</code></pre>
+
+
+<p>То мы запросто можем установить такой биндинг:</p>
+
+<pre><code>&lt;StackPanel Name="BindPanel" DataContext="{StaticResource MyDynamicObject}"&gt;
+        &lt;TextBox Text="{Binding Path=A}"/&gt;
+        &lt;TextBlock Text="{Binding Path=B.C}" /&gt;
+        &lt;TextBox  Text="{Binding Path=[(x:Int32)0]}"/&gt;
+&lt;/StackPanel&gt;</code></pre>
+
+<p>Эта возможность тоже даст пищу для размышлений. Теперь можно придумать о быстрой реализации биндинга к DataSet или XMLDocument.</p>
+<p>
+</p>

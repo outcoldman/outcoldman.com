@@ -1,0 +1,47 @@
+---
+categories: ru
+date: "2009-09-18T08:38:00Z"
+redirect_from: ru/blog/show/158/
+tags:
+- JavaScript
+- Deep Zoom Composer
+- Seadragon
+- Deep Zoom
+- Silverlight
+title: Используем Deep Zoom Composer
+slug: "используем-deep-zoom-composer"
+---
+<p>Недавно Константин Кичинский в своем блоге представил <a href="http://blogs.msdn.com/kichinsky/archive/2009/09/03/Deep-Zoom-Composer-1.0-overview.aspx">Deep Zoom Composer 1.0</a>, скачать который можно с сайта <a href="http://www.microsoft.com/downloads/details.aspx?familyid=457b17b7-52bf-4bda-87a3-fa8a4673f8bf&amp;displaylang=en">Microsoft</a>. Что это такое и как работает я предлагаю прочитать в его блоге. А сейчас я хотел бы продемонстрировать как это можно использовать.</p>   <p>Первое на что следует обратить внимание – это то, что экспорт в Deep Zoom Composer может осуществляться как в Silverlight Deep Zoom, так и в <a href="http://livelabs.com/seadragon-ajax/">Seadragon Ajax</a>. Главный вопрос при использовании Silverlight на сайте встает о процентном соотношении пользователей, у которых установлен Silverlight – он достаточно мал, в особенности в сравнении с Flash (<a title="http://www.riastats.com/" href="http://www.riastats.com/">http://www.riastats.com/</a>):</p>  <p><a href="http://www.riastats.com/"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="http://www.riastats.com/" border="0" alt="http://www.riastats.com/" src="/library/images/01/0000003.png" width="644" height="299" /></a> </p>  <p>Следовательно, лучший вариант – это использовать Silverlight когда это возможно, а когда нет – не мучать пользователя просьбой установки, а показать тот же функционал на JavaScript + Ajax. Дальше должен следовать вопрос, а почему бы сразу не сделать все на JavaScript – ответ прост, картинки выглядят не очень хорошо при использовании JavaScript, а так же Flash в сравнении в том, как их отображает Silverlight (можете попробовать сделать экспорт из Deep Zoom Composer в Seadragon Ajax и Silverlight и сравнить. Притом Deep Zoom Composer позволяет делать это достаточно просто.</p>  <p>Итак, давайте посмотрим, как это можно сделать. После того как вы создадите проект в Deep Zoom Composer и подготовите его перед вами встанет третья вкладка – Export, сделаем экспорт сначала с типом Silverlight, а затем с типом Seadragon Ajax.</p>  <p>После того, как эспорт завершится вы должны увидеть в той папке, куда вы экспортировали несколько файлов и папок. Обратить стоит внимание на файл GeneratedImages/scene.xml, который содержит основные стили Silverlight приложения, там вы можете поправить как будут выглядеть tooltip’ы или toolbar вашего приложения. </p>  <p>Для того, чтобы показать как на странице при неустановленном Silverlight отобразить Seadragon Ajax откроем файл Test.html, там есть описание нашего Silverlight объекта - object внутри которого прописаны параметры самого объекта, а так же то, как будет выглядеть данная область, если Silverlight не установлен (по умолчанию картинка с информацией о том, что нужно скачать его). Вместо ссылки кладем туда контейнер div из сгенерированного файла seadragonajax.html &lt;div id=&quot;container&quot;&gt;&lt;/div&gt;, чтобы получилось так:</p>
+
+<pre><code>&lt;object data="data:application/x-silverlight-2," type="application/x-silverlight-2"  
+            width="800" height="500"&gt; 
+&nbsp;
+    &lt;param name="minRuntimeVersion" value="3.0.40307.0" /&gt; 
+    &lt;param name="autoUpgrade" value="false" /&gt; 
+    &lt;param name="source" value="Default.xap"/&gt; 
+    &lt;param name="onerror" value="onSilverlightError" /&gt; 
+    &lt;param name="background" value="white" /&gt; 
+    &lt;param name="initParams" value="adFile=GeneratedImages" /&gt; 
+    
+    &lt;div id="container"&gt; 
+    &lt;/div&gt; 
+&lt;/object&gt;</code></pre>
+
+
+<p>Из файла seadragonajax.html нам так же потребуется забрать скрипт, который инициализирует Seadragon Ajax, немного поправив, добавив проверку, что элемент container присутствует на странице:</p> 
+
+<pre><code>function start() {
+    var container = document.getElementById("container");
+    if (container != null) {
+        var script = document.getElementById('seadragon_javascript');
+        script.src = 'http://seadragon.com/ajax/0.8/seadragon-min.js';
+        script.onreadystatechange = function() {
+            Seadragon.Config.imagePath = "img/";
+            var viewer = new Seadragon.Viewer("container");
+            viewer.openDzi("GeneratedImages/dzc_output.xml");
+} } }</code></pre> 
+
+
+<p>Конечно же хорошо будет, если в случае Javascript вы напишите “You may install Silverlight to see more interactive gallery.” со ссылкой на инсталлер Silverlight.</p> 
+
+<h4>Скачать пример: <a href="/library/content/01/DZCSample.zip">DZCSample.zip</a></h4>

@@ -1,0 +1,179 @@
+---
+categories: ru
+date: "2009-05-21T23:47:00Z"
+redirect_from: ru/blog/show/143/
+tags:
+- .NET
+- C#
+- .NET 4.0
+- C# 4
+- Dynamic
+title: 'Новые возможности .NET 4.0: C# 4.0'
+slug: "новые-возможности-net-4-0-c-4-0"
+---
+<p>После выхода Visual Studio 2010 beta 1 - первым делом нужно разобраться, что же дает нового нам C# 4.0 (так как это мой основной язык программирования - для меня это является важным). Первым делом должен вам порекомендовать примеры C# 4.0, которые можно скачать <a href="http://code.msdn.microsoft.com/csharpfuture/Release/ProjectReleases.aspx?ReleaseId=1686">отсюда</a> (там же есть документ New Features in C# 4.0, которая послужила основой для этого топика). Документацию по .Net Framework 4.0 beta 1 можно посмотреть <a href="http://msdn.microsoft.com/en-us/library/w0x726c2(VS.100).aspx">в MSDN</a>. Дальше будут следовать мой небольшой опыт знакомства с новой версией .NET. </p>
+
+<h2>1. Dynamic Language Runtime</h2>
+
+ <p>Изначально стоит взглянуть на следующую схему, иллюстрирующую архитектуру DLR:&nbsp;</p> 
+
+<p><a href="/library/images/01/0000018.png"><img width="586" height="276" border="0" src="/library/images/01/0000018.png" alt="" /></a></p>
+
+<p>Именно! Теперь в .net можно еще и скриптовые языки использовать, такие как <em>IronRuby </em>и <em>IronPython</em>. Не думаю, что я буду этим пользоваться, но любителям экзотики предоставляю ссылки:</p>
+
+<ul><li><a href="http://www.codeplex.com/IronPython">IronPython</a>.&nbsp;-&nbsp;open-source проект на <em>CodePlex</em>.</li><li><a href="http://rubyforge.org/projects/ironruby">IronRuby</a>. - open-source проект на&nbsp;<em>RubyForge</em>.</li></ul>
+
+<p>Более того, предоставляется исходники <a href="http://dlr.codeplex.com/">DLR</a>, при помощи которых вы, наверняка, сможете создать свой динамический язык для .NET, если вам это необходимо</p>  
+
+<p>Итак DLR включает в себя <em>Expression Trees</em>, которые просто являются представлением вызовов методов или бинарных операций в виде дерева,&nbsp;их функциональность можно посмотреть на следующем примере:</p>  
+
+<pre><code>Expression&lt;Func&lt;int, bool&gt;&gt; exprTree = num =&gt; num &lt; 5;
+// Decompose the expression tree.
+ParameterExpression param = (ParameterExpression)exprTree.Parameters[0];
+BinaryExpression operation = (BinaryExpression)exprTree.Body;
+ParameterExpression left = (ParameterExpression)operation.Left;
+ConstantExpression right = (ConstantExpression)operation.Right;
+Console.WriteLine("Decomposed expression: {0} =&gt; {1} {2} {3}",
+               param.Name, left.Name, operation.NodeType, right.Value);</code></pre>
+
+<p>
+В этом примере мы сначала описываем лямбда выражение&nbsp;<em>x=&gt;x&lt;5</em>, а&nbsp;затем при помощи объектов от Expression Trees разбираем данное выражение.</p>  
+
+<p><em>Call Site caching </em>в DLR - это, насколько я понимаю, и есть динамическое представление вызовов методов динамических объектов или операций над динамическим объектами. DLR кеширует характеристики объектов (о типах объектах), а так же об операции, и если данная операция уже была выполнена ранее, тогда всю необходимую информацию DLR получит уже из кеша (вот как то так).</p>  
+
+<p>И последнее в DLR это набор классов, интерфейсов: <em>IDynamicMetaObjectProvider, DynamicMetaObject, DynamicObject и ExpandoObject.</em> Давайте опять посмотрим на примере, как нам это может пригодиться, и зачем нам вообще нужен этот DLR:</p>
+
+<pre><code>class Test1
+{
+}
+&nbsp;
+static void Main(string[] args)
+{
+  dynamic t = new Test1();
+  string str = t.Hello(); // Error 1 
+&nbsp;
+  dynamic d = 7.0;
+  int i = d; // Error 2
+}</code></pre>
+
+<p>На удивление данный код скомпилируется и запустится. Все дело в волшебном слове <strong><em>dynamic</em></strong>, оно нам позволяет вызывать любые по имени свойства или методы, а так же приводить объект к любому типу. Во время Runtime (выполнения кода) вылетят ошибки, Error 1:&nbsp;о том, что метод не найден, Error 2: о том, что double невозможно привести к int. Попробуем их исправить:&nbsp;&nbsp;для исправления первой ошибки&nbsp;наш класс Test1 отнаследуем от типа System.Dynamic.DynamicObject и перегрузим один из методов, для исправления второй просто явно укажем преобразование типов:</p>   
+
+<pre><code>class Test1 : DynamicObject
+{
+  public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
+  {
+    if (binder.Name == "Hello")
+    {
+      result = "Test1 is Dynamic Object!";
+      return true;
+    }
+    return base.TryInvokeMember(binder, args, out result);
+  }
+}
+&nbsp;
+static void Main(string[] args)
+{
+  dynamic t = new Test1();
+  string str = t.Hello(); 
+&nbsp;
+  dynamic d = 7.0;
+  int i = (int) d;
+}</code></pre>
+
+<p>
+Теперь наш код будет работать. Переменная <em>str </em>получить значение <em>&quot;Test1 is dynamic object!&quot;</em>, а <em>i </em>значение <em>7</em>.</p>   <p></p>   <p>Конечно, необязательно наследоваться от класса&nbsp;<em>DynamicObject</em>, можно отнаследоваться и от интерфейса <em>IDynamicMetaObjectProvider</em>, но тогда нужно будет самому реализовывать&nbsp;метод&nbsp;&nbsp;<em>DynamicMetaObject GetMetaObject(Expression parameter)</em>, и более того реализовывать свой тип, унаследованный от <em>DynamicMetaObject</em>, ну в любом случае варианты есть - так что можно взять на вооружение. </p>   
+
+
+<h2>2. Именованные и необязательные параметры в методах</h2>
+
+<p>Это достаточно простая функциональность и уже много где оговорена, она хорошо описана вот например <a href="http://habrahabr.ru/blogs/net/43814/">тут</a> (на русском языке одним из автором хабрахабра). Если парой слов, то это возможность устанавливать дефолтные значения у параметров методов, а так же возможность установки значения параметра по имени при вызове метода. В общем пример будет лучшим объяснением:</p>      
+
+<pre><code>class Test1 
+{
+  public void Method(int a = 0, string b = "Hello", bool c = true)
+  {
+    Console.WriteLine("{0}, {1}, {2}", a, b, c);
+  }
+}
+&nbsp;
+static void Main(string[] args)
+{
+  Test1 o = new Test1();
+  // Вызовем по как обычно
+  o.Method(1, "Hello", true);
+  // А можно поменять порядок параметров
+  o.Method(b: "hello", c: true, a: 1);
+  // Можно вообще ничего не вызывать
+  // (установлены значения по умолчанию у всех параметров)
+  o.Method();
+  // Можно определить только необходимые параметры
+  o.Method(1, "Hello");
+  // И не обязательно по порядку
+  o.Method(c: false);
+}</code></pre>
+
+<p>
+Теперь из- за переименование параметра метода, код может и не скомпилироваться, если кто-то использовал установку значения по имени, так что нужно быть аккуратнее. Я рад дефолтным значениям, и постараюсь не использовать функциональность именованных параметров. </p>   
+
+<p>В дополнение хочу сказать, что если все таки будет у класса <em>Test1 </em>метод <em>void Method(int a)</em>, тогда при вызове <em>o.Method(1)</em> вызовится именно он, а не метод из примера с дефолтными значениями.</p>  
+
+<h2>3. Возможности для COM Interop</h2>
+
+<p>DLR так же&nbsp;дал новые&nbsp;возможности для COM&nbsp;Interop, теперь &nbsp;можно COM объекты определять как динамические (точнее они уже являются в большинстве своем динамического типа) и не приводить постоянно получаемые объекты к определенным типам для вызова методов или свойств. </p>
+
+<pre><code>excel.Cells[1, 1].Value = "Hello";
+// вместо 
+((Excel.Range)excel.Cells[1, 1]).Value2 = "Hello";</code></pre>
+
+<p>Данный пример взят из документа New Futures in C# 4.0 С одной стороны приятно, что теперь не нужно мучаться и находить к какому же типу нужно привести объект, чтобы вызвать его свойство или метод, но с другой стороны теряется IntelliSense.</p>   
+
+<h2>4. Новое в generic</h2> 
+
+<p>Теперь обогатился и generic новой функциональностью. Можно теперь у интерфейсов и у делегатов перед определением generic типов писать <em><strong>out </strong></em>и <em><strong>in</strong></em>, зачем это чуть дальше, а сначала рассмотрим пример.</p>   
+
+<p>При работе с generic часто хочется сделать что то типа такого:</p>
+
+<pre><code>IList&lt;string&gt; strings = new List&lt;string&gt;();
+IList&lt;object&gt; objects = strings;</code></pre>
+
+<p>Но нельзя. Потому, что следом можно написать:</p>
+
+<pre><code>objects[0] = 5;
+string s = strings[0];</code></pre>
+
+<p>То есть, изначально у нас был список строк, потом обозначили его как список объектов, и хотим уже работать с ним, как с объектами, устанавливая любой другой объект в него, хотя список до сих пор является списком строк. </p>   
+
+<p>Но, если вдуматься, то можно представить, что если бы список был только для чтения, то мы бы уже не смогли ничего нарушить, и там бы логика была ясна, потому&nbsp;следующий код на C# 4.0&nbsp;будет работать:</p>
+
+<pre><code>IEnumerable&lt;object&gt; objects = strings;</code></pre>
+
+<p>Огромную полезность данная функциональность принесет в работе с linq, там часто возникают проблемы, что возвращаем объекты одного типа, а нужно получить список другого типа (базового).</p>  
+
+<p>Итак, как же такое стало возможным. Сначала рассмотрим слово <em><strong>out</strong></em>. Теперь интерфейс <em>IEnumerable&lt;T&gt;</em> объявлен как <em>IEnumerable&lt;out T&gt;</em>, где <em><strong>out </strong></em>обозначает, что тип <em>T </em>может быть использован только для возвращения значений, в другом случае компилятор будет ругаться, ну и более того это дает нам, что интерфейс <em>IEnumerable&lt;A&gt;</em> так же есть и <em>IEnumerable&lt;B&gt;</em>, если у <em>A </em>есть возможность приведения типа к <em>B</em>, если на простом примере, то <em>IEnumerable&lt;string&gt;</em>, есть теперь и <em>IEnumerable&lt;object&gt;</em>. Вот пример:</p>   
+
+<pre><code>public interface IEnumerable&lt;out T&gt; : IEnumerable
+{
+  IEnumerator&lt;T&gt; GetEnumerator();
+}
+public interface IEnumerator&lt;out T&gt; : IEnumerator
+{
+  bool MoveNext();
+  T Current { get; }
+}</code></pre>
+
+<p>Есть еще слово <em><strong>in</strong></em>. Его так же можно использовать в описании generic делегатов и интерфейсов. Несет оно такую же смысл как и слово <em><strong>out</strong></em>, только в данному случае описанный тип можно использовать только в передаче параметров, вот пример:</p>   
+
+<pre><code>public interface IComparer&lt;in T&gt;
+{
+  public int Compare(T left, T right);
+}</code></pre>
+
+<p>То есть в данном случае, если<em> IComparer&lt;object&gt; </em>может считаться и <em>IComparer&lt;string&gt;</em>, потому как если уж он может сравнивать объекты типа <em>object</em>, то и <em>string </em>тоже может.</p>   
+
+<p>Так же, как я уже сказал, слова <em><strong>out </strong></em>и <em><strong>in </strong></em>можно применять и к интерфейсам, так, например:</p> 
+
+<pre><code>public delegate TResult Func&lt;in TArg, out TResult&gt;(TArg arg);</code></pre>
+
+<h2>Заключение</h2>
+
+<p>Так же в .NET 4.0 появилось много новвовведений, таких как&nbsp; <em>Lazy Initialiation</em> - память под объект выделяется тогда, когда это действительно становится нужно. Появились новые типы, как например, <a href="http://msdn.microsoft.com/en-us/library/system.numerics.biginteger(VS.100).aspx"><em>BigInteger </em></a>- теперь не нужно для лабораторных работ студентам писать свои классы для работы с большими числами ;), <a href="http://msdn.microsoft.com/en-us/library/dd412070(VS.100).aspx"><em>SortedSet&lt;T&gt;</em></a> - класс представляет собой самостоятельное балансированное дерево, которое сохраняет данные в отсортированном порядке после вставки, удаления и поиска. В общем, есть еще что изучать.</p>

@@ -1,0 +1,9 @@
+---
+---
+
+/* TEAM */
+Creator: Denis Gladkikh
+Twitter: @outcoldman
+/* SITE */
+Last update: 2021-01-01
+Software: Hugo

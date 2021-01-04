@@ -1,0 +1,49 @@
+---
+categories: en
+date: "2009-10-24T21:02:00Z"
+redirect_from: en/blog/show/4/
+tags:
+- JavaScript
+- Deep Zoom Composer
+- Seadragon
+- Deep Zoom
+- Silverlight
+title: Deep Zoom Composer in production
+slug: "deep-zoom-composer-in-production"
+---
+<p>Recently Konstantin Kishinsky (Microsoft Russia) presented in his blog <a href="http://blogs.msdn.com/kichinsky/archive/2009/09/03/Deep-Zoom-Composer-1.0-overview.aspx">Deep Zoom Composer 1.0</a> (in russian), which everyone can download from <a href="http://www.microsoft.com/downloads/details.aspx?familyid=457b17b7-52bf-4bda-87a3-fa8a4673f8bf&amp;displaylang=en">Microsoft site</a>. What is it and how it works - you can find in <a href="http://blogs.msdn.com/expression/archive/2008/03/05/deep-zoom-composer-user-guide.aspx">user guide</a>. </p>
+<p>And now i want to show you how we can use it in production.</p>
+<p>First of all pay your attention on export: Deep Zoom Composer can export project to Silverlight Deep Zoom and to <a href="http://livelabs.com/seadragon-ajax/">Seadragon Ajax</a>. Using Silverlight the main question is: on how many PCs Silverlight is installed? In comparison with Flash a very small percentage (statistic from <a href="http://www.riastats.com/">http://www.riastats.com/</a>):</p>
+<p><img height="232" width="500" src="/library/images/01/0000003.png" alt="Silverlight VS Flash" border="0" title="Silverlight VS Flash" style="border-bottom: 0px; border-left: 0px; display: inline; border-top: 0px; border-right: 0px" /> </p>
+<p>So when it isn&rsquo;t possible to use Silverlight it&rsquo;s better to use the same functionality with JavaScript + Ajax (most users are afraid of installing new software). And why can&rsquo;t we just use only JavaScript. It&rsquo;s simple: Deep Zoom by Silverlight looks better and is more interactive then Seadragon. In comparison with Flash, Silverlight scales bitmaps better. You may export one project to Silverlight and Seadragon Ajax and compare them. By the way Deep Zoom Composer lets you to do it simple. </p>
+<p>Lets take a look at it. After creating and preparing project in Deep Zoom Composer you&rsquo;ll see the third tab &ldquo;Export&rdquo;. First &ndash; make export to Silverlight and then to Seadragon Ajax to the same folder.</p>
+<p>Then you&rsquo;ll see some files and folders in export folder. Pay your attention to file <em>GeneratedImages/scene.xml</em>: this file contains the main style of Silverlight application. You can correct it if needed. For example, you may change styles of tooltips and toolbar.</p>
+<p>Next step: open to edit file <em>test.html</em>. When you open it you&rsquo;ll see the Silverlight object declaration. There are parameters and presentation: how it might look if Silverlight isn&rsquo;t installed on users PC. By default a picture with the request of installing the latest version of Silverlight. We can change presentation: place div container from file <em>seadragonajax.html</em>, you&rsquo;ll see:</p>
+<pre><code>function start() {    
+    var container = document.getElementById(&quot;container&quot;);   
+    if (container != null) {        
+        var script = document.getElementById('seadragon_javascript');        
+        script.src = 'http://seadragon.com/ajax/0.8/seadragon-min.js';        
+        script.onreadystatechange = function() {        
+            Seadragon.Config.imagePath = &quot;img/&quot;;        
+            var viewer = new Seadragon.Viewer(&quot;container&quot;);        
+            viewer.openDzi(&quot;GeneratedImages/dzc_output.xml&quot;);        
+        }    
+    }
+}</code></pre><p>Next we can place dynamic script load for Seadragon Ajax. It&rsquo;s easy. First of all check whether element container exists on the page, and if true we load the script and initialize Seadragon object:</p>
+<pre><code>function start() {
+    var container = document.getElementById("container");
+    if (container != null) {
+        var script = document.getElementById('seadragon_javascript');
+        script.src = 'http://seadragon.com/ajax/0.8/seadragon-min.js';
+        script.onreadystatechange = function() {
+            Seadragon.Config.imagePath = "img/";
+            var viewer = new Seadragon.Viewer("container");
+            viewer.openDzi("GeneratedImages/dzc_output.xml");
+        }
+    }
+}</code></pre>
+<p>And of course good practice is to show message &ldquo;You may install Silverlight to see more interactive gallery.&rdquo; with hyperlink to Silverlight installer.</p>
+<h4>Download sample: <a href="/library/content/01/DZCSample.zip">DZCSample.zip</a>
+</h4>
+<p> </p>

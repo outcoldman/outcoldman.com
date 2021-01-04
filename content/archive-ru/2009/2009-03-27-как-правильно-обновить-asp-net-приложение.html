@@ -1,0 +1,46 @@
+---
+categories: ru
+date: "2009-03-27T10:06:00Z"
+redirect_from: ru/blog/show/128/
+tags:
+- ASP.NET
+- HTML
+title: Как правильно обновить ASP.NET приложение
+slug: "как-правильно-обновить-asp-net-приложение"
+---
+<p>Стандартное, обыкновенное обновление ASP.NET приложения. Необходимо накатить скрипты на базу, обновить само приложение, а при обновлении базы - старое приложение на нем работать адекватно не будет.  Но есть выход попроще, создать файл с именем App_Offline.htm в корень, к примеру с таким содержанием:  </p>
+
+<pre><code>&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt;
+&lt;meta content=&quot;text/html; charset=utf-8&quot; http-equiv=&quot;Content-Type&quot; /&gt;
+&lt;title&gt;Сайт временно закрыт&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt;
+  &lt;!--    
+  Adding additional hidden content so that IE Friendly Errors don't prevent
+  this message from displaying (note: it will show a &quot;friendly&quot; 404
+  error if the content isn't of a certain size).
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt; 
+  &lt;h2&gt;Сайт временно закрыт. Ведутся работы. &lt;/h2&gt;   
+--&gt;
+&lt;/body&gt;
+&#160;
+&lt;/html&gt;</code></pre>
+
+<p>
+Комментарий добавлен для того, чтобы страничка весила более 512 байт, чтобы IE&nbsp;6 не понимал возврат сервера - как ошибку. </p>
+<p>
+Взято отсюда: <a href="http://weblogs.asp.net/scottgu/archive/2006/04/09/442332.aspx">App_Offline.htm and working around the &quot;IE Friendly Errors&quot; feature </a></p>

@@ -1,0 +1,196 @@
+---
+categories: ru
+date: "2010-12-29T20:25:47Z"
+redirect_from: ru/blog/show/264/
+tags:
+- Silverlight
+- XAML
+- DataGrid
+- DataPager
+- Paging
+title: Используем Silverlight DataPager без WCF RIA
+slug: "используем-silverlight-datapager-без-wcf-ria"
+---
+<p>Может я как-то не правильно подошел к DataPager, но, как оказалось, заставить его нормально работать без DomainDataService не так уж и просто. Идея у меня была простая, думал найти свойство, вроде ItemCount (оно есть, но только для чтения), туда поставить то количество элементов, которое у меня есть, сделать байдинги на PageSize и PageIndex и все должно быть готово. Но пришлось делать все совершенно по-другому. </p>  <p>Вообще, мне кажется, что такая проблема, наверняка, была не только у меня, ну не всегда и не везде же используется WCF RIA, а использовать пейджинг в списках это уже правило хорошего тона, если знаешь, что список будет расти. Интересно, кто как борется с этой проблемой. А я пока расскажу про свой велосипед.</p>    <p>Решение (если его можно назвать таким) у меня всплыло сразу, подумал о подсовывании ему левой коллекции объектов, вроде </p>  <pre><code>dataPager.Source = Enumerable.Range(1, itemsCount);
+</code></pre>
+
+<p>Тут конечно нужно понимать, что существует проблема, если элементов на сервере, действительно много, то есть itemsCount содержит, например, больше миллиона, то и память у нас будет заниматься достаточно шустро, потому мой способ лучше откинуть, и уже честно реализовывать либо свой DataPager, либо специальную IPagedCollectionView коллекцию. В моем случае, когда речь идет о тысячах, десятках тысяч, решил пока оставить так, хотя в ближайшем будущем переделаем на свою IPagedCollectionView. </p>
+
+<p>В общем, в результате у меня получился такой вот контрол:</p>
+
+<pre><code>public class CustomDataPager : DataPager
+{    public CustomDataPager()
+    {        // Problems with first binding if source is null or PageIndex is more than -1
+        SetEmptyCollection();
+    }
+&#160;    public static readonly DependencyProperty TotalItemsCountProperty =
+        DependencyProperty.Register(&quot;TotalItemsCount&quot;, typeof (int), typeof (CustomDataPager),
+                                    new PropertyMetadata(0, TotalItemsCountPropertyChanged));
+&#160;    public static readonly DependencyProperty PageSizeExProperty =
+        DependencyProperty.Register(&quot;PageSizeEx&quot;, typeof (int), typeof (CustomDataPager),
+                                    new PropertyMetadata(0, PageSizeExPropertyChanged));
+&#160;    public static void TotalItemsCountPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {        if (d is CustomDataPager &amp;&amp; e.NewValue is int)
+        {            var dataPager = d as CustomDataPager;
+            var newValue = int.Parse(e.NewValue.ToString());
+            if (dataPager.ItemCount != newValue)
+                dataPager.SetCollection(newValue);
+        }
+    }
+&#160;    public static void PageSizeExPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {        if (d is CustomDataPager &amp;&amp; e.NewValue is int)
+        {            var dataPager = d as CustomDataPager;
+            var newValue = int.Parse(e.NewValue.ToString());
+            dataPager.PageSize = newValue;
+        }
+    }
+&#160;    public int TotalItemsCount
+    {        get { return (int) GetValue(TotalItemsCountProperty); }
+        set { SetValue(TotalItemsCountProperty, value); }
+    }
+&#160;    public int PageSizeEx
+    {        get { return (int) GetValue(PageSizeExProperty); }
+        set { SetValue(PageSizeExProperty, value); }
+    }
+&#160;    private void SetEmptyCollection()
+    {
+        SetCollection(0);
+    }
+&#160;    private void SetCollection(int itemsCount)
+    {        if (itemsCount &gt; 0)
+            Source = new PagedCollectionView(Enumerable.Range(1, itemsCount));
+        else
+            Source = new PagedCollectionView(new List&lt;int&gt;());
+    }
+}
+</code></pre>
+
+<p>Ничего умного. Два DependencyProperty, одно из которых – это количество элементов на сервере, при изменении которого, я подставляю фейковую коллекцию. Второе PageSizeEx – это на самом деле обычный PageSize, мне пришлось сделать дополнительное свойство, потому что c PageSize мой байдинг не работал, не знаю почему. А это свойство имеет очень простое поведении, при изменении выставляет значение в PageSize.</p>
+
+<p>Теперь пример использования. Создадим класс Foo, а так же класс FooService, который будет имитировать загрузку страницы с сервера (с небольшой задержкой и асинхронно):</p>
+
+<pre><code>public class Foo
+{    public int ID { get; set; }
+    public string Name { get; set; }
+}
+&#160;public class FooService
+{    public void GetFooListAsync(int pageIndex, int pageSize, Action&lt;PageCollectionInfo&lt;Foo&gt;&gt; postBack)
+    {        Thread thread = new Thread(() =&gt;
+                {                    List&lt;Foo&gt; list = new List&lt;Foo&gt;();
+&#160;                    for (int i = pageIndex*pageSize; i &lt; (pageIndex + 1)*pageSize; i++)
+                    {                        list.Add(new Foo {ID = i, Name = string.Format(&quot;Foo {0}&quot;, i)});
+                    }
+&#160;
+                    Thread.Sleep(1000);
+&#160;                    postBack(new PageCollectionInfo&lt;Foo&gt; {ItemsCount = 1000, PageCollection = list});
+                });
+        thread.Start();
+    }
+}
+</code></pre>
+
+<p>Реализуем BindingModel:</p>
+
+<pre><code>public class MainPageBindingModel : INotifyPropertyChanged
+{    private readonly List&lt;int&gt; _pageSizes = new List&lt;int&gt; {10, 25, 50, 100};
+&#160;    private readonly FooService _service;
+&#160;    private int _pageIndex;
+    private int _pageSize;
+&#160;    private int _itemsCount;
+    private List&lt;Foo&gt; _items;
+&#160;    private bool _isBusy;
+&#160;    public MainPageBindingModel()
+    {        _service = new FooService();
+        _pageSize = _pageSizes.First();
+&#160;
+        LoadItems();
+    }
+&#160;    public List&lt;int&gt; PageSizes
+    {        get { return _pageSizes; }
+    }
+&#160;    public int PageIndex
+    {        get { return _pageIndex; }
+        set { _pageIndex = value; OnPropertyChanged(&quot;PageIndex&quot;); LoadItems(); }
+    }
+&#160;    public int PageSize
+    {        get { return _pageSize; }
+        set { _pageSize = value; OnPropertyChanged(&quot;PageSize&quot;); LoadItems(); }
+    }
+&#160;    public List&lt;Foo&gt; Items
+    {        get { return _items; } 
+        set { _items = value; OnPropertyChanged(&quot;Items&quot;); }
+    }
+&#160;    public int ItemsCount
+    {        get { return _itemsCount; }
+        set { _itemsCount = value; OnPropertyChanged(&quot;ItemsCount&quot;); }
+    }
+&#160;    public bool IsBusy
+    {        get { return _isBusy; }
+        set { _isBusy = value; OnPropertyChanged(&quot;IsBusy&quot;); }
+    }
+&#160;    private void LoadItems()
+    {        if (!IsBusy)
+        {            IsBusy = true;
+&#160;
+            var dispatcher = Application.Current.RootVisual.Dispatcher;
+            _service.GetFooListAsync(PageIndex, PageSize, (x) =&gt;
+                        {
+                            dispatcher.BeginInvoke(() =&gt;
+                                                    {
+                                                        Items = x.PageCollection;
+                                                        ItemsCount = x.ItemsCount;                                                        IsBusy = false;
+                                                    });
+                        });
+        }
+    }
+&#160;
+&#160;    private void OnPropertyChanged(string propertyName)
+    {        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+    }
+&#160;    public event PropertyChangedEventHandler PropertyChanged = delegate { };
+}
+</code></pre>
+
+<p>Тут все тоже очень просто, есть готовые свойства PageIndex, PageSize, которые говорят о том сколько элементов мы хотим видеть на странице, и какую страницу мы видим. PageSizes – это подготовленные размеры страниц, которые пользователь может выставлять. Items и ItemsCount – информация об объектах, первое свойство содержит элементы текущей страницы, а второе информацию о том, сколько всего у нас элементов на сервере. Дальше, XAML разметка:</p>
+
+<pre><code>&lt;UserControl xmlns:toolkit=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation/toolkit&quot;  
+             xmlns:sdk=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk&quot;  x:Class=&quot;SilverlightDataPager.MainPage&quot;
+    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:SilverlightDataPager=&quot;clr-namespace:SilverlightDataPager&quot; Width=&quot;500&quot; Height=&quot;300&quot;&gt;
+    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot; &gt;
+        &lt;Grid.RowDefinitions&gt;
+            &lt;RowDefinition Height=&quot;*&quot;/&gt;
+            &lt;RowDefinition Height=&quot;Auto&quot;/&gt;
+        &lt;/Grid.RowDefinitions&gt;
+        &lt;Grid.ColumnDefinitions&gt;
+            &lt;ColumnDefinition Width=&quot;Auto&quot; /&gt;
+            &lt;ColumnDefinition Width=&quot;*&quot; /&gt;
+        &lt;/Grid.ColumnDefinitions&gt;
+&#160;        &lt;sdk:DataGrid Grid.ColumnSpan=&quot;2&quot; ItemsSource=&quot;{Binding Path=Items}&quot; CanUserSortColumns=&quot;False&quot;&gt;
+        &lt;/sdk:DataGrid&gt;
+&#160;        &lt;StackPanel  Grid.Row=&quot;1&quot; Orientation=&quot;Horizontal&quot; HorizontalAlignment=&quot;Right&quot;&gt;
+            &lt;TextBlock  VerticalAlignment=&quot;Center&quot;&gt;Items at page:&lt;/TextBlock&gt;
+            &lt;ComboBox VerticalAlignment=&quot;Center&quot; ItemsSource=&quot;{Binding Path=PageSizes}&quot; SelectedItem=&quot;{Binding Path=PageSize, Mode=TwoWay}&quot;/&gt;
+        &lt;/StackPanel&gt;
+&#160;        &lt;SilverlightDataPager:CustomDataPager  Grid.Row=&quot;1&quot; Grid.Column=&quot;1&quot; DisplayMode=&quot;FirstLastPreviousNext&quot; PageSizeEx=&quot;{Binding Path=PageSize}&quot; 
+                        PageIndex=&quot;{Binding Path=PageIndex, Mode=TwoWay}&quot; TotalItemsCount=&quot;{Binding Path=ItemsCount}&quot; HorizontalAlignment=&quot;Right&quot;  /&gt;
+&#160;        &lt;toolkit:BusyIndicator IsBusy=&quot;{Binding Path=IsBusy}&quot; Grid.RowSpan=&quot;2&quot; Grid.ColumnSpan=&quot;2&quot; /&gt;
+    &lt;/Grid&gt;
+&lt;/UserControl&gt;
+</code></pre>
+
+<p>Ну и само приложение:</p>
+<object data="data:application/x-silverlight-2," type="application/x-silverlight-2" width="500px" height="400px">
+		  <param name="source" value="/library/content/03/sldatapager/SilverlightDataPager.xap" />
+		  <param name="background" value="white" />
+		  <param name="minRuntimeVersion" value="4.0.50826.0" />
+		  <param name="autoUpgrade" value="true" />
+		  <a href="http://go.microsoft.com/fwlink/?LinkID=149156&amp;v=4.0.50826.0" style="text-decoration:none">
+ 			  <img src="http://go.microsoft.com/fwlink/?LinkId=161376" alt="Get Microsoft Silverlight" style="border-style:none" />
+		  </a>
+	    </object>
+
+<p>Это конечно же, уж очень примитивные наброски, но может кому-то поможет.</p>
+
+<p>Весь исходный код можно забрать с моего репозитория на <a href="https://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightDataPager">assembla.com</a>. </p>

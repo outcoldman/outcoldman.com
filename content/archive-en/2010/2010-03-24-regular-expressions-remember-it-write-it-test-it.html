@@ -1,0 +1,114 @@
+---
+categories: en
+date: "2010-03-24T12:51:00Z"
+redirect_from:
+- en/blog/show/194/
+- en/archive/2010/03/24/regular-expressions-remember-it-write-it-test-it-/
+tags:
+- .NET
+- C#
+- Twitter
+- TDD
+- Regex
+- Regular Expressions
+- nUnit
+title: Regular Expressions. Remember it, write it, test it.
+slug: "regular-expressions-remember-it-write-it-test-it"
+---
+<p>I should say that I’m fan of regular expressions. Whenever I see the problem, which I can solve with Regex, I felt a burning desire to do it and going to write new test for new regex. Previously I had installed SharpDevelop Studio just for good regular expression tool in it (Why VS doesn’t have one?). But now I’m a little wiser, and for each Regex I write a separate test. </p>
+
+<p>I find it difficult to remember the syntax of regular expressions (I don’t write them very often); I always forget which character is responsible for the beginning of the line, etc. So I use external small and easy articles like this “<a href="http://www.aivosto.com/vbtips/regex.html">Regular expressions - An introduction</a>”.</p>
+
+<p>Now I want to show you little samples of regular expressions and want to show you how to test these samples.</p>
+
+<h2>Examples</h2>
+
+<h3>Check language of text</h3>
+
+<p>On my website (<a href="https://www.outcoldman.com">https://www.outcoldman.com</a>) I display my messages from Twitter, but once I separated all content of the site in Russian and English, I decided to separate messages from Twitter too. I got a very easy way for this: if text has Russian letter then the message is Russian, else English. Most likely you do not know Russian, so I'll do the opposite, if there is an English letter - it's English, otherwise the Russian. I wrote next regular expression for this:</p>
+
+<pre><code>const string RegexIsEnglish = @&quot;[A-Za-z]+&quot;
+</code></pre>
+
+<p></p>
+
+<p>Of course, you can solve this problem with foreach or for operators with watching every letter that it in some range of letters. But this regex you can use very easy, just type this:</p>
+
+<pre><code>Regex.IsMatch(text, RegexIsRussian)
+</code></pre>
+
+<p></p>
+
+<p><a href="http://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex.aspx">Regex</a> is class from namespace System.Text.RegularExpressions</p>
+
+<h3>Finding and replacing urls in text</h3>
+
+<p>Previous sample is very easy. Let try to solve more difficult problem like finding http urls in text. Doing this job without regex is not an easy solution. So we will look how to solve this with regex:</p>
+
+<pre><code>const string RegexUrl = @&quot;(https?://(www.)?([\w\-]+)(\.([\w\-]+))+([\w\\\/\.?&amp;%=\-+]*))&quot;
+</code></pre>
+
+<p>Now you can check if text has http url in it with Regex.IsMatch or find all of this http urls with Regex.Matches, but we can do more with this regex, we can replace each url with anchor – html link:</p>
+
+<pre><code>Regex.Replace(text, RegexUrl, &quot;&lt;a href='$1'&gt;$1&lt;/a&gt;&quot;);
+</code></pre>
+
+<p>Instead of $1 we will have finding http urls (condition in first brackets).</p>
+
+<p>Also we can change hashtags and user nicks in twitter messages with next regex constructions:</p>
+
+<pre><code>const string RegexTwitterUser = @&quot;(@([A-Za-z0-9_]+))&quot;;
+Regex.Replace(text, RegexTwitterUser, &quot;&lt;a href='http://twitter.com/$2'&gt;$1&lt;/a&gt;&quot;)
+</code></pre>
+
+<pre><code>const string RegexTwitterTag = @&quot;(#([A-Za-z0-9_]+))&quot;;
+Regex.Replace(text, RegexTwitterTag, &quot;&lt;a href='http://twitter.com/#search?q=%23$2'&gt;$1&lt;/a&gt;&quot;);
+</code></pre>
+
+<p>In second example we use $1 and $2, where $2 – it is one that we have in second brackets (hashtag without # and nickname without @). </p>
+
+<p>Also I can show you many samples of using Regex. Developers often use regular expressions in validation process, with them and default asp.net (or other technologies) very easy validate user input (email, phones, post indexes, etc). You can find many ready to use regex solutions in internet.</p>
+
+<h3>Unit test for regex</h3>
+
+<p>I always write combinatory unit tests for regex (combinatory tests – methods with parameters where test runner put values from some data sources). So let look on nUnit (now I’m using this one, because I couldn’t make MbUnit work with Gallio and R# 5 in VS 2010). </p>
+
+<pre><code>public string[][] Urls
+{
+    get    
+    {        
+        return new[]                   
+        {                       
+            new[] {"Hello http://google.com bye", 
+                              "Hello <a href='http://google.com'>http://google.com</a> bye"},
+            new[] {"Hello http://mail.google.com bye", 
+                              "Hello <a href='http://mail.google.com'>http://mail.google.com</a> bye"},
+            new[] {"Hello http://google.com/test/test.aspx", 
+                              "Hello <a href='http://google.com/test/test.aspx'>http://google.com/test/test.aspx</a>"},
+            new[] {"Hello http://g0ogle.com/test/test.aspx?q=7&b=0", 
+                              "Hello <a href='http://g0ogle.com/test/test.aspx?q=7&b=0'>http://g0ogle.com/test/test.aspx?q=7&b=0</a>"}
+        };    
+    }
+} 
+ 
+[Test]
+public void twitter_text_to_html_convert([ValueSource("Urls")] string[] url)
+{    
+    string replace = HtmlParser.ReplaceHref(url[0]);    
+    Assert.AreEqual(url[1], replace);
+}</code></pre>
+
+<p>As you saw this is really small test – just one method twitter_text_to_html_convert. And this test are using data source Urls, in which I always place new test values. Method twitter_text_to_html_convert will be executed as many times as the count of items in data source.</p>
+
+<p>Some time ago I found that my regex didn’t find urls with dash (‘-’). I changed little my regex, and then added new values in data source Urls for test:</p>
+
+<pre><code>new[]    
+{        
+    "Hello http://ninja-assassin-movie.warnerbros.com",        
+    "Hello <a href='http://ninja-assassin-movie.warnerbros.com'>http://ninja-assassin-movie.warnerbros.com</a>"    
+}</code></pre>
+
+<p></p>
+
+<p>Then I run test and checked that all old values are ok. </p>
+

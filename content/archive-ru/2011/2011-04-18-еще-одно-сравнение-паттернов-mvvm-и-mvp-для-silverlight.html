@@ -1,0 +1,242 @@
+---
+categories: ru
+date: "2011-04-18T06:00:00Z"
+redirect_from: ru/blog/show/286/
+tags:
+- Silverlight
+- MVP
+- MVVM
+- Silverlight 4
+- Bug
+title: Еще одно сравнение паттернов MVVM и MVP для Silverlight
+slug: "еще-одно-сравнение-паттернов-mvvm-и-mvp-для-silverlight"
+---
+<p>Я уже когда-то поднимал тему сравнения паттернов MVP и MVVM при разработке Silverlight приложений: <a href="/ru/blog/show/211">Выступление на ADD2010: Silverlight/WPF: возврат от паттерна MVVM к MVP</a>. Вопрос, на самом деле сложный, какой из паттернов лучше. Я бы хотел продемонстрировать небольшой пример и подискутировать на эту тему в комментариях. Был бы рад, если кто-нибудь нашел бы хороший ответ на мой вопрос, который будет дальше.</p>
+
+  <p>Давайте рассмотрим простой пример. Сделаем ContextMenu в TextBox с одним MenuItem, которое будет просто вызывать MessageBox. Сразу оговорюсь, что сделать я хочу именно так, как сделаю. Вторым примером сделаем ListBox с элементами TextBox, где у каждого будет тоже свое ContextMenu.&#160; </p>
+
+<h2>Пример 1. Реализация с паттерном MVVM</h2>
+
+<p>Реализуем простейшую команду:</p>
+
+<pre><code>public class MyCommand : ICommand
+{    public bool CanExecute(object parameter)
+    {        return true;
+    }
+&#160;    public void Execute(object parameter)
+    {        MessageBox.Show(&quot;Yep!&quot;);
+    }
+&#160;    public event EventHandler CanExecuteChanged;
+}
+</code></pre>
+
+<p>Делаем простейший ViewModel:</p>
+
+<pre><code>public class ViewModel
+{    private MyCommand _command = new MyCommand();
+&#160;    public MyCommand Command { get { return _command; } }
+}
+</code></pre>
+
+<p>Пишем разметку:</p>
+
+<pre><code>&lt;UserControl x:Class=&quot;SilverlightApplication3.MainPage&quot;
+    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:SilverlightApplication3=&quot;clr-namespace:SilverlightApplication3&quot; 
+    xmlns:Controls=&quot;clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit&quot; 
+    x:Name=&quot;ParentControl&quot;&gt;
+&#160;    &lt;UserControl.DataContext&gt;
+        &lt;SilverlightApplication3:ViewModel /&gt;
+    &lt;/UserControl.DataContext&gt;
+    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot;&gt;
+&#160;        &lt;TextBox HorizontalAlignment=&quot;Center&quot; VerticalAlignment=&quot;Center&quot; Width=&quot;300&quot; Height=&quot;200&quot; &gt;
+            &lt;Controls:ContextMenuService.ContextMenu&gt;
+                &lt;Controls:ContextMenu&gt;
+                    &lt;Controls:MenuItem Header=&quot;Test&quot; Command=&quot;{Binding Path=DataContext.Command, ElementName=ParentControl}&quot;  /&gt;
+                &lt;/Controls:ContextMenu&gt;
+            &lt;/Controls:ContextMenuService.ContextMenu&gt;
+        &lt;/TextBox&gt;
+&#160;    &lt;/Grid&gt;
+&lt;/UserControl&gt;
+</code></pre>
+
+<p>В code behind все по-стандартному. Задача вырвана из контекста, потому у меня тут немного странный байндинг. Ну к нему можно прийти очень даже просто, если Grid, например, будет иметь DataContext={Binding Path=Entity} или что-то типа того.</p>
+
+<h2>Пример 1. Реализация при помощи паттерна MVP</h2>
+
+<p>Меняем разметку:</p>
+
+<pre><code>&lt;UserControl x:Class=&quot;SilverlightApplication3.MainPage&quot;
+    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:Controls=&quot;clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit&quot; &gt;
+&#160;    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot;&gt;
+&#160;        &lt;TextBox HorizontalAlignment=&quot;Center&quot; VerticalAlignment=&quot;Center&quot; Width=&quot;300&quot; Height=&quot;200&quot; &gt;
+            &lt;Controls:ContextMenuService.ContextMenu&gt;
+                &lt;Controls:ContextMenu&gt;
+                    &lt;Controls:MenuItem Header=&quot;Test&quot; Click=&quot;MenuItem_Click&quot;  /&gt;
+                &lt;/Controls:ContextMenu&gt;
+            &lt;/Controls:ContextMenuService.ContextMenu&gt;
+        &lt;/TextBox&gt;
+&#160;    &lt;/Grid&gt;
+&lt;/UserControl&gt;
+</code></pre>
+
+<p>Создаем класс Presenter:</p>
+
+<pre><code>public class Presenter
+{    public void DoAction()
+    {        MessageBox.Show(&quot;Yep!&quot;);
+    }
+}
+</code></pre>
+
+<p>И немного кода в code behind самой View:</p>
+
+<pre><code>public partial class MainPage : UserControl
+{    private Presenter _presenter = new Presenter();
+&#160;    public MainPage()
+    {
+        InitializeComponent();
+    }
+&#160;    private void MenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        _presenter.DoAction();
+    }
+}
+</code></pre>
+
+<h2>Пример 2. Реализация с паттерном MVVM</h2>
+
+<p>Здесь у нас уже будет коллекция элементов, на основе которой будет,&#160; в принципе, то же самое, что в примере 1. Код:</p>
+
+<pre><code>public class Entity
+{    public string Title { get; set; }
+}
+&#160;public class MyCommand : ICommand
+{    public bool CanExecute(object parameter)
+    {        return true;
+    }
+&#160;    public void Execute(object parameter)
+    {        MessageBox.Show(&quot;Yep!&quot;);
+    }
+&#160;    public event EventHandler CanExecuteChanged;
+}
+&#160;public class ViewModel
+{    private List&lt;Entity&gt; _entities = new List&lt;Entity&gt;() {
+        new Entity() {Title = &quot;Entity 1&quot;},
+        new Entity() {Title = &quot;Entity 2&quot;},
+        new Entity() {Title = &quot;Entity 3&quot;}
+    };
+&#160;    private MyCommand _command = new MyCommand();
+&#160;    public MyCommand Command
+    {        get { return _command; }
+    }
+&#160;    public List&lt;Entity&gt; Entities
+    {        get { return _entities; }
+    }
+}
+</code></pre>
+
+<p>Я тут сделал класс Entity с одним свойством, а во ViewModel добавил свойство, которое возвращает коллекцию Entities. XAML меняется следующим образом:</p>
+
+<pre><code>&lt;UserControl x:Class=&quot;SilverlightApplication3.MainPage&quot;     xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;     
+             xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;     
+             xmlns:SilverlightApplication3=&quot;clr-namespace:SilverlightApplication3&quot;      
+             xmlns:Controls=&quot;clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit&quot;      
+             x:Name=&quot;ParentControl&quot;&gt;
+    &lt;UserControl.DataContext&gt;
+        &lt;SilverlightApplication3:ViewModel /&gt;
+    &lt;/UserControl.DataContext&gt;
+    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot;&gt;
+        &lt;ListBox HorizontalAlignment=&quot;Center&quot; VerticalAlignment=&quot;Center&quot; ItemsSource=&quot;{Binding Path=Entities}&quot; &gt;
+            &lt;ListBox.ItemTemplate&gt;
+                &lt;DataTemplate&gt;
+                    &lt;TextBox Width=&quot;300&quot; Height=&quot;100&quot; &gt;
+                        &lt;Controls:ContextMenuService.ContextMenu&gt;
+                            &lt;Controls:ContextMenu&gt;
+                                &lt;Controls:MenuItem Header=&quot;Test&quot; Command=&quot;{Binding Path=DataContext.Command, ElementName=LayoutRoot}&quot; /&gt;
+                            &lt;/Controls:ContextMenu&gt;
+                        &lt;/Controls:ContextMenuService.ContextMenu&gt;
+                    &lt;/TextBox&gt;
+                &lt;/DataTemplate&gt;
+            &lt;/ListBox.ItemTemplate&gt;
+        &lt;/ListBox&gt;
+    &lt;/Grid&gt;
+&lt;/UserControl&gt;
+</code></pre>
+
+<h2>Пример 2. Реализация при помощи паттерна MVP</h2>
+
+<p>Код:</p>
+
+<pre><code>public class Entity
+{    public string Title { get; set; }
+}
+&#160;public class BindingModel
+{    private List&lt;Entity&gt; _entities = new List&lt;Entity&gt;() {
+        new Entity() {Title = &quot;Entity 1&quot;},
+        new Entity() {Title = &quot;Entity 2&quot;},
+        new Entity() {Title = &quot;Entity 3&quot;}
+    };
+&#160;    public List&lt;Entity&gt; Entities
+    {        get { return _entities; }
+    }
+}
+&#160;public class Presenter
+{    private BindingModel _bindingModel = new BindingModel();
+&#160;    public BindingModel BindingModel
+    {        get { return _bindingModel; }
+    }
+&#160;    public void DoAction()
+    {        MessageBox.Show(&quot;Yep!&quot;);
+    }
+}
+</code></pre>
+
+<p>Добавили BindingModel (то же самое, что PresentationModel в определении Мартина Фаулера). Поменяем немного XAML:</p>
+
+<pre><code>&lt;UserControl x:Class=&quot;SilverlightApplication3.MainPage&quot;     xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;   
+             xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;     
+             xmlns:Controls=&quot;clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit&quot; &gt;
+&#160;    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot;&gt;
+        &lt;ListBox HorizontalAlignment=&quot;Center&quot; VerticalAlignment=&quot;Center&quot; ItemsSource=&quot;{Binding Path=Entities}&quot; &gt;
+            &lt;ListBox.ItemTemplate&gt;
+                &lt;DataTemplate&gt;
+                    &lt;TextBox Width=&quot;300&quot; Height=&quot;100&quot; &gt;
+                        &lt;Controls:ContextMenuService.ContextMenu&gt;
+                            &lt;Controls:ContextMenu&gt;
+                                &lt;Controls:MenuItem Header=&quot;Test&quot; Click=&quot;MenuItem_Click&quot; /&gt;
+                            &lt;/Controls:ContextMenu&gt;
+                        &lt;/Controls:ContextMenuService.ContextMenu&gt;
+                    &lt;/TextBox&gt;
+                &lt;/DataTemplate&gt;
+            &lt;/ListBox.ItemTemplate&gt;
+        &lt;/ListBox&gt;
+    &lt;/Grid&gt;
+&lt;/UserControl&gt;
+</code></pre>
+
+<p>Ну, и подправим Code Behind:</p>
+
+<pre><code>public partial class MainPage : UserControl
+{    Presenter _presenter = new Presenter();
+&#160;    public MainPage()
+    {
+        InitializeComponent();
+        DataContext = _presenter.BindingModel;
+    }
+&#160;    private void MenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        _presenter.DoAction();
+    }
+}
+</code></pre>
+
+<h2>Выводы</h2>
+
+<p>А теперь, коллеги, давайте еще раз присмотримся к коду и попробуем ответить на опрос (с подвохом):</p>
+<iframe style="width: 700px; height: 400px" marginheight="0" src="https://spreadsheets.google.com/embeddedform?formkey=dGJJeVRxakpnbFlwUmhVSzVuVThSZ2c6MQ" frameborder="0" marginwidth="0">Loading...</iframe>
+
+<p>Если считаете, что какой-то вариант не рабочий, то прошу рассказать в комментариях почему так. У меня только есть небольшая догадка относительно этого всего, о которой я расскажу чуть позже.</p>

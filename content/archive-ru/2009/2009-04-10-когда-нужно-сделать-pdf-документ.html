@@ -1,0 +1,177 @@
+---
+categories: ru
+date: "2009-04-10T10:53:00Z"
+redirect_from: ru/blog/show/135/
+tags:
+- ASP.NET
+- .NET
+- C#
+- PDF
+- Reports
+- XML
+- XSLT
+title: Когда нужно сделать PDF документ
+slug: "когда-нужно-сделать-pdf-документ"
+---
+<p>Если перед Вами стоит задача - создавать простенькие (или не совсем) pdf документы в вашем приложении - это могут быть и отчеты и рецепты, ну либо вы захотите печатать так информацию о ваших объектах, то для решения этой задачи можно воспользоваться, к примеру, установленным OpenOffice и его возможностями (это тяжеловестно), а можно библиотекой <a href="http://sourceforge.net/projects/itextsharp/">iTextSharp </a>(Free C#-PDF library), вот про это я и хочу поведать небольшой пример, при помощи которого я создам такой вот документ:</p>   
+
+<p><a href="/library/images/01/0000011.jpeg"><img width="640" height="454" border="0" alt="" src="/library/images/01/0000011.jpeg" /></a></p>
+
+<p>Способов создания pdf документов при помощи данной библиотеки множество. Мне больше всего понравился способ описания при помощи <a href="http://itextsharp.sourceforge.net/tutorial/ch07.html">xml документа</a>. Создавать такой xml я решил&nbsp; xslt преобразованием, а данные подсовывать xml-документом.</p>   
+
+<p>Наши данные будут выглядить вот так:</p>   
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;Profile&gt;
+ &lt;FirstName&gt;Иван&lt;/FirstName&gt;
+ &lt;SecondName&gt;Иванович&lt;/SecondName&gt;
+ &lt;LastName&gt;Иванов&lt;/LastName&gt;
+ &lt;Subtexts&gt;
+  &lt;Text&gt;Какой то непонятный текст. Какой то непонятный текст. Какой то непонятный текст. Какой то непонятный текст.
+Какой то непонятный текст. Какой то непонятный текст. Какой то непонятный текст. Какой то непонятный текст.&lt;/Text&gt; &lt;/Subtexts&gt;
+ &lt;Subtexts&gt;
+  &lt;Text&gt;Другой непонятный текст. Другой непонятный текст. Другой непонятный текст. Другой непонятный текст. Другой непонятный текст. 
+Другой непонятный текст. Другой непонятный текст. Другой непонятный текст. Другой непонятный текст.&lt;/Text&gt; &lt;/Subtexts&gt;
+&lt;/Profile&gt;
+</code></pre>
+
+<p>
+Далее нам необходимо создавать xml для pdf (скажу что ссылка на iText.dtd схему в документе tutorial битая, верную ссылку я привожу внизу), как я и сказал выше для этого мы напишем <a href="http://www.w3.org/TR/xslt">xslt преобразование</a>:</p>    
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"&gt;
+ &lt;xsl:param name="picturePath"/&gt;
+ &lt;xsl:output method="xml" indent="yes"/&gt;
+ 
+ &lt;xsl:template match="/Profile"&gt;
+  &lt;itext&gt;
+   &lt;paragraph align="Center"&gt;
+    &lt;phrase fontstyle="bold" size="16.0" &gt;Информация о пользователе&lt;/phrase&gt;
+   &lt;/paragraph&gt;
+&nbsp;
+   &lt;image &gt;
+    &lt;xsl:attribute name="url"&gt;
+     &lt;xsl:value-of select="$picturePath"/&gt;
+    &lt;/xsl:attribute&gt;
+   &lt;/image&gt;
+    
+   &lt;table width="100%" columns="3" cellpadding="1" cellspacing="1" borderwidth="0.5" red="0" 
+       green="0" blue="0" left="true" right="true" top="true" bottom="true" widths="33;33;33"&gt;
+    &lt;row &gt;
+     &lt;cell borderwidth="0.5" red="0" green="0" blue="0" left="false" 
+        right="true" top="false" bottom="true" header="true" horizontalalign="Center"&gt;
+      &lt;phrase size="10.0" &gt;Фамилия&lt;/phrase&gt;
+      &lt;/cell&gt;
+     &lt;cell borderwidth="0.5" red="0" green="0" blue="0" left="false" 
+        right="true" top="false" bottom="true" header="true" horizontalalign="Center"&gt;
+      &lt;phrase size="10.0" &gt;Имя&lt;/phrase&gt;
+     &lt;/cell&gt;
+     &lt;cell borderwidth="0.5" red="0" green="0" blue="0" left="false" 
+        right="false" top="false" bottom="true" header="true" horizontalalign="Center"&gt;
+      &lt;phrase size="10.0" &gt;Отчество&lt;/phrase&gt;
+     &lt;/cell&gt;
+    &lt;/row&gt;
+    &lt;row &gt;
+     &lt;cell borderwidth="0.5" red="0" green="0" blue="0" left="false" 
+        right="true" top="false" bottom="false" header="false" horizontalalign="Left"&gt;
+      &lt;phrase size="10.0" &gt;
+       &lt;xsl:value-of select="FirstName"/&gt;
+      &lt;/phrase&gt;
+     &lt;/cell&gt;
+     &lt;cell borderwidth="0.5" red="0" green="0" blue="0" left="false" 
+        right="true" top="false" bottom="false" header="false" horizontalalign="Left"&gt;
+      &lt;phrase size="10.0" &gt;
+       &lt;xsl:value-of select="SecondName"/&gt;
+      &lt;/phrase&gt;
+     &lt;/cell&gt;
+     &lt;cell borderwidth="0.5" red="0" green="0" blue="0" left="false" 
+        right="false" top="false" bottom="false" header="false" horizontalalign="Left"&gt;
+      &lt;phrase size="10.0" &gt;
+       &lt;xsl:value-of select="LastName"/&gt;
+      &lt;/phrase&gt;
+     &lt;/cell&gt;
+    &lt;/row&gt;
+   &lt;/table&gt;
+&nbsp;
+   &lt;xsl:apply-templates select="Subtexts"/&gt;
+       
+  &lt;/itext&gt;
+ &lt;/xsl:template&gt;
+&nbsp;
+ &lt;xsl:template match="Subtexts"&gt;
+  &lt;paragraph align="Justify"&gt;
+   &lt;phrase size="14.0" &gt;
+    &lt;xsl:value-of select="Text"/&gt;
+   &lt;/phrase&gt;
+  &lt;/paragraph&gt;
+  &lt;newline/&gt;
+ &lt;/xsl:template&gt;
+ 
+&lt;/xsl:stylesheet&gt;</code></pre>
+
+<p>
+По мне так схему описания они выбрали не самую удачную, уж слишком получается громозкий код для небольшого pdf документа. Так, очень не привычно, описывать цвета red green и blue отдельно друг от друга, уж можно было бы их сделать в HEX записи. Как видно в xslt схеме - в документе есть параметр, который указывает на путь картинки, которая вставится в наш pdf документ, так же там описывается при помощи схемы таблица, состоящая из 3х столбцов и пару параграфов.</p>  
+
+<p>Следующий шаг: описываем  весь код, который будет возвращать нам массив байт нашего pdf документа, комментариями я попытался описать всю последовательность действий:</p>   
+
+<pre><code>public byte[] GetPdfRaw()
+{
+  XmlDocument doc = new XmlDocument();
+  //Загружаем данные их xml файла
+  doc.Load(MapPath(@"~\Resources\UserProfile.xml"));
+  XslCompiledTransform xslTransform = new XslCompiledTransform();
+  //Загружаем схему XSLT преобразований
+  xslTransform.Load(MapPath(@"~\Resources\ReportProcessor.xslt"));
+  XsltArgumentList list = new XsltArgumentList();
+  //Записываем в параметры схемы путь до картинки
+  list.AddParam("picturePath", string.Empty, MapPath(@"~\Resources\Toco.jpg"));
+  //Создаем поток в памяти, куда будет писаться наша xml схема для pdf документа
+  using (MemoryStream stream = new MemoryStream())
+  {
+    //Создаем xml схему нашего pdf документа
+    xslTransform.Transform(doc, list, stream);
+&nbsp;
+    //Основной Font для pdf документа
+    BaseFont baseFont = BaseFont.CreateFont(Environment.ExpandEnvironmentVariables(@"%systemroot%\fonts\Tahoma.TTF"),
+              "CP1251", BaseFont.EMBEDDED);
+&nbsp;
+    //Создаем PDF документ
+    Document document = new Document();
+    using (MemoryStream pdfStream = new MemoryStream())
+    {
+      PdfWriter.GetInstance(document, pdfStream);
+      XmlDocument d = new XmlDocument();
+      string str = Encoding.UTF8.GetString(stream.ToArray()).Substring(1);
+      d.LoadXml(str);
+      //Определяем преобразователь из xml в pdf
+      ITextHandler h = new ITextHandler(document) {DefaultFont = baseFont};
+      h.Parse(d);
+      //Возвращаем полученный pdf файл в формате byte[]
+      return pdfStream.ToArray();
+    }
+  }
+}</code></pre>
+
+<p>
+Хочу обратить внимание на определение baseFont и установки его в качестве деволтного шрифта для ITextHandler. Если данную процедуру не выполнить, тогда кирилика отображаться не будет. Данный подход позволяет отображать кириллику, но не дает нам возможности использовать несколько шрифтов в одному документе. В их коде (благо есть исходный код) они всегда берут codepage 1252 (прямо жестко зашито в код), потому, если вам необходимо будет использовать несколько шрифтов в одном документе, тогда исправляйте код и собирайте сами библиотеку, либо не используйте xml в качестве исходника данных (но не факт что проблема только в ITextHandler).</p>  
+
+<p>Еще очень сильно интересует, почему они классы иногда называют с буквы I, в c# так называют интерфейсы. Конечно, я понимаю, что библиотека портирована с java, но все же - меня это ввело сначала в ступор...</p>   
+
+<p>Последнее это вывод pdf документа в Responce страницы (если у вас ASP.NET приложение как у меня)</p>  
+
+<pre><code>protected override void OnLoad(EventArgs e)
+{
+  //Записываем в Response pdf файл, указываем его MIME тип и имя файла
+  HttpContext.Current.Response.Clear();
+  HttpContext.Current.Response.ContentType = "application/pdf";
+  HttpContext.Current.Response.AddHeader("Content-Disposition", string.Format("attachment;filename=\"{0}\"", "report.pdf"));
+  byte[] pdfRaw = GetPdfRaw();
+  HttpContext.Current.Response.OutputStream.Write(pdfRaw, 0, pdfRaw.Length);
+}</code></pre>
+<h4> Скачать пример:
+<a href="/library/content/01/ASPNETPdfSample.zip">ASPNETPdfSample.zip</a> (для работы примера необходимо так же скачать библиотеку itextsharp, пример использует версию 4.1.2.0)</h4>      
+
+<p>Ссылки по теме:</p>    
+
+<ul><li><a href="http://sourceforge.net/projects/itextsharp/">iTextSharp на SourceForge</a></li><li><a href="http://itextsharp.sourceforge.net/tutorial/">iTextSharp Tutorial</a></li><li><a href="http://itext.sourceforge.net/itext.dtd">iText.dtd</a> (xml схема)</li></ul>

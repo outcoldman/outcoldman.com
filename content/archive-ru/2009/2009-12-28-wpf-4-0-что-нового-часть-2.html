@@ -1,0 +1,41 @@
+---
+categories: ru
+date: "2009-12-28T12:03:00Z"
+redirect_from:
+- ru/blog/show/169/
+- ru/archive/2009/12/28/wpf-4-0-что-нового-часть-2-/
+tags:
+- .NET
+- .NET 4.0
+- WPF
+- WPF 4
+- Visual Studio 2010
+title: WPF 4.0. Что нового? Часть 2.
+slug: "wpf-4-0-что-нового-часть-2"
+---
+<p>В продолжении <a href="/ru/blog/show/168" target="_blank">статьи</a> о нововведениях в WPF 4.0. Так же хочу заметить, что появился <a href="http://habrahabr.ru/blogs/net/73633/" target="_blank">перевод</a> на русский язык статьи Скотта Гу о WPF4.</p>  <h2>Графика</h2>  <h2>Шейдеры</h2>  <p>Как и должно быть: новый WPF и поддержка новых шейдеров, теперь поддерживаются шейдеры версии 3.0, так что берем в руки класс <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.effects.shadereffect(VS.100).aspx" target="_blank">ShaderEffect</a>, изучаем и на примерах строим свои эффекты. Опять же, нужно не забывать, что существуют компьютеры и без поддержки шейдеров версии 3.0 – для этого введен дополнительный набор методов для определения версии шейдеров, поддерживаемых системой, в классе <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.rendercapability_members(VS.100).aspx" target="_blank">RenderCapability</a>. К сожалению, ни разу еще не писал никаких эффектов, вроде и не за чем было, но в будущем, думаю, нужно будет это исправить и попробовать что-то сделать интересного. В сети встречал достаточно примеров написанных эффектов, один из них был Grayscale эффект, который из цветной фотографии делал ч/б – использовали в проекте для toolbar’a – все иконки делали ч/б, и только при наведении они приобретали цвет (позаимствовали идею у Photoshop).</p>  <h2>Кеширование графики</h2>  <p>С графикой также связаны нововведения, которые позволят повысить производительность наших приложений. Теперь у класса <a href="http://msdn.microsoft.com/en-us/library/system.windows.uielement(VS.100).aspx" target="_blank">UIElement</a> есть свойство <a href="http://msdn.microsoft.com/en-us/library/system.windows.uielement.cachemode(VS.100).aspx" target="_blank">CacheMode</a>, которому мы можем установить объект типа <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.bitmapcache(VS.100).aspx" target="_blank">BitmapCache</a>. Полезно это будет, в основном, когда ваше приложение использует множество элементов, описанных декларативно при помощи Path, тогда вы можете задать кеш для этого элемента, с указанием масштаба при котором данный векторный рисунок прорендериться. Для пробы советую посмотреть пример на MSDN “<a href="http://msdn.microsoft.com/en-us/library/ee230083(VS.100).aspx" target="_blank">How to: Improve Rendering Performance by Caching an Element</a>”, где в векторе нарисована алюминиевая банка, у которой постоянно меняют масштаб. Основа этого примера в строках</p>  
+
+<pre><code>&lt;!-- //////////////////////////////////////////////////////////////// --&gt;
+&lt;!-- // The following XAML creates a BitmapCache with default      // --&gt;
+&lt;!-- // properties and assigns it as the CacheMode for the canvas. // --&gt;
+&lt;!-- //////////////////////////////////////////////////////////////// --&gt;
+&lt;Canvas.CacheMode&gt;
+    &lt;BitmapCache EnableClearType="False" 
+                 RenderAtScale="1" 
+                 SnapsToDevicePixels="False"  /&gt;
+&lt;/Canvas.CacheMode&gt;</code></pre>
+
+<p>Проще некуда, осталось только найти места в приложениях, где это может повысить производительность. Так же знакомимся с классом <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.bitmapcachebrush(VS.100).aspx" target="_blank">BitmapCacheBrush</a>, который также должен нам значительно повысить производительность приложения при должном использовании. Он нам понадобиться в случае, если мы какой-то элемент отображаем несколько раз в одном окне. Например, это может быть иконка в DataGridView: теперь ее один раз можно отрендерить, сделать кеш при помощи <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.bitmapcache(VS.100).aspx" target="_blank">BitmapCache</a> в ресурсах, а затем просто продублировать уже закешированную картинку при помощи <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.bitmapcachebrush(VS.100).aspx" target="_blank">BitmapCacheBrush</a>. Опять же, на MSDN есть хороший пример на эту тему “<a href="http://msdn.microsoft.com/en-us/library/ee230085(VS.100).aspx" target="_blank">How to: Use a Cached Element as a Brush</a>”. </p>
+
+<h2>Layout Rounding</h2>
+
+<p>Следующим нововведением в WPF является <a href="http://msdn.microsoft.com/en-us/library/system.windows.frameworkelement.uselayoutrounding(VS.100).aspx" target="_blank">LayoutRounding</a>. Новое в WPF, но уже старое в Silverlight. Осталось только почувствовать чем <a href="http://msdn.microsoft.com/en-us/library/system.windows.frameworkelement.uselayoutrounding(VS.100).aspx" target="_blank">UseLayoutRounding</a> лучше <a href="http://msdn.microsoft.com/en-us/library/system.windows.uielement.snapstodevicepixels(VS.100).aspx" target="_blank">SnapsToDevicePixels</a>. Чтобы прочувствовать различие, можно взять пример с линиями из MSDN и поиграться с ним, выставляя эти свойства поочередно в True и False. Есть подозрение, что UseLayoutRounding забивает SnapsToDevicePixels, так как при выставлении первого в True, изменение значения второго уже ни на что не влияет. Вообще идея двух этих свойств разная, но эффект иногда получается один и тот же, но мне кажется что в разработке лучше привязываться к Layout Rounding и использовать только его, он более интуитивно понятен. Вообще вот здесь <a href="http://blogs.msdn.com/text/archive/2009/08/27/layout-rounding.aspx" target="_blank">WPF Text Blog - Layout Rounding</a> хорошо описано как и когда его следует применять.</p>
+
+<h2>Новые функции для анимации</h2>
+
+<p>WPF 4 дополнили новым набором функций для анимации (посмотреть весь набор можно на MSDN – базовый класс <a href="http://msdn.microsoft.com/en-us/library/system.windows.media.animation.easingfunctionbase(VS.100).aspx" target="_blank">EasingFunctionBase</a>). Посмотреть весь набор функций для поведения можно на примере, приведенным тут - <a href="http://blogs.msdn.com/llobo/archive/2009/10/23/new-wpf-features-easing-functions.aspx" target="_blank">New WPF Features: Easing Functions</a>, напоминает огромный набор анимации в PowerPoint, главное использовать с умом. Насколько я понимаю – раз есть базовый класс, то можно, скорее всего, сделать и свою функцию.</p>
+
+<p>
+</p>
+
+

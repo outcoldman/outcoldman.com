@@ -1,0 +1,35 @@
+---
+categories: ru
+date: "2010-02-05T12:22:00Z"
+redirect_from: ru/blog/show/177/
+tags:
+- .NET
+- C#
+- Environment
+- Favorites
+title: Получить список избранных ссылок
+slug: "получить-список-избранных-ссылок"
+---
+<p>Следующий код выводит на экран список избранных ссылок в консоль. Код достаточно прост. Привожу здесь, чтобы иногда ссылаться с форумов, бывает всплывают подобные вопросы. </p>  <pre><code>const string urlConst = "URL=";
+// Путь до папки "избранное"
+string pathFavorites = Environment.GetFolderPath(Environment.SpecialFolder.Favorites);
+// Получаем список всех файлов, включая файлы в подпапках
+foreach (String favorite in Directory.GetFiles(pathFavorites, "*", SearchOption.AllDirectories)) 
+{
+    using(StreamReader file = new StreamReader(favorite))
+    {
+        while (!file.EndOfStream)
+        {
+            string line = file.ReadLine();
+           
+            if (line.StartsWith(urlConst))
+            {
+                string url = line.Substring(urlConst.Length);
+                string name = Path.GetFileNameWithoutExtension(favorite);
+                Console.WriteLine("NAME='{0}', URL = '{1}'", name, url);
+                break;
+            }
+        }
+    }
+}
+Console.ReadKey();</code></pre>

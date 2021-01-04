@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="01">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/WpfApplicationMenuSample.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/ASPNETPdfSample.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/WebApplicationZipSample.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/WPF_NavigationWindow.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/TwitterCloud 1.0 bin.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/sitemanager.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/ConsoleCompiler.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/LogSystem.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/TwitterIntegration.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/DZCSample.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/PerfomanceCounterChart.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/NHibernateTestConsoleApplication.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/TwitterCloud 1.0 src.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/CertificateWebExample.zip!/" />
+      <root url="jar://$PROJECT_DIR$/static/library/content/01/ExportToExcelTools.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

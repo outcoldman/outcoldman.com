@@ -1,0 +1,5 @@
+# www.robotstxt.org/
+
+User-agent: *
+
+Sitemap: https://www.outcoldman.com/sitemap.xml

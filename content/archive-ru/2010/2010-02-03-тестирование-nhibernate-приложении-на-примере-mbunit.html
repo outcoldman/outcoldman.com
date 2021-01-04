@@ -1,0 +1,354 @@
+---
+categories: ru
+date: "2010-02-03T12:22:00Z"
+redirect_from:
+- ru/blog/show/173/
+- ru/archive/2010/02/03/тестирование-nhibernate-приложений-на-примере-mbunit/
+tags:
+- .NET
+- C#
+- MbUnit
+- NHibernate
+- TDD
+- Test
+- ORM
+title: Тестирование NHibernate приложений на примере MbUnit
+slug: "тестирование-nhibernate-приложении-на-примере-mbunit"
+---
+<p>Несколько раз встречал подобный вопрос: как тестировать приложения, использующие ORM <a href="https://www.hibernate.org/343.html">NHibernate</a>, точнее встречал проблемы с тестированием на форумах <a href="http://www.gotdotnet.ru/">GotDotNet</a>. Для меня проблема не очень понятна, вроде всегда было все просто. Но все же опишу небольшой пост об этом, чтобы в будущем можно было ссылаться на него.</p>
+
+<p>NHibernate предоставляет нам несколько возможностей хранить конфигурацию. Одна из таких возможностей – это конфигурировать все на лету, а именно в коде приложения. В этом случае мы можем создать свой класс Configuration, отнаследовать его от класса Configuration NHibernate и внести необходимую логику по конфигурации приложения, выглядеть это будет примерно так:</p>
+
+<pre><code>public class Configuration : global::NHibernate.Cfg.Configuration
+{
+    #region Singleton
+ 
+    private static readonly object _locker = new object();
+ 
+    private static Configuration _config;
+    private static ISessionFactory _factory;
+ 
+    /// &lt;summary&gt;
+    /// Thread safe current NHibernate configuration
+    /// &lt;/summary&gt;
+    public static Configuration Current
+    {
+        get
+        {
+            if (_config == null)
+            {
+                lock (_locker)
+                {
+                    if (_config == null)
+                    {
+                        CreateConfiguration();
+                    }
+                }
+            }
+ 
+            return _config;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Create Configuration of NHibernate
+    /// &lt;/summary&gt;
+    public static void ReConfigurate()
+    {
+        if (_config != null)
+        {
+            lock (_locker)
+            {
+                if (_config != null)
+                {
+                    CreateConfiguration();
+                }
+            }
+        }
+    }
+ 
+    private static void CreateConfiguration()
+    {
+        _config = new Configuration();
+        _config.SetProperty(Environment.ConnectionProvider, typeof(DriverConnectionProvider).FullName);
+        _config.SetProperty(Environment.Dialect, typeof(MsSql2005Dialect).FullName);
+        _config.SetProperty(Environment.ConnectionString, GetConnectionString());
+        _config.SetProperty(Environment.Isolation, "ReadCommitted");
+        _config.SetProperty(Environment.CommandTimeout, "600");
+        _config.SetProperty(Environment.MaxFetchDepth, "4");
+        _config.SetProperty(Environment.ProxyFactoryFactoryClass,
+                            "NHibernate.ByteCode.Castle.ProxyFactoryFactory, NHibernate.ByteCode.Castle");
+        _factory = null;
+    }
+ 
+    /// &lt;summary&gt;
+    /// Thread safe NHibernate Session Factory
+    /// &lt;/summary&gt;
+    public static ISessionFactory Factory
+    {
+        get
+        {
+            if (_factory == null)
+            {
+                lock (_locker)
+                {
+                    if (_factory == null)
+                    {
+                        _factory = Current.BuildSessionFactory();
+                    }
+                }
+            }
+            return _factory;
+        }
+    }
+    #endregion
+ 
+    private static string GetConnectionString()
+    {
+        return ConfigurationManager.ConnectionStrings["Main"].ConnectionString; 
+    }
+}</code></pre>
+
+
+<p>Основная информация инициализируется в методе CreateConfiguration, который устанавливает тип базы данных, провайдера, тип изоляции и некоторые другие основные параметры. Согласитесь, что вряд ли вы будете эти параметры менять раз в неделю? В большинстве случаев они устанавливаются при первом создании проекта, и, более того, часто бывает, что эти параметры просто копируют из предыдущих приложений. Единственное, что меняется часто – это ConnectionString, получение которого я вынес в отдельный метод.</p>
+
+<p>Для тестирования создадим простейшую бизнес модель, состоящую из одного класса User:</p>
+
+<pre><code>public class User
+{
+    public virtual int Id { get; set; }
+    public virtual string Name { get; set; }
+    public virtual string Surname { get; set; }
+}</code></pre>
+
+<p>Маппинг этого класса будет выглядеть так:</p>
+
+<pre><code>&lt;class name="User" table="[User]" &gt;
+    &lt;id name="Id" unsaved-value="0"&gt;
+        &lt;generator class="identity"/&gt;
+    &lt;/id&gt;
+    &lt;property name="Name" type="String"/&gt;
+    &lt;property name="Surname" type="String"/&gt;
+&lt;/class&gt;</code></pre>
+
+<p>Для работы с сессиями создадим класс DataContext (название позаимствовал из Linq-to-SQL) следующего вида:</p>
+
+<pre><code>/// &lt;summary&gt;
+/// Context for work with NHibernate Sessions
+/// &lt;/summary&gt;
+public class DataContext : IDisposable
+{
+    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+ 
+    /// &lt;summary&gt;
+    /// Create new context and open session
+    /// &lt;/summary&gt;
+    public DataContext()
+    {
+        OpenSession();
+    }
+ 
+    /// &lt;summary&gt;
+    /// Create new context and open session
+    /// &lt;/summary&gt;
+    /// &lt;param name="fBeginTransaction"&gt;need to begin transaction&lt;/param&gt;
+    public DataContext(bool fBeginTransaction)
+    {
+        OpenSession();
+        if (fBeginTransaction)
+            BeginTransaction();
+    }
+ 
+    private ISession _session;
+    private ITransaction _transaction;
+ 
+    /// &lt;summary&gt;
+    /// Return current session
+    /// &lt;/summary&gt;
+    public ISession CurrentSession
+    {
+        get
+        {
+            try
+            {
+                OpenSession();
+            }
+            catch (HibernateException e)
+            {
+                Log.Error("Cannot open session", e);
+                throw;
+            }
+ 
+            return _session;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Open session if not opened before
+    /// &lt;/summary&gt;
+    public void OpenSession()
+    {
+        if (_session == null)
+        {
+            _session = Configuration.Factory.OpenSession();
+            _session.FlushMode = FlushMode.Commit;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Close session if it opened
+    /// &lt;/summary&gt;
+    public void CloseSession()
+    {
+        try
+        {
+            if (_session != null &amp;&amp; _session.IsOpen)
+            {
+                _session.Close();
+            }
+            _session = null;
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot close session", e);
+            throw;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Begin transaction if it not started before
+    /// &lt;/summary&gt;
+    public void BeginTransaction()
+    {
+        try
+        {
+            if (_transaction == null)
+            {
+                _transaction = CurrentSession.BeginTransaction();
+            }
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot begin transaction", e);
+            throw;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Commit current transaction if it opened
+    /// &lt;/summary&gt;
+    public void CommitTransaction()
+    {
+        try
+        {
+            if (_transaction != null &amp;&amp; !_transaction.WasCommitted &amp;&amp;
+                !_transaction.WasRolledBack)
+            {
+                _transaction.Commit();
+            }
+            _transaction = null;
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot commit transaction", e);
+            throw;
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Rollback current transaction
+    /// &lt;/summary&gt;
+    public void RollbackTransaction()
+    {
+        try
+        {
+            if (_transaction != null &amp;&amp; !_transaction.WasCommitted &amp;&amp;
+                !_transaction.WasRolledBack)
+                _transaction.Rollback();
+ 
+            _transaction = null;
+        }
+        catch (HibernateException e)
+        {
+            Log.Error("Cannot rollback transaction", e);
+            throw;
+        }
+        finally
+        {
+            CloseSession();
+        }
+    }
+ 
+    /// &lt;summary&gt;
+    /// Commit transaction if requied and close session
+    /// &lt;/summary&gt;
+    public void Dispose()
+    {
+        CommitTransaction();
+        CloseSession();
+    }
+}</code></pre>
+
+
+<p>Теперь у нас есть испытуемые, можно приступить к написанию тестов и самого приложения. Замечу, что все классы по работе с NHibernate и классы бизнес логики я положил в библиотеку <em>NHibernateTestConsoleApplication.Core</em>.</p>
+
+
+<p>Итак, создаем еще одну библиотеку <em>NHibernateTestConsoleApplication.Test</em>, в которой и напишем первый тест:</p>
+
+<pre><code>[TestFixture]
+public class UsersTest
+{
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+        Configuration.ReConfigurate();
+        Configuration.Current.AddAssembly(typeof (User).Assembly);
+    }
+ 
+    [Test]
+    public void UsersShouldBeSave()
+    {
+        using (DataContext dataContext = new DataContext(true))
+        {
+            User user = new User { Name = "User1_Name", Surname = "User1_Surname" };
+            dataContext.CurrentSession.Save(user);
+        }
+ 
+        IList&lt;User&gt; users;
+        using (DataContext dataContext = new DataContext())
+        {
+            users = dataContext.CurrentSession.CreateCriteria&lt;User&gt;()
+                .Add(Restrictions.Eq("Name", "User1_Name"))
+                .List&lt;User&gt;();
+        }
+ 
+        Assert.AreEqual(users.Count, 1);
+        Assert.AreEqual(users[0].Surname, "User1_Surname");
+ 
+        using (DataContext dataContext = new DataContext(true))
+        {
+            dataContext.CurrentSession.Delete(users[0]);
+        }
+    }
+}</code></pre>
+
+<p>Метод TestFixtureSetUp конфигурирует NHibernate, а так же добавляет все маппинги из библиотеки, в которой находится тип User. UsersShouldBeSave – обычный метод для тестирования логики над пользователями (вообще лучше этот метод разбить на несколько), но для нас важна не эта тема. Так как мы написали метод <em>GetConnectionString</em> в Configuration так, что он обращается к конфигурации app.config, то мы можем просто добавить такой файл к библиотеке <em>NHibernateTestConsoleApplication.Test </em>следующего содержания:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;configuration&gt;
+    &lt;connectionStrings&gt;
+        &lt;add name="Main" connectionString="user id=XXX; password=XXX; server=(local); database=XXX;" providerName="System.Data.SqlClient" /&gt;
+    &lt;/connectionStrings&gt;
+&lt;/configuration&gt;</code></pre>
+
+<p>Это самая простейшая конфигурация проекта с использованием NHibernate для тестирования. Чем он хорош – это тем, что у вас всего лишь одна конфигурация на все проекты – основной проект – программы и проект для тестирования. И в случае, если в будущем вы поставите другой timeout в приложении, то тесты будут работать на той же настройке. Чем этот метод конфигурирования плох, если что то хочется поменять в настройке – нужно будет пересобирать проект, отчасти это лечится тем, что некоторые параметры так же как ConnectionString можно вынести в настройки в app.config и иметь какие-то дефолтные значения в случае, если эти настройки не выставлены в app.config. </p>
+
+<p>Так же можно вынести все настройки в app.config и считывать их оттуда. Вариант плох тем, что эти настройки нужно будет синхронизировать между приложениями (тестовым и основным). Так же можно хранить конфигурацию в файле nhibernate.cfg.xml, но вот как раз с этим вариантом будут проблемы с тестированием, так как Domain тестируемого приложения будет находится в корневой папке Visual Studio, а не в папке bin вашего приложения, потому вы будете испытывать трудности в том, чтобы разместить этот файл настройки в необходимый каталог. </p>
+
+<h4>Скачать пример: <a href="/library/content/01/NHibernateTestConsoleApplication.zip">NHibernateTestConsoleApplication.zip</a></h4>
+
+
+<p>
+
+</p>
+

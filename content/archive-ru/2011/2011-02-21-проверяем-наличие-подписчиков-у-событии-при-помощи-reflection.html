@@ -1,0 +1,288 @@
+---
+categories: ru
+date: "2011-02-21T10:22:00Z"
+redirect_from:
+- ru/blog/show/274/
+- ru/archive/2011/02/21/проверяем-наличие-подписчиков-у-событий-при-помощи-reflection/
+tags:
+- Silverlight
+- .NET
+- WCF
+- Reflection
+title: Проверяем наличие подписчиков у событий при помощи Reflection
+slug: "проверяем-наличие-подписчиков-у-событии-при-помощи-reflection"
+---
+<p>Передо мной встала задача, нужно было бы собрать все события объекта и подписаться на них (подписать определенный метод), только в том случае, если на это событие не подписан кто-то еще. Я могу даже больше сказать, делал я это для классов-оберток, которые генерирует Visual Studio на Add Reference Service…. Используем мы их по стандартному, как и все, наверное. Используем в коде не сами классы-обертки, которые генерирует Visual Studio, а используем свои реализации, которые нам предоставляют возможность тестировать наши модели, подставляя Mock и Stub объекты вместо самих реализаций. Давайте лучше покажу на примере. </p>  <p>Заголовок для этой заметки достаточно сложно было придумать. Проверка наличия подписчиков – это все-таки малая сердцевина того, что я тут описываю, но я думаю это просто самая интересная часть. В целом, я тут описываю вариант обработки результатов от методов сервисов в Silverlight приложении. </p>    <p>Пускай на сервере есть самый обычный WCF Service, в котором есть всего один метод:</p>  <pre><code>public class MyService : IMyService
+{    public bool DoWork(string str)
+    {        throw new NotImplementedException();
+    }
+}
+</code></pre>
+
+<p>В Silverlight проекте мы сделаем Reference на этот сервис. Visual Studio сгенерирует нам класс обертку. Напишем небольшой базовый метод для всех клиентских классов-оберток для сервисов:</p>
+
+<pre><code>public abstract class ServiceBase&lt;TClient&gt; where TClient : class, new()
+{    protected ServiceBase()
+    {        Client = new TClient();
+    }
+&#160;    public TClient Client { get; set; }
+&#160;    protected void ProcessResult&lt;T&gt;(AsyncCompletedEventArgs eventArgs, T result)
+    {        Action&lt;AsyncResult&lt;T&gt;&gt; action = eventArgs.UserState as Action&lt;AsyncResult&lt;T&gt;&gt;;
+&#160;        if (action == null)
+            throw new NotSupportedException(&quot;Unexpected type in UserState.&quot;);
+&#160;        action(new AsyncResult&lt;T&gt;() { Result = result });
+    }
+&#160;    protected void ProcessResult(AsyncCompletedEventArgs eventArgs)
+    {        Action&lt;AsyncResult&gt; actionVoidResponce = eventArgs.UserState as Action&lt;AsyncResult&gt;;
+&#160;        if (actionVoidResponce == null)
+            throw new NotSupportedException(&quot;Unexpected type in UserState.&quot;);
+        actionVoidResponce(new AsyncResult());
+    }
+&#160;    protected void ProcessError&lt;T&gt;(AsyncCompletedEventArgs eventArgs)
+    {        Action&lt;AsyncResult&lt;T&gt;&gt; action = eventArgs.UserState as Action&lt;AsyncResult&lt;T&gt;&gt;;
+&#160;        if (action == null)
+            throw new NotSupportedException(&quot;Unexpected type in UserState.&quot;);
+&#160;        action(new AsyncResult&lt;T&gt;() { Exception = eventArgs.Error });
+    }
+&#160;    protected void ProcessError(AsyncCompletedEventArgs eventArgs)
+    {        Action&lt;AsyncResult&gt; actionVoidResponce = eventArgs.UserState as Action&lt;AsyncResult&gt;;
+&#160;        if (actionVoidResponce == null)
+            throw new NotSupportedException(&quot;Unexpected type in UserState.&quot;);
+&#160;        actionVoidResponce(new AsyncResult() { Exception = eventArgs.Error });
+    }
+}
+</code></pre>
+
+<p>Где AsyncResult – это небольшой класс, при помощи которого мы будем передавать результат выполнения метода:</p>
+
+<pre><code>public class AsyncResult&lt;T&gt; : AsyncResult
+{    public T Result { get; set; }
+}
+&#160;public class AsyncResult
+{    public bool IsFault
+    {        get { return Exception != null; }
+    }
+&#160;    public Exception Exception { get; set; }
+}
+</code></pre>
+
+<p>Ну и теперь наш пример MyService, для него сделаем интерфейс IMyServiceProxy и класс MyServiceProxy, который реализует этот интерфейс:</p>
+
+<pre><code>public interface IMyServiceProxy
+{    void DoWorkAsync(string str, Action&lt;AsyncResult&lt;bool&gt;&gt; callback);
+}
+&#160;public class MyServiceProxy : ServiceBase&lt;MyServiceClient.MyServiceClient&gt;, IMyServiceProxy
+{    public MyServiceProxy()
+    {
+        Client.DoWorkCompleted += ClientDoWorkCompleted;
+    }    public void DoWorkAsync(string str, Action&lt;AsyncResult&lt;bool&gt;&gt; callback)
+    {
+        Client.DoWorkAsync(str, callback);
+    }
+&#160;    void ClientDoWorkCompleted(object sender, DoWorkCompletedEventArgs e)
+    {        if (e.Error != null)
+        {            ProcessError&lt;bool&gt;(e);
+        }        else
+        {            ProcessResult&lt;bool&gt;(e, e.Result);
+        }
+    }
+}
+</code></pre>
+
+<p>У каждого асинхронного вызова метода есть возможность передавать userState, переменную любого типа (object), обычно куда все и передают callback функцию, этим мы и воспользовались. Дальше очень просто используется эта реализация:</p>
+
+<pre><code>private void Button_Click(object sender, RoutedEventArgs e)
+{
+    IMyServiceProxy proxy = IoC.Instance.Resolve&lt;IMyServiceProxy&gt;();    proxy.DoWorkAsync(&quot;Test&quot;, (result) =&gt;
+                                  {                                      if (result.IsFault)
+                                      {                                          MessageBox.Show(&quot;Fault&quot;);
+                                      }                                      else
+                                      {
+                                        MessageBox.Show(result.Result.ToString());
+                                      }
+                                  });
+}
+</code></pre>
+
+<p>Соответственно в IoC реализация MyServiceProxy должна быть зарегистрирована для типа IMyServiceProxy.</p>
+
+<p>Но, у этого способа есть большие недостатки, необходимо на каждый метод сервиса писать метод-обертку Completed, причем она всегда одинаковая, за исключением того, что в аргументах разные типы у свойств Result. Иногда выставишь не верные generic параметры, причем если это ProcessError, то об этом может быть даже никогда и не узнаешь. У меня, соответственно, родилась идея, что было бы хорошо при помощи Reflection пройтись по классам оберткам, которые генерирует Visual Studio, собрать все события, и если подписки на это событие еще нет, тогда подписаться и выполнить тоже самое, что делает метод ClientDoWorkCompleted из примера. Проверять нет ли подписок я решил потому, что иногда, в некоторых случаях своя реализация для Completed все-таки нужна. </p>
+
+<p>Итак, начал я разбираться (заодно и в твиттере <a href="http://twitter.com/outcoldman/status/32385889942376448">озвучил</a> проблему, услышал несколько “никак”, но не сдался), как можно проверить есть ли подписчики у события, если мы пишем внутри класса, у которого есть событие, то сделать это достаточно просто:</p>
+
+<pre><code>public class Foo
+{    public event Action FooEvent;
+&#160;    public bool HaSubscribers()
+    {        return FooEvent == null;
+    }
+}
+</code></pre>
+
+<p>А вот если вне его, то проверить так нельзя:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="Method" border="0" alt="Method" src="/library/2011/02/06/Method_271E9A85.png" width="753" height="87" /></p>
+
+<p>Что ж, нужно посмотреть через Reflector и разобраться, что к чему:</p>
+
+<p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px; padding-top: 0px" title="reflector" border="0" alt="reflector" src="/library/2011/02/06/reflector_25F98B99.png" width="232" height="221" /></p>
+
+<p>Ага, дальше можно и не изучать, все понятно. Генерируется свойство и поле. Вот для того, чтобы узнать есть ли подписчики, нужно обратиться к полю. Как оказалось, в .NET это сделать очень просто при помощи Reflection:</p>
+
+<pre><code>Foo foo = new Foo();
+&#160;var eventInfo = foo.GetType().GetField(&quot;FooEvent&quot;, BindingFlags.Instance | BindingFlags.NonPublic);
+&#160;Console.WriteLine(eventInfo.GetValue(foo) == null);
+&#160;foo.FooEvent += () =&gt; Console.WriteLine(&quot;boom!&quot;);
+&#160;Console.WriteLine(eventInfo.GetValue(foo) == null);
+</code></pre>
+
+<p>Чуть позже того, как я нашел решение, получил <a href="http://twitter.com/controlflow/status/32399188843040768">ответ</a> и в твиттере к своему вопросу (кстати, у <a href="http://twitter.com/controlflow">@controlflow</a> достаточно интересный <a href="http://controlflow.tumblr.com/">блог</a>). Но как оказалось с Silverlight такой фокус не пройдет, там более жесткий security по отношению к Reflection, и обращаться так просто к private полям и методам <a href="http://msdn.microsoft.com/en-us/library/stfy7tfc(VS.95).aspx">не разрешено</a>. Погуглил и набрел на статью <a href="http://blogs.infosupport.com/blogs/willemm/archive/2009/02/02/Accessing-private-methods-in-silverlight.aspx">Accessing private methods in silverlight</a>, как оказалось вызывать private свойства и методы возможно, но только через DynamicMethod (на MSDN даже есть <a href="http://msdn.microsoft.com/en-us/library/ms228976(VS.95).aspx">пример</a>, как это сделать). Пока я гуглил и пытался реализовать это в Silverlight, <a href="http://twitter.com/controlflow">@controlflow</a> опередил меня и предоставил <a href="http://twitter.com/controlflow/status/32404444360478720">решение для Silverlight</a> (Кто спрашивал зачем нужен твиттер?). В общем, идею получил, приступил к реализации. Для того, чтобы не завязываться на имена методов через строки, я решил написать также MethodExtract метод, который из лямбда выражения мог бы вырывать MethodInfo, получилось очень просто:</p>
+
+<pre><code>public static class MethodSupport
+{    public static MethodInfo ExtractMethod&lt;T&gt;(Expression&lt;T&gt; methodExpression)
+    {        if (methodExpression == null)
+            throw new ArgumentNullException(&quot;methodExpression&quot;);
+&#160;        MethodCallExpression methodCallExpression = methodExpression.Body as MethodCallExpression;
+&#160;        if (methodCallExpression == null)
+            throw new ArgumentException(@&quot;Parameter should be a method call expression&quot;, &quot;methodExpression&quot;);
+&#160;
+        MethodInfo methodInfo = methodCallExpression.Method;        if (methodInfo.IsGenericMethod &amp;&amp; !methodInfo.IsGenericMethodDefinition)
+            methodInfo = methodInfo.GetGenericMethodDefinition();
+&#160;        return methodInfo;
+    }
+}
+</code></pre>
+
+<p>Причем, так как у меня часто используются generic методы, то я добавил проверку и на этот случай. В methodExpression лямбда выражение приходит с конкретной реализацией generic метода, то есть все типы уже определены, но мне необходимо было получить именно определения generic методов (GetGenericMethodDefinition()), чтобы на их основе сделать методы с другими определениями типов. </p>
+
+<p>Так же я написал класс EventSupport, у которого есть два метода, первый проверяет наличие подписчиков, второй подписывает на определенный eventInfo определенный methodInfo:</p>
+
+<pre><code>public static class EventSupport
+{    public static bool IsEventFieldIsNull(object obj, EventInfo eventInfo)
+    {        if (obj == null)
+            throw new ArgumentNullException(&quot;obj&quot;);
+&#160;        if (eventInfo == null)
+            throw new ArgumentNullException(&quot;eventInfo&quot;);
+&#160;
+        Type type = obj.GetType();
+&#160;
+        FieldInfo delegField = type.GetField(eventInfo.Name, BindingFlags.NonPublic | BindingFlags.Instance);
+&#160;        if (delegField == null)
+            throw new NotSupportedException(string.Format(&quot;Can't get field for current event '{0}'.&quot;, eventInfo));
+&#160;        Expression body = Expression.Equal(Expression.Field(Expression.Constant(obj), delegField), Expression.Constant(null));
+&#160;        Func&lt;bool&gt; getter = Expression.Lambda&lt;Func&lt;bool&gt;&gt;(body).Compile();
+&#160;        return getter();
+    }
+&#160;    public static void Subscribe(object sender, EventInfo eventInfo, object receiver, MethodInfo methodInfo)
+    {        if (sender == null)
+            throw new ArgumentNullException(&quot;sender&quot;);
+&#160;        if (eventInfo == null)
+            throw new ArgumentNullException(&quot;eventInfo&quot;);
+&#160;        if (receiver == null)
+            throw new ArgumentNullException(&quot;receiver&quot;);
+&#160;        if (methodInfo == null)
+            throw new ArgumentNullException(&quot;methodInfo&quot;);
+&#160;
+        Type handlerType = eventInfo.EventHandlerType;
+&#160;        ParameterInfo[] eventParams = handlerType.GetMethod(&quot;Invoke&quot;).GetParameters();
+        ParameterExpression[] parameters = eventParams.Select(p =&gt; Expression.Parameter(p.ParameterType)).ToArray();
+&#160;
+        Expression body = Expression.Call(Expression.Constant(receiver), methodInfo, parameters);
+        Delegate compiledMethod = Expression.Lambda(body, parameters).Compile();
+&#160;        Delegate handler = Delegate.CreateDelegate(handlerType, compiledMethod, &quot;Invoke&quot;, false);
+        eventInfo.AddEventHandler(sender, handler);
+    }
+}
+</code></pre>
+
+<p>Для начала рассмотрим метод IsEventFieldIsNull (проверка на подписчиков), мы берем FieldInfo у типа объекта с именем полностью совпадающим с EventInfo (так делает .NET), затем при помощи Expression мы описываем метод, вроде <em>bool Expression() { return obj.eventInfoField == null; }</em>: у константы, нашего obj (<em>Expression.Constant(obj)</em>), обращаемся к полю, которое взяли до этого, и сравниваем это значение с константой null. Компилируем метод и вызываем. </p>
+
+<p>Второй метод Subscribe немного посложнее, и сделал я его только потому, что захотелось иметь внешний метод Subscribe, а в случае, если у нас MethodInfo опять имеет уровень доступа private/protected (или даже internal), то чтобы нам к нему иметь доступ, нам нужно так же использовать DynamicMethod, на этот раз мы создаем метод, в который передаются параметры, такие как определены у типа делегата Event, и соответственно вызываем этот MethodInfo с этими параметрами внутри нашего метода, ну и подписываем наш новый метод на событие. </p>
+
+<p>Переходим теперь к реализации, которая у нас будет в базовом классе ServiceBase&lt;TClient&gt;. Я туда добавил два поля:</p>
+
+<pre><code>private readonly MethodInfo _mInfoProcessResult;
+private readonly MethodInfo _mInfoProcessError;
+</code></pre>
+
+<p>Это информация о методах ProcessResult&lt;T&gt; и ProcessError&lt;T&gt; (просто чтобы не искать их на каждый вызов),&#160; ну и добавил в конструктор инициализацию этих полей при помощи описанного выше ExtractMethod метода:</p>
+
+<pre><code>_mInfoProcessResult =    MethodSupport.ExtractMethod&lt;Action&lt;AsyncCompletedEventArgs, object&gt;&gt;((args, obj) =&gt; ProcessResult&lt;object&gt;(args, obj));
+_mInfoProcessError =    MethodSupport.ExtractMethod&lt;Action&lt;AsyncCompletedEventArgs&gt;&gt;((args) =&gt; ProcessError&lt;object&gt;(args));
+</code></pre>
+
+<p>Дальше пишу метод, который берет все события (фильтрует по имени, заканчивающимся на Completed, исключая Open и Close Completed) и подписывается:</p>
+
+<pre><code>protected void SubscribeEventHandlers()
+{
+    MethodInfo mInfoCompletedMethod =        MethodSupport.ExtractMethod&lt;Action&lt;object, AsyncCompletedEventArgs&gt;&gt;((obj, args) =&gt; OnCompletedHandler(obj, args));
+&#160;
+    Type clientType = Client.GetType();    foreach (var eventInfo in clientType.GetEvents().Where(x =&gt; x.Name.EndsWith(&quot;Completed&quot;) &amp;&amp; x.Name != &quot;OpenCompleted&quot; &amp;&amp; x.Name != &quot;CloseCompleted&quot;))
+    {        if (EventSupport.IsEventFieldIsNull(Client, eventInfo))
+        {            EventSupport.Subscribe(Client, eventInfo, this, mInfoCompletedMethod);
+        }
+    }
+}
+</code></pre>
+
+<p>В самом начале метода беру информацию о методе OnCompletedHandler, который и будет у меня все обрабатывать:</p>
+
+<pre><code>protected void OnCompletedHandler(object sender, AsyncCompletedEventArgs eventArgs)
+{
+    Type eventArgsType = eventArgs.GetType();
+&#160;    if (eventArgs.UserState != null)
+    {
+        Type userStateType = eventArgs.UserState.GetType();
+&#160;        if (!userStateType.IsGenericType
+            || userStateType.GetGenericTypeDefinition() != typeof(Action&lt;&gt;)
+            || userStateType.GetGenericArguments().Length != 1)
+        {            throw new NotSupportedException(&quot;UserState should be null or Action&lt;AsyncResult&lt;T&gt;&gt; or Action&lt;AsyncResult&gt;.&quot;);
+        }
+&#160;
+        Type asyncResponceType = userStateType.GetGenericArguments()[0];
+&#160;        PropertyInfo propertyInfo = eventArgsType.GetProperty(&quot;Result&quot;);
+&#160;        //It is Void Response
+        if (asyncResponceType == typeof(AsyncResult))
+        {            if (propertyInfo != null)
+                throw new NotSupportedException(&quot;Call void response for response with defined Result type.&quot;);
+&#160;            if (eventArgs.Error == null)
+                ProcessResult(eventArgs);            else
+                ProcessError(eventArgs);
+        }        // Response with result
+        else
+        {            // Check that it is AsyncResult&lt;T&gt; type
+            if (!userStateType.IsGenericType
+            || asyncResponceType.GetGenericTypeDefinition() != typeof(AsyncResult&lt;&gt;)
+            || asyncResponceType.GetGenericArguments().Length != 1)
+            {                throw new NotSupportedException(&quot;UserState should be null or Action&lt;AsyncResult&lt;T&gt;&gt; or Action&lt;AsyncResult&gt;.&quot;);
+            }
+            
+            Type argument = asyncResponceType.GetGenericArguments()[0];
+&#160;            if (propertyInfo == null)
+                throw new NotSupportedException(&quot;Call not void response for response with void result.&quot;);
+&#160;            if (eventArgs.Error == null)
+            {                _mInfoProcessResult.MakeGenericMethod(argument).Invoke(this,
+                                                                       new[] {eventArgs, propertyInfo.GetValue(eventArgs, null)});
+            }            else
+            {                _mInfoProcessError.MakeGenericMethod(argument).Invoke(this, new object[] { eventArgs });
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>В этом методе мы сначала проверяем наличие UserState, затем проверяем, что это callback которого мы ожидаем (типа Action&lt;&gt;), дальше проверка, какой именно ответ мы ожидаем Void или с определенным результатом, если с Void то методы можно вызвать напрямую, а вот если с результатом, то опять проверяем что тип это Action&lt;AsyncResult&lt;T&gt;&gt;, берем этот тип T, строим при помощи его generic методы и вызываем определенный метод (ProcessResult или ProcessError). </p>
+
+<p>Ну а MyServiceProxy пример теперь переписывается очень просто:</p>
+
+<pre><code>public class MyServiceProxy : ServiceBase&lt;MyServiceClient.MyServiceClient&gt;, IMyServiceProxy
+{    public MyServiceProxy()
+    {
+        SubscribeEventHandlers();
+    }    public void DoWorkAsync(string str, Action&lt;AsyncResult&lt;bool&gt;&gt; callback)
+    {
+        Client.DoWorkAsync(str, callback);
+    }
+}
+</code></pre>
+
+<p>Вот и все. Если хочется иметь все-таки какую-то специальную обработку на Completed, то нужно просто перед вызовом метода SubscribeEventHandlers произвести ее. Пример со всем исходным кодом как всегда можно скачать с <a href="https://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SlSubscribeOnCompleted?rev=13">assembla</a>. </p>

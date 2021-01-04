@@ -1,0 +1,68 @@
+---
+categories: ru
+date: "2010-08-12T18:56:00Z"
+redirect_from: ru/blog/show/212/
+tags:
+- Silverlight
+- .NET
+- C#
+- Internet Explorer 8
+- PDF
+- Reports
+- WCF
+- RESTful
+- FireFox
+title: RESTful WCF Service - Узнаем версию браузера в методе сервиса
+slug: "restful-wcf-service-узнаем-версию-браузера-в-методе-сервиса"
+---
+<p>Сначала опишу задачу, которую мы решали в нашем проекте. У нас есть Silverlight клиентская часть и серверная часть, состоящая из набора WCF сервисов. Причем задумка у нас такая, что изначально мы разрабатываем эти сервисы с возможностью хостинга их вне веб-сервера, потому ASP.NET Compatible mode у нас отключен (зачем я так и не понял, ведь реально инсталлируем всегда на веб-сервер, ну усложнили себе жизнь - пускай). Следовательно, до значения HttpContext.Current нам никак не добраться из методов WCF сервисов. Один из WCF сервисов – это <a href="http://msdn.microsoft.com/en-us/magazine/dd315413.aspx">RESTful сервис</a>, который отдает файлы (отчеты), то есть умеет обрабатывать GET запросы, все по стандартному:</p>
+
+<pre><code>WebOperationContext context = WebOperationContext.Current;
+context.OutgoingResponse.ContentLength = reportBytes.Length;context.OutgoingResponse.ContentType = &quot;application/pdf&quot;;
+context.OutgoingResponse.Headers.Set(&quot;content-disposition&quot;, &quot;attachment;filename=&quot; + fileName);
+</code></pre>
+
+<p>Но тут у нас возникала проблема. Имена файлов содержат пробелы, и разные браузеры обрабатывают их по-разному. Первая проблема: если filename содержит имя вроде “filename with spaces.pdf”, то FireFox нам покажет только filename, решается она просто, нужно имя файла заключить в кавычки (уже в который раз пишешь один и тот же код, а все равно можно напороться на уже известную проблему):</p>
+
+<pre><code>context.OutgoingResponse.Headers.Set(&quot;content-disposition&quot;, &quot;attachment;filename=\&quot;&quot; + fileName + &quot;\&quot;&quot;);
+</code></pre>
+
+<p>А вот Internet Explorer 8 обрабатывает по-другому, он заменяет пробелы на ‘_’. В голову сразу пришла идея </p>
+
+<pre><code>filename = HttpUtility.UrlPathEncode(filename);
+</code></pre>
+
+<p>Теперь вместо “filename with spaces.pdf” на сервере в переменной filename мы имеем “filename%20with%20spaces.pdf” и Internet Explorer теперь сохраняет файл с тем именем что нужно (с пробелами), а вот FireFox наоборот оставляет %20 вместо пробелов. Решил найти способ, как определить какой браузер использует пользователь:</p>
+
+<pre><code>private bool IsInternetExplorer()
+{
+  WebOperationContext context = WebOperationContext.Current;  if (context != null)
+  {    string userAgentInfo = context.IncomingRequest.Headers[&quot;User-Agent&quot;];
+    if (userAgentInfo != null)
+      return userAgentInfo.Contains(&quot;MSIE&quot;);
+  }  return false;
+}
+</code></pre>
+
+<p>А точнее сделал затычку именно для Internet Explorer:</p>
+
+<pre><code>if (IsInternetExplorer())
+  filename = HttpUtility.UrlPathEncode(filename);
+</code></pre>
+
+<p>Удивило, что решение, как определить браузер я шустро не нашел в интернете, хотя знал, что ну должен быть способ найти user-agent строчку из запроса. Поначалу написал реализацию, которая использовала OperationContext:</p>
+
+<pre><code>private bool IsInternetExplorer()
+{
+  OperationContext context = OperationContext.Current;  HttpRequestMessageProperty httpRequest = context.IncomingMessageProperties[&quot;httpRequest&quot;] as HttpRequestMessageProperty;
+  if (httpRequest != null)
+  {    string userAgentInfo = httpRequest.Headers[&quot;User-Agent&quot;];
+    if (userAgentInfo != null)
+      return userAgentInfo.Contains(&quot;MSIE&quot;);
+  }  return false;
+}
+</code></pre>
+
+<p>Хорошо, что позже вспомнил про WebOperationContext, вообще в WCF все как-то ну не очень прозрачно. Постараюсь в будущем осилить эту тему посильнее, и может попробовать сдать сертификационный экзамен. </p>
+
+<p>Больше чем уверен, что <a href="http://force-net.com">Макс</a> скажет еще о каких-либо проблемах, который этот код еще содержит и как их решить, насколько я знаю – он с этими отдачами файлов в свое время очень намучался с подобной реализацией, правда на ASP.NET, но разницы-то нет.</p>

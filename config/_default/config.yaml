@@ -1,0 +1,12 @@
+baseURL: https://www.outcoldman.com
+title: outcoldman
+languageCode: en-us
+
+enableRobotsTXT: true
+disableKinds: ["taxonomy", "term"]
+enableGitInfo: true
+
+permalinks:
+  archive-en: /en/archive/:year/:month/:day/:slug/
+  archive-ru: /ru/archive/:year/:month/:day/:slug/
+  archive-cheatsheets: /cheatsheets/:filename/

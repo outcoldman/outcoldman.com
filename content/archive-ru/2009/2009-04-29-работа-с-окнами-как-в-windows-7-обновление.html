@@ -1,0 +1,104 @@
+---
+categories: ru
+date: "2009-04-29T19:47:00Z"
+redirect_from: ru/blog/show/141/
+tags:
+- WinForms
+- WinAPI
+- VistaKeysExtender
+title: 'Работа с окнами как в Windows 7: обновление'
+slug: "работа-с-окнами-как-в-windows-7-обновление"
+---
+<p>Программа для работы с окнами в Windows, идеи и удобства были позаимствованы из Windows 7. Программа позволяет при помощи горячих клавиш передвигать окно по экрану, размещать его в стадиях максимизации, обычного окна, а так же самое основное - размещать окна максимизированные на половину экрана. Работает с Vista и WinXP (как x86, так и x64).</p>  
+
+<p><a href="/library/images/01/0000004.png"><img width="320" height="200" border="0" src="/library/images/01/0000004.png" alt="" /></a> </p>
+
+<p>В новой версии программы исправлены некоторые ошибки:</p>   
+<p>а) Не минимизировались диалоговые окна (те, которые не могут менять размер).</p>  
+<p>б) Программа не работала с окном Google Chrome (об этом подробнее немного ниже).</p>
+<p> А так же основное добавлены <strong>возможности перемещения окна между экранами</strong>. </p>  
+<p>Скачать новую версию можно <a href="http://code.google.com/p/keysextender/downloads/list">отсюда</a>.</p>   
+
+<p>Сначала пару слов о проблеме с Chrome. Я ее не обнаружил. Версия хрома у меня 2.0.160.0, пробовал в Vista. Но все же я сделал <a href="http://code.google.com/p/keysextender/downloads/detail?name=VistaKeysExtender_r12 (chrome edition).zip">отдельную сборку</a>, в которой в методе проверке окна на IsResizableWindow добавил такую проверку</p> 
+
+<pre><code>StringBuilder sb = new StringBuilder(100);
+if (WAWindows.GetClassName(window, sb, sb.Capacity) != IntPtr.Zero
+ &amp;&amp; sb.ToString().StartsWith("Chrome_"))
+ return true;</code></pre>
+
+<p>Вроде должно работать.</p>   
+
+<p>Теперь о перемещении окна между экранами. Задача оказалась не такой уж сложной. Первое что нужно сделать, это определить на какой монитор все таки пользователь желает переместить окно, тут мне пришлось сделать в лоб, пробежаться по всем экранам, и те которые соприкасаются (сторона соприкосновения зависит от нажатой клавиши) туда и отслылать, вот код нахождения экрана:</p> 
+
+<pre><code>private static Screen GetScreenToMove(Screen screen, Keys keys)
+{
+  foreach (Screen scr in Screen.AllScreens)
+  {
+    if (!scr.Equals(screen))
+    {
+      switch (keys)
+      {
+        case Keys.Left:
+          if (scr.WorkingArea.Right == screen.WorkingArea.Left
+            &amp;&amp; scr.WorkingArea.Top == scr.WorkingArea.Top)
+            return scr;
+            break;
+        case Keys.Right:
+          if (scr.WorkingArea.Left == screen.WorkingArea.Right
+            &amp;&amp; scr.WorkingArea.Top == scr.WorkingArea.Top)
+            return scr;
+          break;
+        case Keys.Down:
+          if (scr.WorkingArea.Top == screen.WorkingArea.Bottom
+            &amp;&amp; scr.WorkingArea.Left == scr.WorkingArea.Left)
+            return scr;
+          break;
+        case Keys.Up:
+          if (scr.WorkingArea.Bottom == screen.WorkingArea.Top
+            &amp;&amp; scr.WorkingArea.Left == scr.WorkingArea.Left)
+            return scr;
+          break;
+      }
+    }
+  }
+  return null;
+}</code></pre>
+
+<p>
+Дальше же нужно просто отправить окно в выбранный экран, отправляю я окно с учетом пропорций, то есть: если окно занимало 50%&nbsp;от экрана, оно и на новом экране будет столько же занимать. </p>   <p>Но возникла проблема с FullScreen приложениями, а именно,&nbsp;если, к примеру, фильм развернуть на весь экран и попытаться перебросить это окно на другой экран - ничего не происходило, оказалось данное окно не определяется как имеющее WsSizeBox, потому пришлось их распозновать следующим способом (тут может кто то подскажет что то более граммотное):</p>   
+
+<pre><code>private static bool IsFullScreenWindow(WAWindows.Rect rect, Screen scr)
+{
+  return rect.Left == scr.Bounds.Left &amp;&amp; rect.Top == scr.Bounds.Top
+      &amp;&amp; rect.Width == scr.Bounds.Width &amp;&amp; rect.Height == scr.Bounds.Height;
+}</code></pre>
+
+<p>
+Еще один интересный факт, что когда я перемещал FullScreen окна по экранам, то в какой то момент они просто теряются, я понял, что окно остается на старом экране, а размеры и позиция я задаю ему нового экрана. Решение: при установлении размеров мне приходится сначала установить размеры на пару пикселей в ширину и в высоту меньше экрана (чтобы окно разполагалось точно только на этом экране),&nbsp;а потом восстанавливать до FullScreen размеров, выглядит это, примерно, так</p>   
+
+<pre><code>// Fix for full screen windows
+if (isFullScreenWindow)
+  WAWindows.SetWindowPos(window, WAWindows.HwndTop, x + 1, y + 1, cx - 2, cy - 2, WAWindows.SwpShowWindow);
+&nbsp;
+WAWindows.SetWindowPos(window, WAWindows.HwndTop, x, y, cx, cy, WAWindows.SwpShowWindow);</code></pre>
+
+<p>
+Еще один неприятный момент был, что когда окно на одном экране максимизированное, его перемещаем на другой экран, а потом восстанавливаем в Normal, то оно летит на предыдущий экран, потому как там его и максимизировали и окно запомнило тот размер и расположение, потому пришлось для таких случаев написать такой FIX:</p>  
+
+<pre><code>// Fixed problem with restore on other screen
+Screen newScreen = Screen.FromHandle(window);
+if (!newScreen.Equals(screen))
+{
+  if (WAWindows.GetWindowRect(window, out rect))
+    MoveToNewScreen(window, newScreen, screen, rect, isResizableWindow, false);
+}</code></pre>
+
+<p>Это вроде все неприятные моменты с которыми я столкнулся. Если есть предложения или замечания, то с удовольствием их выслушаю.</p>  
+
+<p>P.S. Мне еще приходило письмо с предложением и патчем от Andir R со следующими словами:</p>   
+
+<p><em>Добавил в неё возможность двойной максимизации. Суть следующая:</em></p>   
+<p><em>  1) При первоначальной максимизации (с помощью хоткея), окно не максимизируется, а изменяется до заданных размеров,</em></p>   
+<p><em>  2) Вторичная максимизация уже вызывает настоящую максимизацию. В обратном порядке действует аналогично. Зачем это нужно:  На широких мониторах с большим разрешением полная максимизация окна,  зачастую, не нужна совсем, но увеличивать окно до определённых  размеров всё равно приходится.</em></p>   
+
+<p>Мне показалась данная функциональность не настолько уж и необходимой, по крайней мере я ей пользоваться точно не буду, если нужна будет большинству народа, то включу ее как нибудь в свой проект. </p>

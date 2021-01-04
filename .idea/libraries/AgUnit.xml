@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="AgUnit">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/static/library/content/03/SlUnitTesting/AgUnit.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

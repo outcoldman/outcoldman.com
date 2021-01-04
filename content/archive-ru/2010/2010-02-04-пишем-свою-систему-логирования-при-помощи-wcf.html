@@ -1,0 +1,429 @@
+---
+categories: ru
+date: "2010-02-04T13:04:00Z"
+redirect_from: ru/blog/show/187/
+tags:
+- .NET
+- C#
+- WCF
+- MbUnit
+- Log System
+- RSA
+- Security
+title: Пишем свою систему логирования при помощи WCF
+slug: "пишем-свою-систему-логирования-при-помощи-wcf"
+---
+<p>Предположим у нас есть задание: написать систему логирования, которая в реальном времени отсылает логи слушателям, причем информация может быть конфиденциальная и нужно избежать возможности кражи информации. </p> <lj-cut>  <p>Первое правило, о котором нужно не забыть при написании системы логирования – это то, что система логирования не должна влиять на производительность основного приложения, либо влияние должно быть сведено к минимуму. Что можно использовать? Так как я подразумеваю, что слушатели могут быть удаленные, то можно использовать WCF для подключения. Для защиты информации сделаем следующее: при подключении клиента – клиент будет генерировать пару ключей RSA, и открытый ключ будет передавать на сервер. Сервер при помощи открытого ключа будет шифровать сообщение и отправлять клиенту, а так как закрытым ключом владеет только клиент, то и прочитать данное сообщение сможет только клиент. Для усовершенствования можно еще сделать так, чтобы при начале связи сервер генерировал пару ключей и отправлял клиенту открытый ключ, при помощи которого клиент будет шифровать свой открытый ключ (чтобы не было возможности подменить информацию клиенту). Есть другой вариант – использовать сертификаты при установки соединения, но это требует дополнительных затрат времени на развертывание.</p>  <p>Итак, опишем интерфейсы, которые будут использоваться в WCF соединении</p>  
+
+<pre><code>[ServiceContract(SessionMode = SessionMode.Required, 
+    CallbackContract = typeof(IWCFLoggerOutputCallback))]
+internal interface IWCFLoggerOutput
+{
+    [OperationContract(IsOneWay = true)]
+    void RegisterListener();
+ 
+    /// &lt;summary&gt;
+    ///  log with encrypt
+    /// &lt;/summary&gt;
+    /// &lt;param name="parameters"&gt;Send public key to encrypt&lt;/param&gt;
+    [OperationContract(IsOneWay = true)]
+    void RegisterSecureListener(RSAParameters parameters);
+ 
+    [OperationContract(IsOneWay = true, IsTerminating = true)]
+    void CloseChannel();
+}
+ 
+/// &lt;summary&gt;
+/// Support just unicode messages
+/// &lt;/summary&gt;
+internal interface IWCFLoggerOutputCallback
+{
+    [OperationContract(IsOneWay = true)]
+    void Log(byte[] message);
+}</code></pre>
+
+<p>Таким образом у нас будут клиентские методы для регистрации канала, один метод для незащищенного канала, один метод для регистрации защищенного канала с передачей открытого ключа, а так же интерфейс Callback – метод Log который будет вызываться на сервере для передачи логируемого сообщения. В нашем случае <a href="http://msdn.microsoft.com/en-us/library/system.servicemodel.servicecontractattribute.aspx">ServiceContract</a> как раз и определяет поведение соединения, что оно должно быть сессионным, а для Callback использоваться интерфейс IWCFLoggerOutputCallback. Дальше реализуем эти интерфейсы для клиентской части. Класс WCFClient </p>
+
+<pre><code>internal class WCFClient : DuplexClientBase&lt;IWCFLoggerOutput&gt;
+{
+    public IWCFLoggerOutputCallback Callback { get; set; }
+ 
+    public WCFClient(WCFListener listener, string endPoint)
+        : base(new InstanceContext(listener), ServiceHelper.GetDefaultBinding(), new EndpointAddress(endPoint))
+    {
+    }
+ 
+    public void RegisterListener()
+    {
+        Channel.RegisterListener();
+    }
+ 
+    public void RegisterListener(RSAParameters parameters)
+    {
+        Channel.RegisterSecureListener(parameters);
+    }
+ 
+    public void CloseChannel()
+    {
+        try
+        {
+            Channel.CloseChannel();
+        }
+        // TODO: Use log4net to log this exceptions
+        catch (Exception)
+        {
+            Abort();
+        }
+    }
+}
+ 
+public static class ServiceHelper
+{
+    // TODO: This should be customizing
+    public static Binding GetDefaultBinding()
+    {
+        return new NetTcpBinding();
+    }
+}</code></pre>
+
+<p>Использовать я буду обычный <a href="http://msdn.microsoft.com/en-us/library/system.servicemodel.nettcpbinding.aspx">NetTcpBinding</a> для соединения. Так же напишем класс WCFListener, который и будет являться основным классом для установления соединения с сервером:</p>
+
+<pre><code>public class WCFListener : IWCFLoggerOutputCallback, IDisposable
+{
+    private RSAParameters? RSAParameters { get; set; }
+    private WCFClient Client { get; set; }
+ 
+    /// &lt;summary&gt;
+    /// Create new Listener instance
+    /// &lt;/summary&gt;
+    /// &lt;param name="endPoint"&gt;Server url&lt;/param&gt;
+    /// &lt;param name="fSecurity"&gt;Need to open secury channel&lt;/param&gt;
+    public WCFListener(string endPoint, bool fSecurity)
+    {
+        Client = new WCFClient(this, endPoint);
+ 
+        if (fSecurity)
+        {
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+            {
+                RSAParameters = rsa.ExportParameters(true);
+                Client.RegisterListener(rsa.ExportParameters(false));
+            }
+        }
+        else
+        {
+            Client.RegisterListener();
+        }
+    }
+ 
+    public bool IsSecure
+    {
+        get { return RSAParameters.HasValue; }
+    }
+ 
+    // TODO: Change Action delegate to friendly name delegate
+    public event Action&lt;string&gt; Log;
+ 
+    void IWCFLoggerOutputCallback.Log(byte[] message)
+    {
+        if (IsSecure)
+        {
+            message = RSAHelper.Decrypt(message, RSAParameters.Value);
+        }
+ 
+        //TODO: customize encoding
+        string sMessage = Encoding.Unicode.GetString(message);
+ 
+        if (Log != null)
+            Log(sMessage);
+    }
+ 
+    public void Dispose()
+    {
+        Client.CloseChannel();
+        Client.Close();
+    }
+}</code></pre>
+
+<p>У нас теперь есть клиентская часть, осталось написать сервер, реализовав поведение вышеописанных интерфейсов:</p>
+
+<pre><code>[ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession
+    , ConcurrencyMode = ConcurrencyMode.Multiple)]
+internal class WCFLoggerOutputService : IWCFLoggerOutput
+{
+    private IWCFLoggerOutputCallback Listener { get; set; }
+    private RSAParameters? RSAParameters { get; set;}
+ 
+    public bool IsSecure
+    {
+        get { return RSAParameters.HasValue; }
+    }
+ 
+    public void RegisterListener()
+    {
+        Listener = OperationContext.Current.GetCallbackChannel&lt;IWCFLoggerOutputCallback&gt;();
+        WCFOutput.RegisterOnLog(Log);
+    }
+ 
+    public void RegisterSecureListener(RSAParameters parameters)
+    {
+        RSAParameters = parameters;
+        RegisterListener();
+    }
+ 
+    private bool Log(string message)
+    {
+        try
+        {
+            byte[] bData = Encoding.Unicode.GetBytes(message);
+            if (IsSecure)
+            {
+                bData = RSAHelper.Encrypt(bData, RSAParameters.Value);
+            }
+            Listener.Log(bData);
+ 
+            return true;
+        }
+        // TODO: log error with log4net
+        catch(Exception)
+        {
+            return false;
+        }
+    }
+ 
+    public void CloseChannel()
+    {
+        WCFOutput.UnRegisterOnLog(Log);
+    }
+}</code></pre>
+
+<p>Поведение класса WCFLogerOutputService очень простое, при регистрации канала он регистрирует свой метод Log в класс WCFOutput, который имеет уже более сложную логику:</p>
+
+<pre><code>internal class WCFOutput : IOutput, IDisposable
+{
+    private ServiceHost _host;
+ 
+    private object _stackLocker = new object();
+    private readonly Queue&lt;string&gt; _queue = new Queue&lt;string&gt;();
+    private readonly Timer _timer ;
+ 
+    private WCFOutput()
+    {
+        _timer = new Timer(OnTimerLogger);
+        LaunchTimer();
+    }
+    #region Static, singlton
+ 
+    private static readonly object _locker = new object();
+ 
+    private static WCFOutput _output;
+ 
+    public static IOutput GetOutput()
+    {
+        if (_output == null)
+        {
+            lock (_locker)
+            {
+                if (_output == null)
+                {
+                    _output = new WCFOutput();
+                    _output.OpenHost();
+                }
+            }
+        }
+        return _output;
+    }
+    #endregion
+ 
+    #region WCF implementation
+ 
+    ~WCFOutput()
+    {
+        Dispose();
+    }
+ 
+    public void Dispose()
+    {
+        CloseHost();
+    }
+    
+    private void OpenHost()
+    {
+        CloseHost();
+ 
+        _host = new ServiceHost(typeof(WCFLoggerOutputService));
+ 
+        // TODO: Url param must be customize
+        _host.AddServiceEndpoint(typeof(IWCFLoggerOutput), ServiceHelper.GetDefaultBinding()
+                                 , "net.tcp://localhost:2222/Logger/");
+        _host.Open();
+    }
+ 
+    private void CloseHost()
+    {
+        if (_host != null)
+        {
+            _host.Close();
+            _host = null;
+        }
+    }
+    #endregion
+ 
+    #region Register client listeners
+ 
+    private static object _eventLocker = new object();
+ 
+    public delegate bool LoggerAction(string message);
+ 
+    private static event LoggerAction OnLog;
+ 
+    public static void RegisterOnLog(LoggerAction action)
+    {
+        lock (_eventLocker)
+        {
+            OnLog += action;
+        }
+    }
+ 
+    public static void UnRegisterOnLog(LoggerAction action)
+    {
+        lock (_eventLocker)
+        {
+            OnLog -= action;
+        }
+    }
+    #endregion
+ 
+    #region IOutput interface
+ 
+    //TODO: Write thread safe queue with unlimited write and limited read
+    public void PutMessage(string msg)
+    {
+        lock (_stackLocker)
+        {
+            _queue.Enqueue(msg);
+        }
+    }
+    #endregion
+ 
+    private void OnTimerLogger(object obj)
+    {
+        while (ContainsLogs())
+        {
+            string msg = GetNextMsg();
+ 
+            lock (_eventLocker)
+            {
+                if (OnLog != null)
+                {
+                    IList&lt;LoggerAction&gt; badDelegates = new List&lt;LoggerAction&gt;();
+ 
+                    foreach (LoggerAction action in OnLog.GetInvocationList())
+                    {
+                        try
+                        {
+                            if (!action(msg))
+                            {
+                                badDelegates.Add(action);
+                            }
+                        }
+                        //TODO: use log4net to log this error
+                        catch (Exception)
+                        {
+                            badDelegates.Add(action);
+                        }
+                    }
+ 
+                    foreach (var action in badDelegates)
+                    {
+                        OnLog -= action;
+                    }
+                }
+            }
+        }
+ 
+        LaunchTimer();
+    }
+ 
+    private string GetNextMsg()
+    {
+        lock (_stackLocker)
+        {
+            return _queue.Dequeue();
+        }
+    }
+ 
+    private bool ContainsLogs()
+    {
+        lock (_stackLocker)
+        {
+            return _queue.Count &gt; 0;
+        }
+    }
+ 
+    private void LaunchTimer()
+    {
+        _timer.Change(100, Timeout.Infinite);
+    }
+}</code></pre>
+
+<p>На самом деле класс WCFOutput получился даже немного перегруженный. Итак, что же в нем есть? Для хранения сообщений для логирования я буду использовать <a href="http://msdn.microsoft.com/en-us/library/7977ey2c.aspx">Queue&lt;string&gt;</a> (очередь), так же реализую паттерн синглтон с этим классом, так как мне не нужно больше одного сервера логирования в приложении (#region Static, singlton). При создании экземпляра он будет открывать Host для прослушивания подключения клиентов (#region WCF implementation), там же зашит путь по которому он будет прослушивать. Дальше я реализовал event OnLog, к которому будут подключаться сессии клиентов, и которым будут передаваться сообщения. Метод PutMessage служит для того, чтобы класть сообщения в очередь лога. Именно, я захотел сразу сделать прототип так, чтобы логика отправки сообщений клиентам была в отдельном потоке, чтобы ни в коем случае не тормозить основной поток. И по таймеру вызывается метод OnTimerLogger, который берет сообщения из очереди и отправляет их клиентам, у меня сразу есть проверка на то, что сообщения отправляются, чтобы выкидывать отвалившихся клиентов. </p>
+
+<p>Так же у меня присутствует несколько Wrapper’ов с идей того, что систему WCF лога можно заменить на другую, без ковыряния уже использующую эту систему приложения. В результате напишем небольшой регрессионный тест:</p>
+
+<pre><code>static ILogger _logger;
+ 
+[TestFixtureSetUp]
+public void SetUpTests()
+{
+    _logger = LoggerFactory.GetLogger();
+}
+ 
+/// &lt;summary&gt;
+/// This test show that listener can work with many clients (one secure, other not secure)
+/// &lt;/summary&gt;
+[Test]
+public void many_listeners_with_secure()
+{
+    WCFListener[] listeners = new WCFListener[10];
+    for (int i = 0; i &lt; listeners.Length; i++)
+    {
+        listeners[i] = new WCFListener("net.tcp://localhost:2222/Logger/", i%2 == 1);
+        listeners[i].Log += big_test_listener_Log;
+    }
+ 
+    counter = 0;
+ 
+    _logger.Log("Big test");
+ 
+    Thread.Sleep(5000);
+ 
+    Assert.AreEqual(counter, listeners.Length);
+ 
+    for (int i = 0; i &lt; listeners.Length; i++)
+    {
+        listeners[i].Dispose();
+    }
+}
+ 
+public static int counter = 0;
+ 
+private object _lock = new object();
+ 
+void big_test_listener_Log(string obj)
+{
+    lock (_lock)
+    {
+        counter++;
+        Console.WriteLine(obj);
+    }
+}</code></pre>
+
+<p>В методе SetUpTests – инициализируем наш сервер логирования, в методе тестирования – создадим 10 слушателей (с шифрованием сообщений и без).</p>
+
+<h4>Скачать пример: <a href="/library/content/01/LogSystem.zip">LogSystem.zip</a>. Там находится библиотека-прототип, библиотека с тестами, а так же два консольных приложения – примеры сервера и клиента. </h4>
+
+<p><b>Важные замечания к этому прототипу которые нужно учесть при использовании:</b> <b>(а)</b> RSACryptoServiceProvider не лучший вариант для шифрования, взамен его лучше использовать DESCryptoServiceProvider или AESCryptoServiceProvider; <b>(б)</b> в WCF есть возможность использования SSL, потому иногда можно обеспечить безопасность на транспортном уровне, но это потребует временных затрат на разворачивание инфраструктуры, но в каких-то задачах - это будет лучшим решением; <b>(в)</b> были <a href="http://habrahabr.ru/blogs/net/84624/#comment_2524071">замечания</a> по поводу реализации паттерна синглтон, дело в том, что работать данная реализация будет нормально в CLR - .NET 2.0, проблемы могут быть на I64 архитектурах - тогда спасет volatile перед объявлением статической переменной, а так же могут быть проблемы в реализованном по стандарту ECMA CLR, есть вероятность, что это Mono. Лучшим вариантом тогда будет простая инициализация поля в объявлении.</p>
+<p>
+
+</p>

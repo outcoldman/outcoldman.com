@@ -1,0 +1,196 @@
+---
+categories: ru
+date: "2011-12-29T21:16:00Z"
+redirect_from: ru/blog/show/307/
+tags:
+- Silverlight
+- XAML
+- Expression Blend
+- Binding
+- Windows Phone 7
+- Behavior
+- Blend
+- Interactivity
+title: 'Windows Phone 7 Silverlight: Behaviors для TextBox'
+slug: "windows-phone-7-silverlight-behaviors-для-textbox"
+---
+<p>Термины Behaviors и Interactions ввели две библиотеки, поставляемые вместе с продуктом Expression Blend. Эти библиотеки еще известны со времен Silverlight и WPF, и предполагаю, что большинство разработчиков про них знает. Найти эти библиотеки можно в директории “c:\Program Files (x86)\Microsoft SDKs\Expression\Blend\” (если Windows 32 битный, то без (x86)), если Expression Blend был установлен. В этой папке вы сможете найти&#160; библиотеки для WPF/Silverlight/WindowsPhone. Зачем они нужны и как их правильно использовать вы можете узнать, пройдя по ссылки на MSDN <a href="http://msdn.microsoft.com/en-us/library/dd440765.aspx">Expression Blend SDK for Windows Phone</a>. Если кратко: это способ расширят функциональность контролов, да еще и так, чтобы поддерживался паттерн MVVM (байндинги и т.п.).&#160; </p>  <p>При разработке своего первого приложения мне потребовалось несколько Behaviors для TextBox, которыми я и хочу с вами поделиться.</p>    <h2>FocusOnLoadedBehavior</h2>  <p>Если вы откроете редактирование контакта, а далее одного из пунктов контакта, на Windows Phone телефоне, то приложение установит сразу же фокус на первый TextBox. Достаточно удобно, так как, скорее всего, это то, что вам действительно нужно: вы открыли редактирование контакта, и, скорее всего, вы сразу же захотите поменять что-то. Спорный немного вопрос нужно ли устанавливать фокус, если у вас более одного TextBox на этой странице, в случае редактирования имени контакта он устанавливается, но все же, может быть, я собираюсь редактировать информацию только в третьем TextBox. Но в целом идея понятная. Я написал следующий Behavior:</p>  <pre><code>/// &lt;summary&gt;
+/// UI Behavior to set focus to &lt;see cref=&quot;AssociatedObject&quot;/&gt; on loaded event.
+/// &lt;/summary&gt;
+public class FocusOnLoadedBehavior : Behavior&lt;Control&gt;
+{    public static readonly DependencyProperty SetFocusOnLoadedProperty =
+        DependencyProperty.Register(&quot;SetFocusOnLoaded&quot;, typeof(bool), typeof(FocusOnLoadedBehavior), new PropertyMetadata(true));
+&#160;    /// &lt;summary&gt;
+    /// Set focus to &lt;see cref=&quot;AssociatedObject&quot;/&gt; on loaded event. By default &lt;value&gt;true&lt;/value&gt;.
+    /// &lt;/summary&gt;
+    public bool SetFocusOnLoaded
+    {        get { return (bool)GetValue(SetFocusOnLoadedProperty); }
+        set { SetValue(SetFocusOnLoadedProperty, value); }
+    }
+&#160;    protected override void OnAttached()
+    {        base.OnAttached();
+&#160;
+        AssociatedObject.Loaded += AssociatedObject_Loaded;
+    }
+&#160;    protected override void OnDetaching()
+    {        base.OnDetaching();
+&#160;
+        AssociatedObject.Loaded -= AssociatedObject_Loaded;
+    }
+&#160;    void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+    {
+        AssociatedObject.Loaded -= AssociatedObject_Loaded;
+&#160;        if (SetFocusOnLoaded)
+        {
+            AssociatedObject.Focus();
+        }
+    }
+}
+</code></pre>
+
+<p>Все очень просто, добавляем этот Behavior для определенного TextBox на странице, и туда установится фокус при открытии страницы (на самом деле фокус устанавливается на Loaded событие контрола, а в случае добавления контролов в runtime – это будет именно Loaded контрола, а не страницы):</p>
+
+<pre><code>&lt;TextBox MaxLength=&quot;255&quot; Text=&quot;{Binding Path=DisplayName, Mode=TwoWay}&quot; 
+     xmlns:interactivity=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;
+     xmlns:oBehaviors=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;&gt;
+    &lt;interactivity:Interaction.Behaviors&gt;
+        &lt;oBehaviors:FocusOnLoadedBehavior /&gt;
+    &lt;/interactivity:Interaction.Behaviors&gt;
+&lt;/TextBox&gt;
+</code></pre>
+
+<p>Само собой, пространства имен interactivity и oBehaviors вы можете вынести на более верхний элемент (на страницу, например). </p>
+
+<p>У этого Behavior так же есть свойство SetFocusOnLoad, оно там для того, чтобы была возможность отключить установку фокуса на Load этого контрола. Сделано это для того, например, когда вам нужно в зависимости от ситуации поставить фокус в один из двух TextBox контролов.</p>
+
+<h2>TextBoxSelectOnFocusBehavior</h2>
+
+<p>В добавление к FocusOnLoadedBehavior часто нужно использовать и этот behavior. Он устанавливает курсор на заданную позицию. Давайте я сначала приведу его код:</p>
+
+<pre><code>public enum TextBoxFocusSelectType
+{
+    None = 0, 
+    SelectAll = 1,
+    SetCursorToTheEnd = 2
+}
+&#160;/// &lt;summary&gt;
+/// UI Behavior to set how to select text in TextBox on Focused.
+/// &lt;/summary&gt;
+public class TextBoxSelectOnFocusBehavior : Behavior&lt;TextBox&gt;
+{    public TextBoxSelectOnFocusBehavior()
+    {
+        Type = TextBoxFocusSelectType.None;
+    }
+&#160;    /// &lt;summary&gt;
+    /// Set behavior of how to select text in &lt;see cref=&quot;AssociatedObject&quot;/&gt;.
+    /// By default &lt;value&gt;TextBoxFocusSelectType.None&lt;/value&gt;.
+    /// &lt;/summary&gt;
+    public TextBoxFocusSelectType Type
+    {
+        get;
+        set;
+    }
+&#160;    protected override void OnAttached()
+    {        base.OnAttached();
+&#160;
+        AssociatedObject.GotFocus += AssociatedObject_GotFocus;
+    }
+&#160;    protected override void OnDetaching()
+    {        base.OnDetaching();
+&#160;
+        AssociatedObject.GotFocus -= AssociatedObject_GotFocus;
+    }
+&#160;    void AssociatedObject_GotFocus(object sender, RoutedEventArgs e)
+    {        if (Type == TextBoxFocusSelectType.SelectAll)
+        {
+            AssociatedObject.SelectAll();
+        }        else if (Type == TextBoxFocusSelectType.SetCursorToTheEnd)
+        {
+            AssociatedObject.Select(AssociatedObject.Text.Length, 0);
+        }
+    }
+}
+</code></pre>
+
+<p>Когда пользователь фокусируется на определенном TextBox, у него бывают разные потребности по изменению текста. Первая потребность – это полностью заменить текст, часто – при редактировании небольших цифр, дат. В этом случае нам нужно выделить весь текст в TextBox, чтобы при наборе цифр пользователь набрал все быстро с самого начала. Вторая потребность – это просто подредактировать текст, в случае Windows Phone, когда у нас нет кнопки Delete (предполагаю, что такая функция есть, но я ее не знаю), а только Backspace, то мы просто обязаны постоянно устанавливать курсор именно в конец текста. </p>
+
+<p>Свойство Type я сделал без поддержки байндинга, у меня не было необходимости. Итого, пример может выглядеть так:</p>
+
+<pre><code>&lt;TextBox MaxLength=&quot;255&quot; Text=&quot;{Binding Path=DisplayName, Mode=TwoWay}&quot; 
+     xmlns:interactivity=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;
+     xmlns:oBehaviors=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;&gt;
+    &lt;interactivity:Interaction.Behaviors&gt;
+        &lt;oBehaviors:FocusOnLoadedBehavior /&gt;
+        &lt;oBehaviors:TextBoxSelectOnFocusBehavior Type=&quot;SetCursorToTheEnd&quot; /&gt;
+    &lt;/interactivity:Interaction.Behaviors&gt;
+&lt;/TextBox&gt;
+</code></pre>
+
+<h2>TextBoxInputRegexFilterBehavior</h2>
+
+<p>И последний на сегодня Behavior – это TextBoxInputRegexFilterBehavior, который помогает фильтровать текст, который пользователь хочет ввести. На самом деле, этот Behavior достаточно спорный, так как чрезмерное его употребление может смутить пользователя, и нужно его использовать только в очевидных местах. Один из таких моментов был у меня, когда мне было необходимо получить от пользователя целое число, а клавиатура с InputScope=”Number” содержит помимо цифр еще и точку. В одном из приложений в marketplace я видел, как какой-то разработчик написал собственную клавиатуру, чтобы решить эту проблему. Мне это решение совсем не понравилось, а так же я совсем не хочу использовать какие либо валидаторы в Windows Phone приложениях, экран слишком маленький для валидаторов. Поэтому я написал TextBoxInputRegexFilterBehavior:</p>
+
+<pre><code>/// &lt;summary&gt;
+/// UI behavior for &lt;see cref=&quot;TextBox&quot;/&gt; to filter input text with special RegularExpression
+/// &lt;/summary&gt;
+public class TextBoxInputRegexFilterBehavior : Behavior&lt;TextBox&gt;
+{    private Regex _regex;
+&#160;    private string _originalText;
+    private int _originalSelectionStart;
+    private int _originalSelectionLength;
+&#160;    public string RegularExpression 
+    {        get { return _regex.ToString(); } 
+        set 
+        {            if (string.IsNullOrEmpty(value))
+            {                _regex = null;
+            }            else
+            {                _regex = new Regex(value);
+            }
+        } 
+    }
+&#160;    protected override void OnAttached()
+    {        base.OnAttached();
+&#160;
+        AssociatedObject.TextInputStart += AssociatedObject_TextInputStart;
+        AssociatedObject.TextChanged += AssociatedObject_TextChanged;
+    }
+&#160;    protected override void OnDetaching()
+    {        base.OnDetaching();
+&#160;
+        AssociatedObject.TextInputStart -= AssociatedObject_TextInputStart;
+        AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
+    }
+&#160;    void AssociatedObject_TextInputStart(object sender, TextCompositionEventArgs e)
+    {        if (_regex != null &amp;&amp; e.Text != null &amp;&amp; !(e.Text.Length == 1 &amp;&amp; Char.IsControl(e.Text[0])))
+        {            if (!_regex.IsMatch(e.Text))
+            {
+                _originalText = AssociatedObject.Text;
+                _originalSelectionStart = AssociatedObject.SelectionStart;
+                _originalSelectionLength = AssociatedObject.SelectionLength;
+            }
+        }
+    }
+&#160;    public void AssociatedObject_TextChanged(object sender, TextChangedEventArgs e)
+    {        if (_originalText != null)
+        {            string text = _originalText;
+            _originalText = null;
+            AssociatedObject.Text = text;
+            AssociatedObject.Select(_originalSelectionStart, _originalSelectionLength);
+        }
+    }
+}
+</code></pre>
+
+<p>Использовать его можно, например, так:</p>
+
+<pre><code>&lt;TextBox Text=&quot;{Binding Path=Value, Mode=TwoWay}&quot; MaxLength=&quot;3&quot; Width=&quot;100&quot; InputScope=&quot;Number&quot; 
+        xmlns:interactivity=&quot;clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity&quot;
+        xmlns:oBehaviors=&quot;clr-namespace:outcold.Phone.Behaviors;assembly=outcold.Phone&quot;&gt;
+    &lt;interactivity:Interaction.Behaviors&gt;
+        &lt;oBehaviors:TextBoxSelectOnFocusBehavior Type=&quot;SelectAll&quot; /&gt;
+        &lt;oBehaviors:TextBoxInputRegexFilterBehavior RegularExpression=&quot;[0-9]+&quot; /&gt;
+    &lt;/interactivity:Interaction.Behaviors&gt;
+&lt;/TextBox&gt;
+</code></pre>
+
+<p>В будущем я буду приводить и другие Behavior, которые мне помогают при разработке. Вы же обязательно ознакомьтесь с <a href="http://msdn.microsoft.com/en-us/library/dd440765.aspx">документацией на MSDN</a>, так как эти библиотеки несут в себе еще и замечательные триггеры, а так же готовые Behaviors.</p>

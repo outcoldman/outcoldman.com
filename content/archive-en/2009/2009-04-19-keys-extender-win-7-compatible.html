@@ -1,0 +1,121 @@
+---
+categories: en
+date: "2009-04-19T08:17:00Z"
+redirect_from:
+- en/blog/show/122/
+- en/archive/2010/03/24/regular-expressions-remember-it-write-it-test-it-/
+- en/archive/2009/04/19/keys-extender-win-7-compatible-/
+tags:
+- .NET
+- C#
+- Windows 7
+- KeysExtender
+title: Keys Extender (Win 7 Compatible)
+slug: "keys-extender-win-7-compatible"
+---
+<h2>Introduction</h2>
+
+<p>In Windows 7, I really liked an opportunity to change the position of the windows by pressing hotkeys Win + (Left | Right | Up | Bottom): </p>
+
+<ul>
+<li>Win + Left - window attached to the left side </li>
+
+<li>Win + Right - window attached to the right side </li>
+
+<li>Win + Up -&nbsp;window is maximized </li>
+
+<li>Win + Bottom -&nbsp;window in the normal state </li>
+</ul>
+
+<p>&nbsp;<img height="400" hspace="0" src="/library/images/01/0000004.png" width="640" border="0" /></p>
+
+<h2>Using the Code</h2>
+
+<p>Making this work with Windows Vista (most likely will work in earlier versions, but I have not tried it) was not a difficult task. First of all, I imported many <code>WinApi </code>functions in a WinForms application. The work was divided into two parts:</p>
+
+<ol>
+<li>interception of pressing the keys, and </li>
+
+<li>positioning the active window </li>
+</ol>
+
+<p>The art <a href="http://eknowledger.spaces.live.com/Blog/cns%21F475D4DE444DB1AB%21695.entry">Low-Level Keyboard Hook in C #</a> helped me to solve the first part. I had only to find the way to know whether the button LWin is pressed. Here is the main code: </p>
+
+<pre><code>private static IntPtr HookCallback(
+    int nCode, IntPtr wParam, IntPtr lParam)
+{
+    if (nCode &amp;gt;= 0 &amp;amp;&amp;amp; wParam == (IntPtr)WAKeysHook.WmKeyDown)
+    {
+        if ((int)WAKeysHook.GetAsyncKeyState((IntPtr)Keys.LWin) != 0) // Left Win Key
+        {
+            Keys key = (Keys) Marshal.ReadInt32(lParam);
+            if (key == Keys.Left || key == Keys.Right || 
+        key == Keys.Up || key == Keys.Down) // Arrows keys
+                SetWindowLocation(key);
+        }
+    }
+    return WAKeysHook.CallNextHookEx(WaKeysHook.HookId, nCode, wParam, lParam);
+}</code></pre>
+
+<p>The second part: looking for the foreground window, setting state and size. </p>
+
+<pre><code>private static void SetWindowLocation(Keys k)
+{
+    //Active Window
+    IntPtr window = WAWindows.GetForegroundWindow();
+    // Check SIZEBOX Style (Window can sizable)
+    if (((int)WAWindows.GetWindowLongPtr(window, WAWindows.GwlStyle) &amp;amp; 
+    WAWindows.WsSizebox)
+        == WAWindows.WsSizebox)
+    {
+        // Show window in normal state (if always maximized)
+        WAWindows.ShowWindow(window, (int)WAWindows.WindowShowStyle.ShowNormal);
+        
+        //Need Maximized
+        if (k != Keys.Down)
+        {
+            WAWindows.ShowWindow(window, (int)WAWindows.WindowShowStyle.ShowMaximized);
+&#160;
+            // Place Window on left or right
+            if (k != Keys.Up)
+            {
+                WAWindows.Rect rect, rectDesktop;
+                if (WAWindows.GetWindowRect(window, out rect) &amp;amp;&amp;amp; 
+        WAWindows.GetWindowRect(WAWindows.GetDesktopWindow(), 
+        out rectDesktop))
+                {
+                    WAWindows.SetWindowPos(window, WAWindows.HwndTop, 
+            (k == Keys.Left) ? Math.Min(rect.Left, 0) : 
+            rectDesktop.Right / 2, rect.Top, Math.Min(rect.Width, 
+            rectDesktop.Right / 2 - Math.Min(rect.Left, 0)),
+                                 Math.Min(rect.Height, rectDesktop.Bottom), 
+                WAWindows.SwpShowwindow);
+                }
+            }
+        }
+    }
+}</code></pre>
+
+<p>In addition, there is an opportunity to display (or hide) the icon in the taskbar with context menu (that can help you to close the application). You can set these options in <em>app.config</em>&nbsp; section &quot;<code>ShowNotifyIcon</code>&quot;.</p>
+
+<pre><code>&lt;applicationSettings&gt;
+    &lt;VistaKeysExtender.Properties.Settings&gt;
+        &lt;setting name=&quot;ShowNotifyIcon&quot; serializeAs=&quot;String&quot;&gt;
+            &lt;value&gt;False&lt;/value&gt;
+        &lt;/setting&gt;
+    &lt;/VistaKeysExtender.Properties.Settings&gt;
+&lt;/applicationSettings&gt;</code></pre>
+
+<p>Enjoy it!&nbsp; &nbsp;&nbsp;</p>
+
+<h2>Updated</h2>
+
+<ul>
+<li>20.04.2009 - Build version for x64 system </li>
+
+<li>21.04.2009 - Project has new version. Now you can choose the setting, and some bugs fixed. This is the new version window: </li>
+</ul>
+<img height="423" alt="0000k00h.png" src="/library/images/01/0000005.png" width="435" />
+<h4>You can download the new version and code from <a title="http://code.google.com/p/keysextender/" href="http://code.google.com/p/keysextender/">here</a>.</h4>
+
+</span>

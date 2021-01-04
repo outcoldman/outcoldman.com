@@ -1,0 +1,54 @@
+---
+categories: ru
+date: "2009-09-05T08:26:00Z"
+redirect_from:
+- ru/blog/show/156/
+- ru/archive/2009/09/05/wpf-bindingexpression-и-nullable-t-/
+tags:
+- .NET
+- C#
+- WPF
+- XAML
+- Binding
+- Nullable
+title: 'WPF: BindingExpression и Nullable<T>'
+slug: "wpf-bindingexpression-и-nullable-t"
+---
+<p>Если прописывать <strong>Path</strong> в <strong>Binding</strong> на типы <strong>Nullable&lt;T&gt;</strong> на свойство <strong>HasValue</strong>, такие как <em><strong>int?</strong></em>, <em><strong>bool?</strong></em> и другие, то можно увидеть неожиданные результаты, а точнее работать данный биндинг не будет. Давайте рассмотрим данный случай подробнее.</p> <lj-cut>  <p>Итак, предположим в нашем коде присутствует следующая модель данных:</p> 
+
+<pre><code>using System; 
+namespace WpfApplicationHasValue 
+{ 
+    class SampleModel 
+    { 
+        public SampleModel() 
+        { 
+         SampleValue2 = 0; 
+        } 
+        public int? SampleValue { get; set; } 
+        public int? SampleValue2 { get; set; } 
+    } 
+}</code></pre>
+
+<p>Получается, что <strong>SampleValue</strong> равен <strong>null</strong> и <strong><em>SampleValue.HasValue</em></strong> возвращает <strong>false</strong>. Используем данную модель в <strong>WPF</strong> приложении:</p> 
+
+<pre><code>&lt;Window x:Class="WpfApplicationHasValue.MainWindow" 
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+       xmlns:WpfApplicationHasValue="clr-namespace:WpfApplicationHasValue" 
+       Title="MainWindow" Height="240" Width="500" 
+       DataContext="{DynamicResource ResourceKey=SampleModel}"&gt; 
+    &lt;Window.Resources&gt; 
+        &lt;BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" /&gt; 
+        &lt;WpfApplicationHasValue:SampleModel x:Key="SampleModel" /&gt; 
+    &lt;/Window.Resources&gt; 
+    &lt;StackPanel &gt; 
+        &lt;TextBlock Visibility="{Binding Path=SampleValue.HasValue, Converter={StaticResource ResourceKey=BooleanToVisibilityConverter}}"&gt;
+                Must be InVisible
+        &lt;/TextBlock&gt; 
+        &lt;TextBlock Visibility="{Binding Path=SampleValue2.HasValue, Converter={StaticResource ResourceKey=BooleanToVisibilityConverter}}"&gt;
+                Must be Visible
+        &lt;/TextBlock&gt; 
+    &lt;/StackPanel&gt; 
+&lt;/Window&gt;</code></pre>
+<p>На размещенных двух <strong>TextBlock</strong>’ах мы повесили <strong>Binding</strong> на свойства <strong>Visiblility</strong> с конвертером из <strong>bool</strong> в <strong>Visibility</strong>. Конечно мы ожидаем, как я и написал в телах <strong>TextBlock</strong> такого результата, что первый должен быть не видимым, но такого не произойдет, вместо этого в <em>Output</em> окне мы увидим:</p>  <blockquote>   <p><em>System.Windows.Data Error: 40 : BindingExpression path error: 'HasValue' property not found on 'object' ''Int32' (HashCode=0)'. BindingExpression:Path=SampleValue2.HasValue; DataItem='SampleModel' (HashCode=6257078); target element is 'TextBlock' (Name=''); target property is 'Visibility' (type 'Visibility')</em></p> </blockquote>  <p>Проблема конечно же в разборе самого <strong>Path</strong> нашего <strong>Binding</strong>, и очевидно, что сам <strong>WPF</strong> тут не причем. Разбор данного пути будет проходить в два этапа:</p>  <p>1. Получаем <strong>PropertyInfo</strong> для свойства “<em>SampleValue</em>” и вызываем <strong><em>pi.GetValue(item)</em></strong> для получения значения <strong>x</strong>.     <br />2. Получаем <strong>PropertyInfo</strong> для свойства “<em>HasValue</em>” и вызываем <strong><em>pi.GetValue(x)</em></strong> для получения финального результата.</p>  <p>Ну и проблема, собственно, в том, что несмотря на то, что <strong>pi</strong> в первом шаге имеет <em><strong>PropertyType = typeof(Nullable&lt;int&gt;)</strong></em> как и следовало ожидать, величина <strong>x</strong> возвращаемая методом <strong>GetValue</strong> возвращается или <strong>int</strong> или <strong>null</strong>, но не <strong>Nullable&lt;int&gt;.</strong> Следовательно шаг 2 не удается, поскольку <strong>x</strong> не имеет свойство “<em>HasValue</em>”.</p>  <p>В итоге, <strong>WPF</strong> не может поддерживать свойства <strong>HasValue</strong> (или <strong>Value</strong>) в пути биндига, пока <strong>CLR</strong> (<strong>Reflection</strong>) не изменит логику в отношении возвращаемых значений типов <strong><em>Nullable&lt;T&gt;</em></strong>, а такого, скорее всего, не будет. </p>  <p>Само собой, это не является проблемой, и если даже и возникнет такая ситуация, то решить ее можно легко. В основном, данный топик просто для предоставления некоторых основ <strong>WPF</strong>.</p> <p> </p>

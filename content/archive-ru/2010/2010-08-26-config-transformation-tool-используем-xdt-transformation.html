@@ -1,0 +1,113 @@
+---
+categories: ru
+date: "2010-08-26T20:03:00Z"
+redirect_from: ru/blog/show/222/
+tags:
+- ASP.NET 4
+- XDT
+- XML-Document-Transform
+- Config Transformation Tool
+title: 'Config Transformation Tool: Используем XDT Transformation'
+slug: "config-transformation-tool-используем-xdt-transformation"
+---
+<p>В ASP.NET 4 появилась фича <a href="http://msdn.microsoft.com/en-us/library/dd465326.aspx">Web.Config Transfomration</a>, на первый взляд очень полезная и интересная вещь для развертывания веб-приложений. Она позволяет указывать для web.config файла вашего веб-приложения файл трансформации, который по определённому синтаксису (XDT) будет заменять, удалять или добавлять элементы файла web.config при развертывании. Синтаксис очень простой, потому сразу же захотелось использовать его, и не только для web.config, а и для log4net.config, unity.config и всех остальных config-файлов, которые лежат рядом. Более того, я сразу подумал о том, чтобы использовать эту фичу и для WinService приложения (консольное приложение в основе). И начал мечтать, как было бы хорошо, когда я бы настроил билд в CCNet и при развертывании у меня все настройки хорошо бы трансформировались по нужной конфигурации. Но оказалось не так все просто, данная фича по умолчанию работает только для web.config, но я решил не отчаиваться и найти решение, результатом которого стала небольшая программка <a href="http://ctt.codeplex.com/">Config Transformation Tool</a>. </p>
+
+<p>Сначала опишу задачу, которая передо мной стояла. Мы разрабатываем приложение, у которого есть несколько заказчиков, каждый из этих заказчиков требует или просит разные модули и настройки от нашего приложения. Поэтому при помощи конфигурационных файлов наше приложение может быть настроено до неузнаваемости. У нас есть CCNet build сервер, который помимо стандартных задач по построению приложения и прогону тестов, позволяет так же собирать специфичные для заказчика пакеты. До XDT трансформации я все реализовывал заменой в исходных config-файлах строк при помощи nant билда и его задачи replacestring с определенными параметрами. Скажу сразу, что было очень тяжело поддерживать все это при изменениях требований или добавлении настроек. Самый простой вариант был бы, наверное, просто наплодить по отдельному конфигурационному файлу для каждой инсталляции и положить в специальную папочку, а при развертывании просто заменять файл конфигурации на нужный, но тогда уже будут проблемы во время разработки, надо будет не забыть добавить нечто новое во все файлы конфигураций. В общем, после знакомства с Web.Config Transfomration я очень сильно на него рассчитывал. </p>
+
+<p>Первое разочарование было, когда я узнал, что файл конфигурации работает только с web.config и нет возможности добавить такие файлы для других config файлов, подумал что не так уж и страшно, можно будет в итоге перенести всю конфигурацию в web.config, не очень удобно будет, но тоже решение. Второе разочарование было то, что для каждого развертывания мне придется делать отдельную настройку для проекта рядом с Debug и Release, а когда у нас будет 10 развертываний, делать и поддерживать 10 конфигураций, тоже как то не очень хотелось бы. Ну и третье разочарование было для меня, когда я узнал, что поддержка трансформаций есть только для веб-проектов, тут насколько я понял, разочаровывался не только я, и народ уже активно <a href="https://connect.microsoft.com/VisualStudio/feedback/details/564414">голосует</a> за поддержку этой фичи и для app.config файлов на сайте connect.microsoft.com. Другие пользуются хаками, вроде этого <a href="http://vishaljoshi.blogspot.com/2010/05/applying-xdt-magic-to-appconfig.html">Applying XDT magic to App.Config</a> и получается это даже довольно успешно. Но все же – это было не то, что мне нужно.</p>
+
+<p>Последняя статья меня подтолкнула на мысль, что, скорее всего, web.config Transformation – это просто задача для MsBuild, которую можно будет выполнить из командной строки. И я даже нашел заветную командную строку, но реально для несуществующих конфигураций (в проекте существовали стандартные конфигурации Debug и Release, а у меня был файл web.Company1.config, и конфигурацию я пытался вызвать соответственно Company1). Вызов задачи заканчивался непонятно и плачевно, видимо до конца я так и не отыскал все параметры, которые нужно выставить. </p>
+
+<p>Я пошел дальше, открыл файл веб-проекта в редакторе и отыскал ссылку на импорт задач, в которой я и ожидал описание того как правильно вызвать задачу:</p>
+
+<pre><code>&lt;Import Project=&quot;$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets&quot; /&gt;
+</code></pre>
+
+<p>$(MSBuildExtensionsPath32) в моем случае был “<i>C:\Program Files (x86)\MSBuild\</i>”, там я нашел файл <i>Microsoft.WebApplication.targets</i>, а так же файл <i>Microsoft.WebApplication.Build.Tasks.Dll</i>, который привлек мое внимание больше. Вооружившись программой .Net Reflector, открыл этот файл и, проанализировав, нашел, что все задачи наследуются от типа Task, значит, по плану, мне просто нужно было бы найти нужную задачу. </p>
+
+<p><img alt=".Net Reflector" src="/library/images/02/ctt/01.png" /></p>
+
+<p>Ее я нашел под названием TransformTask, сначала интуитивно подумал, что, наверное, это она и есть, а затем и под Reflector’ом посмотрев код в этом убедился на 100%. Решил попробовать встроить его в простенькое консольное приложение, которое позволяло бы мне выполнять эту задачу для любых файлов. Тут я замечу, что в случае использования MS Build, который в TFS, скорее всего, будет возможность вызвать эту задачу прямо из файла настройки билда, но наш случай – это CCNet. В будущем я, правда, планирую тесное знакомство с Ms Build, так как задумываемся о переходе с CCNet на MsBuild, но пока решил реализовать по-быстрому.</p>
+
+<p>Итак, создал новый проект – консольное приложение и начал исследовать, как мне запустить данную задачу. Как оказалось все достаточно просто, нужно было реализовать два интерфейса. Первый: IBuildEngine, у него вызывается несколько методов для записи лога выполнения задачи, и пару свойств, смысла которых я не понял, и реализовал просто как затычки. Второй интерфейс - это ITaskItem. Кстати, хороший пример, как программировать не нужно. Подразумевает собой некоторую гибридную сущность, которая может нести в себе кучу информации, а может практически ничего не содержать в себе, как в моем случае: из кучи методов и свойств реализуем всего одно свойство ItemSpec, в котором будем хранить путь до файла. Вот в общем то и все, можно вызывать задачу:</p>
+
+<pre><code>TransformXml transformXml = new TransformXml
+                                {                                    BuildEngine = new CurrentBuildEngine(),
+                                    Destination = new TaskItem(destinationFilePath),
+                                    Source = new TaskItem(sourceFilePath),
+                                    Transform = new TaskItem(transformFile)
+                                };
+transformXml.Execute();
+</code></pre>
+
+<p>Дальше я причесал немного код, добавил тест, пример и выложил все на <a href="http://ctt.codeplex.com">CodePlex</a>, мало ли будет кому-то полезно. Думаю, вообще хорошо бы добавить еще поддержку параметров в файле трансформации, правда код MS править не хочется, который производит XDT трансформацию, а вот прекомпиляцию данного файла можно как-то сделать. Приблизительно идею описал в этой задаче <a href="http://ctt.codeplex.com/workitem/17">Support parameters at Transform file</a>.</p>
+
+<p>Ну и на последок пример. Файл source.config, который хотим изменить:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&#160;&lt;configuration&gt;
+&#160;    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;True&quot; /&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;600&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;True&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Файл transform.config, при помощи которого будем менять исходный файл:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;configuration xmlns:xdt=&quot;http://schemas.microsoft.com/XML-Document-Transform&quot;&gt;
+    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;601&quot; xdt:Transform=&quot;Replace&quot;  xdt:Locator=&quot;Match(key)&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Запускаем приложение из командной строки</p>
+
+<p><i>ctt.exe s:source.config t:transform.config d:destination.config</i></p>
+
+<p><img alt="Config Transformation Tool In Action" src="/library/images/02/ctt/02.png" /></p>
+
+<p>Получаем результат destination.config:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&#160;&lt;configuration&gt;
+&#160;    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;True&quot; /&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;601&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;True&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Скачать исходный код или бинарник можно отсюда <a href="http://ctt.codeplex.com/">http://ctt.codeplex.com/</a>.</p>
+
+<p>Ну и как всегда, выслушаю все предложения и комментарии. ;)</p>

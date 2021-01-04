@@ -1,0 +1,80 @@
+---
+categories: en
+date: "2014-05-18T00:00:00Z"
+tags:
+- Windows 8
+- Windows 8.1
+- Windows Store
+- outcoldplayer
+title: Hey, Windows 8, how are you doing?
+slug: "windows-8"
+---
+
+Windows 8 is still young platform. There are a lot of talks going on about if Windows 8/8.1 is successful or not. The main questions for users are a) why Windows does not have all applications they can find on another platforms b) why the one it has are so crappy.
+
+To answer on these questions, let's take a look on statistics of my application. 
+
+One of my pet projects is a Windows 8 application, named [outcoldplayer](http://apps.microsoft.com/windows/en-us/app/outcoldplayer/939f0859-1413-4a52-9ab6-6e50405c8c2e) (former gMusicW), this is unofficial Google Music player for Windows 8. I would say that it is pretty successful application in Windows Store. Once it was listed on the first place in Top Paid applications (right now it is on 29th place). 
+
+![Top Paid list](/library/2014/05/outcoldplayer.toppaid.png)
+
+If somebody will tell me that his application is listed in Top Paid applications on _Google Play_ or _App Store_ - I would guess that he is a millionaire. But what about Windows 8? The short answer I'm not a millionaire. For the last year I got from outcoldplayer less than my monthly salary on my regular job.
+
+## History of outcoldplayer
+
+I've published first version somewhere in January/February 2013. Yesterday I've uploaded 40th release. At the beginning outcoldplayer was a free application supported by Ads. Users could remove them by paying for special Ad-free package. 
+
+![Ads](/library/2014/05/outcoldplayer.ads.png)
+
+2 months ago I switched to paid model for various reasons:
+
+1. It was just hard to make good application design and keep ads in it.
+1. Did not like the quality of Microsoft Ad platform library. I saw a lot of Exceptions in [TaskScheduler.UnobservedTaskException](http://msdn.microsoft.com/en-us/library/system.threading.tasks.taskscheduler.unobservedtaskexception.aspx), which made me worry about if this library can cause crashes.
+1. Did not like how Microsoft Pubcenter pays for serving ads. With the same amount of Requests you can get in one month $50 and in next month $500. As you can see average feel rate is 32%. 
+
+So, for the last 2 months outcoldplayer is a paid application, which costs $5.99. 
+
+## Windows versions
+
+I still support Windows 8, but it seems like most of outcoldplayer users have  Windows 8.1
+
+![Windows versions](/library/2014/05/outcoldplayer.windows-version.png)
+
+This list also includes Microsoft testers, they verify new builds on submission. So we can say that number of Windows 8 users are really close to 0 percent. This number is different from the [web statistics](http://www.netmarketshare.com/operating-system-market-share.aspx?qprid=10&qpcustomd=0) where Windows 8 have more market share than Windows 8.1.
+
+## Ratings
+
+In average outcoldplayer users are happy
+
+![Ratings](/library/2014/05/outcoldplayer.ratings.png)
+
+But of course there are always some unhappy users, for example
+
+* Some of them don't understand why they need to pay for this application, because they already paid for Windows 8 or they pay for Google Music. I can understand them. For some users `unofficial` does not mean anything.
+* Some users have issues with drivers. Yes, Windows Store applications also depend on drivers. Some of the threads on Microsoft forums [Windows 8 Apps (Netflix, Hulu, Youtube, TuneIn) will not stream](http://answers.microsoft.com/en-us/windows/forum/windows_8-winapps/windows-8-apps-netflix-hulu-youtube-tunein-will/cfd05107-daed-4f7e-a4d2-985b0b21871c?page=1&tm=1400460139386), [0xc00d11d1 (0x8007007e) windows 8.1 update](http://answers.microsoft.com/en-us/windows/forum/windows8_1-windows_install/0xc00d11d1-0x8007007e-windows-81-update/0b4e731c-e2f9-45f7-bbf1-611cb10dc449).
+
+## Downloads
+
+This is downloads statistics for the last year. When _outcoldplayer_ was free, it had about 200-500 downloads a day, paid version has 10-40 downloads a day (you can see this change in April).
+
+![Downloads](/library/2014/05/outcoldplayer.downloads.png)
+
+As you can see most downloads are in United States (outcoldplayer supports only one language `en`).
+
+## Screen Resolutions
+
+Suddenly I don't know what percent of these screens are touch enabled
+
+![Screen Resolution](/library/2014/05/outcoldplayer.screenresolutions.png)
+
+## Update process
+
+It was a pain in Windows 8 that users just did not update Windows Store applications. Because of that I got a lot of reviews and emails where users complained about old bugs or not working application. Now as you can see from this chart it takes for about a week to update 90% of users
+
+![App versions](/library/2014/05/outcoldplayer.appversions.png)
+
+## Summary
+
+So, Windows 8, how are you doing? My guess... not well, really. The main problem which I see: users don't want to use Windows Store applications (and as a summary to buy Windows tablet devices), because there are not so many of good quality Windows Store applications in Windows Store. At the same time developers don't want to spend their time on Windows Store applications, because there are not enough users, who can pay for applications. Really, I was above _Grand Theft Auto_ in Top Paid applications with just about 35 purchases a day. You know price for GTA, do the math. 
+
+Does it mean, that we all should just go and buy iPads and Androids and forget about Windows? For us, end users, of course it is better to have _three_ different platforms rather than _two_, so answer is no. I hope that the [next](http://www.theverge.com/2014/4/23/5643328/windows-8-start-menu-return-in-second-update) Windows 8 update will be a game changer for Windows. I'm not talking about _Start Menu_, I'm talking about Windows Store application in floating windows on desktop. I just hope that this will give a boost for Windows Store applications, people will start to use them on Desktop. We will see.

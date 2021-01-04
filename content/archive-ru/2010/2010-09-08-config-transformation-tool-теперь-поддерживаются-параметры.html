@@ -1,0 +1,380 @@
+---
+categories: ru
+date: "2010-09-08T20:04:00Z"
+redirect_from: ru/blog/show/237/
+tags:
+- .NET
+- C#
+- CodePlex
+- XDT
+- XML-Document-Transform
+- Config Transformation Tool
+title: 'Config Transformation Tool: Теперь поддерживаются параметры'
+slug: "config-transformation-tool-теперь-поддерживаются-параметры"
+---
+<p>Пару недель назад я писал про небольшую утилиту <a href="/ru/blog/show/222">Config Transformation Tool</a>, которую я создал на базе задачи трансформирования <a href="http://msdn.microsoft.com/en-us/library/dd465326.aspx">web.config файла</a>. В тот момент у меня сразу же возникла идея, что было бы неплохо еще иметь возможность указывать места в файле-трансформере, вместо которых можно было бы подставлять значения при помощи этой утилиты. И вот, сегодня я готов объявить, что мне удалось решить эту задачу. Сначала хотелось бы поблагодарить <a href="/ru/blog/show/222#comment_752">AlexBar</a>, за то, что он порекомендовал посмотреть глубже при помощи .Net Reflector в недры библиотеки <em>Microsoft.WebApplication.Build.Tasks.Dll</em>, и отыскать там класс Microsoft.Web.Publishing.Tasks.XmlTransformation, который умеет выполнять XML-Document-Transform для строк. Мне это очень сильно упростило реализацию. Чтобы утилита смогла поддерживать параметры мне предстояло решить две задачи: (а) уметь пробегаться по файлу и подставлять значения вместо параметров, (б) уметь парсить командную строку на предмет передачи параметров со значениями.</p>    <h2>ParametersTask</h2>  <p>Итак, сначала опишу, как я решал первую задачу. Синтаксис для параметров я решил сделать таким: {Имя_параметра:значение_по_умолчанию}, где значение по умолчанию это необязательный параметр. Правила для замены следующие: </p>  <ol>   <li>если указан параметр со значением, то использовать это значение; </li>    <li>если параметр не указан, но указано значение по умолчанию, то подставлять его; </li>    <li>если параметр не указан, и значение по умолчанию так же не указано, то оставить все как есть. </li> </ol>  <p>Перед тем как решать данную задачу я так же подумал о том, что RegEx или простыми string.Replace тут лучше не увлекаться, так как, если параметров будет много, то такая задача может выполняться очень долго. Потому я решил обойтись одним проходом по строке-трансформере, и, соответственно, за этот один проход подставить значения параметров. Так же я подумал о том, что в строке-трансформере могут применяться символы ‘{‘, ‘}’ не только для моих параметров, а для того, чтобы моя утилита их игнорировала нужно использовать комбинации “\}”, “\{“, ну и, соответственно, для самого символа ‘\’ так же используем комбинацию “\\”. Итак, класс ParametersTask имеет одно поле _parameters с типом IDictionary&lt;string, string&gt;, где ключи – это имена параметров, а значения – значения этих параметров. Основной метод ApplyParameters:</p>  <pre><code>public string ApplyParameters(string sourceString)
+{    StringBuilder result = new StringBuilder();
+&#160;    int index = 0;
+&#160;    char[] source = sourceString.ToCharArray();
+&#160;    bool fParameterRead = false;
+&#160;    StringBuilder parameter = new StringBuilder();
+&#160;    while (index &lt; source.Length)
+    {        // If parameter read, read it and replace it
+        if (fParameterRead &amp;&amp; source[index] == '}')
+        {
+            var s = parameter.ToString();            int colonIndex = parameter.ToString().IndexOf(':');
+&#160;
+            var parameterName = colonIndex &gt; 0 ? s.Substring(0, colonIndex) : s;            var parameterDefaultValue = colonIndex &gt; 0 ? s.Substring(colonIndex + 1, s.Length - colonIndex - 1) : null;
+&#160;            string parameterValue = null;
+            if (_parameters != null &amp;&amp; _parameters.ContainsKey(parameterName))
+                parameterValue = _parameters[parameterName];
+&#160;            // Put &quot;value&quot; or &quot;default value&quot; or &quot;string which was here&quot;
+            result.Append(parameterValue ?? parameterDefaultValue ?? &quot;{&quot; + parameter + &quot;}&quot;);
+&#160;            fParameterRead = false;
+            index++;            continue; 
+        }        if (source[index] == '{')
+        {            fParameterRead = true;
+            parameter = new StringBuilder();
+            index++;
+        }        // Check is this escape \{ \} \\
+        else if (source[index] == '\\')
+        {
+            var nextIndex = index + 1;            if (nextIndex &lt; source.Length)
+            {
+                var nextChar = source[nextIndex];                if (nextChar == '}' || nextChar == '{' || nextChar == '\\')
+                {
+                    index++;
+                }
+            }
+        }
+&#160;        if (fParameterRead)
+            parameter.Append(source[index]);        else
+            result.Append(source[index]);
+&#160;
+        index++;
+    }
+&#160;    return  result.ToString();
+}
+</code></pre>
+
+<p>Основная идея метода в том, что в цикле мы читаем либо параметр, либо просто содержание. В методе первый if на то, что это окончание параметра, второй if на то, что это начало параметра. Следующий пропускает специальные комбинации “\{”, “\}” или “\\”. Это, конечно, не полноценный “<a href="http://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D1%80%D0%B5%D0%BA%D1%83%D1%80%D1%81%D0%B8%D0%B2%D0%BD%D0%BE%D0%B3%D0%BE_%D1%81%D0%BF%D1%83%D1%81%D0%BA%D0%B0">нисходящий разбор</a>”, но, вроде выглядит ничего, и он отлично отрабатывает на следующих тестах:</p>
+
+<pre><code>[Test]public void ApplyParameters_Sample()
+{    const string ExpectedResult =
+        @&quot;
+&lt;value key=&quot;&quot;Value CustomParameter1&quot;&quot; value=&quot;&quot;False&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test2&quot;&quot; value=&quot;&quot;Value CustomParameter2&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test3&quot;&quot; value=&quot;&quot;False&quot;&quot; /&gt;&quot;;
+&#160;    const string Source =
+        @&quot;
+&lt;value key=&quot;&quot;{CustomParameter1:Default value}&quot;&quot; value=&quot;&quot;{TrueValueParameter:True}&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test2&quot;&quot; value=&quot;&quot;{CustomParameter2:Default value of CustomParameter2}&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test3&quot;&quot; value=&quot;&quot;{TrueValueParameter:True}&quot;&quot; /&gt;&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+&#160;    task.AddParameters(new Dictionary&lt;string, string&gt;
+                        {                            {&quot;CustomParameter1&quot;, &quot;Value CustomParameter1&quot;},
+                            {&quot;TrueValueParameter&quot;, &quot;False&quot;},
+                            {&quot;CustomParameter2&quot;, &quot;Value CustomParameter2&quot;}
+                        });
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(ExpectedResult, result);
+}
+&#160;
+[Test]public void WithoutParameters()
+{    const string Source =
+        @&quot;
+&lt;value key=&quot;&quot;{CustomParameter1}&quot;&quot; value=&quot;&quot;{TrueValueParameter}&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test2&quot;&quot; value=&quot;&quot;{CustomParameter2}&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test3&quot;&quot; value=&quot;&quot;{TrueValueParameter}&quot;&quot; /&gt;&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(Source, result);
+}
+&#160;
+[Test]public void WithoutParameters_But_With_Default_Values()
+{    const string ExpectedResult =
+        @&quot;
+&lt;value key=&quot;&quot;Default value&quot;&quot; value=&quot;&quot;True&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test2&quot;&quot; value=&quot;&quot;Default value of CustomParameter2&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test3&quot;&quot; value=&quot;&quot;False&quot;&quot; /&gt;&quot;;
+&#160;    const string Source =
+        @&quot;
+&lt;value key=&quot;&quot;{CustomParameter1:Default value}&quot;&quot; value=&quot;&quot;{TrueValueParameter:True}&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test2&quot;&quot; value=&quot;&quot;{CustomParameter2:Default value of CustomParameter2}&quot;&quot; /&gt;
+&lt;value key=&quot;&quot;Test3&quot;&quot; value=&quot;&quot;{TrueValueParameter:False}&quot;&quot; /&gt;&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(ExpectedResult, result);
+}
+&#160;
+[Test]public void Apply_With_Double_Colon_In_Definition()
+{    const string ExpectedResult =
+        @&quot;
+&lt;value key=&quot;&quot;Default:value&quot;&quot; value=&quot;&quot;Val&quot;&quot; /&gt;&quot;;
+&#160;    const string Source =
+        @&quot;
+&lt;value key=&quot;&quot;{Parameter1:Default:value}&quot;&quot; value=&quot;&quot;Val&quot;&quot; /&gt;&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(ExpectedResult, result);
+}
+&#160;
+[Test]public void Apply_With_Escaped_Brackets()
+{    const string ExpectedResult =
+        @&quot;
+&lt;value key=&quot;&quot;Default:value&quot;&quot; value=&quot;&quot;{TestParameter:Test}&quot;&quot; /&gt;&quot;;
+&#160;    const string Source =
+        @&quot;
+&lt;value key=&quot;&quot;{Parameter1:Default:value}&quot;&quot; value=&quot;&quot;\{TestParameter:Test\}&quot;&quot; /&gt;&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(ExpectedResult, result);
+}
+&#160;
+[Test]public void Apply_With_Escaped_Brackets_In_Default_Value()
+{    const string ExpectedResult =
+        @&quot;
+&lt;value key=&quot;&quot;Defa{ultva}lue&quot;&quot; value=&quot;&quot;{TestParameter:Test}&quot;&quot; /&gt;&quot;;
+&#160;    const string Source =
+        @&quot;
+&lt;value key=&quot;&quot;{Parameter1:Defa\{ultva\}lue}&quot;&quot; value=&quot;&quot;\{TestParameter:Test\}&quot;&quot; /&gt;&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(ExpectedResult, result);
+}
+&#160;
+[Test]public void Apply_With_Parameter_At_End_Of_String()
+{    const string ExpectedResult =
+        @&quot;
+&lt;value key=&quot;&quot;Defa{ultva}lue&quot;&quot; value=&quot;&quot;Test&quot;;
+&#160;    const string Source =
+        @&quot;
+&lt;value key=&quot;&quot;{Parameter1:Defa\{ultva\}lue}&quot;&quot; value=&quot;&quot;{TestParameter:Test}&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(ExpectedResult, result);
+}
+&#160;
+[Test]public void Apply_With_Parameter_At_Start_Of_String()
+{    const string ExpectedResult =
+        @&quot;Defa{ultva}lue&quot;&quot; value=&quot;&quot;{TestParameter:Test}&quot;&quot; /&gt;&quot;;
+&#160;    const string Source =
+        @&quot;{Parameter1:Defa\{ultva\}lue}&quot;&quot; value=&quot;&quot;\{TestParameter:Test\}&quot;&quot; /&gt;&quot;;
+&#160;    ParametersTask task = new ParametersTask();
+    var result = task.ApplyParameters(Source);
+    Assert.AreEqual(ExpectedResult, result);
+}
+</code></pre>
+
+<h2>ParametersParser</h2>
+
+<p>Вторая задача – это уметь распарсить параметры из командной строки. Реализовать эту функциональность я решил способом, который используется в MsBuild.exe, ну или очень похожим на него. Параметры должны быть разделены точкой с запятой ‘;’, имя параметра и значение должно разделять двоеточие ‘:’, если значение параметра включает в себя пробелы или точку запятой, то это значение лучше заключить в кавычки, и так же есть возможность использовать ‘\”’, ‘\\’. Реализация ниже:</p>
+
+<pre><code>/// &lt;summary&gt;
+/// Parse string of parameters 
+/// &lt;/summary&gt;
+public static class ParametersParser
+{    private readonly static ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType); 
+&#160;    /// &lt;summary&gt;
+    /// Parse string of parameters &lt;paramref name=&quot;parametersString&quot;/&gt; separated by semi ';'.
+    /// Value should be separated from name by colon ':'. 
+    /// If value has spaces or semi you can use quotes for value. 
+    /// You can escape symbols '\' and '&quot;' with \.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;parametersString&quot;&gt;String of parameters&lt;/param&gt;
+    /// &lt;returns&gt;Dicrionary of parameters, where keys are names and values are values of parameters. 
+    /// Can be null if &lt;paramref name=&quot;parametersString&quot;/&gt; is empty or null.&lt;/returns&gt;
+    public static IDictionary&lt;string, string&gt; ReadParameters(string parametersString)
+    {        if (string.IsNullOrWhiteSpace(parametersString)) return null;
+&#160;        Dictionary&lt;string, string&gt; parameters = new Dictionary&lt;string, string&gt;();
+&#160;
+        var source = parametersString.ToCharArray();
+&#160;        int index = 0;
+&#160;        bool fParameterNameRead = true;
+        bool fForceParameterValueRead = false;
+&#160;        StringBuilder parameterName = new StringBuilder();
+        StringBuilder parameterValue = new StringBuilder();
+&#160;        while (index &lt; source.Length)
+        {            if (fParameterNameRead &amp;&amp; source[index] == ':')
+            {                fParameterNameRead = false;
+                index++;
+&#160;                if (index &lt; source.Length &amp;&amp; source[index] == '&quot;')
+                {                    fForceParameterValueRead = true;
+                    index++;
+                }
+&#160;                continue;
+            }
+&#160;            if ((!fForceParameterValueRead &amp;&amp; source[index] == ';')
+                || (fForceParameterValueRead &amp;&amp; source[index] == '&quot;' &amp;&amp; ((index + 1) == source.Length || source[index + 1] == ';')))
+            {
+                AddParameter(parameters, parameterName, parameterValue);
+                index++;                if (fForceParameterValueRead)
+                    index++;
+                parameterName.Clear();
+                parameterValue.Clear();                fParameterNameRead = true;
+                fForceParameterValueRead = false;
+                continue;
+            }
+&#160;            // Check is this escape \{ \} \\
+            if (source[index] == '\\')
+            {
+                var nextIndex = index + 1;                if (nextIndex &lt; source.Length)
+                {
+                    var nextChar = source[nextIndex];                    if (nextChar == '&quot;' || nextChar == '\\')
+                    {
+                        index++;
+                    }
+                }
+            }
+&#160;            if (fParameterNameRead)
+            {
+                parameterName.Append(source[index]);
+            }            else
+            {
+                parameterValue.Append(source[index]);
+            }
+&#160;
+            index++;
+        }
+&#160;
+        AddParameter(parameters, parameterName, parameterValue);
+&#160;        if (Log.IsDebugEnabled)
+        {            foreach (var parameter in parameters)
+            {                Log.DebugFormat(&quot;Parameter Name: '{0}', Value: '{1}'&quot;, parameter.Key, parameter.Value);
+            }
+        }
+&#160;        return parameters;
+    }
+&#160;    private static void AddParameter(Dictionary&lt;string, string&gt; parameters, StringBuilder parameterName, StringBuilder parameterValue)
+    {
+        var name = parameterName.ToString();        if (!string.IsNullOrWhiteSpace(name))
+        {            if (parameters.ContainsKey(name))
+                parameters.Remove(name);
+            parameters.Add(name, parameterValue.ToString());
+        }
+    }
+}
+</code></pre>
+
+<p>Тут все проще чем в предыдущий раз. Мы в цикле либо читаем имя параметра, либо его значение. Конечно, можно было бы сделать все попроще при помощи Split функций, но я решил и тут все сделать правильно за один проход. Итого, несколько тестов для данного метода:</p>
+
+<pre><code>/// &lt;summary&gt;
+/// Check simple parameters command line
+/// &lt;/summary&gt;
+[Test]public void Sample()
+{    const string parametersLine = &quot;Parameter1:Value1;Parameter2:121.232&quot;;
+&#160;
+    var parameters = ParametersParser.ReadParameters(parametersLine);
+&#160;    Assert.AreEqual(&quot;Value1&quot;, parameters[&quot;Parameter1&quot;]);
+    Assert.AreEqual(&quot;121.232&quot;, parameters[&quot;Parameter2&quot;]);
+}
+&#160;/// &lt;summary&gt;
+/// Check parameters command line when one of parameter has semi in value string
+/// &lt;/summary&gt;
+[Test]public void String_With_Semicolon_In_Value()
+{    const string parametersLine = &quot;Parameter1:Value1;Parameter2:\&quot;121;232\&quot;&quot;;
+&#160;
+    var parameters = ParametersParser.ReadParameters(parametersLine);
+&#160;    Assert.AreEqual(&quot;Value1&quot;, parameters[&quot;Parameter1&quot;]);
+    Assert.AreEqual(&quot;121;232&quot;, parameters[&quot;Parameter2&quot;]);
+}
+&#160;/// &lt;summary&gt;
+/// Check that if command line has semicon at end parameters will be loaded
+/// &lt;/summary&gt;
+[Test]public void String_With_Semicolon_At_End()
+{    const string parametersLine = &quot;Parameter1:Value1;Parameter2:\&quot;121.232\&quot;;&quot;;
+&#160;
+    var parameters = ParametersParser.ReadParameters(parametersLine);
+&#160;    Assert.AreEqual(&quot;Value1&quot;, parameters[&quot;Parameter1&quot;]);
+    Assert.AreEqual(&quot;121.232&quot;, parameters[&quot;Parameter2&quot;]);
+}
+&#160;/// &lt;summary&gt;
+/// Check that value of parameter can contain escaped quotes
+/// &lt;/summary&gt;
+[Test]public void String_With_Values_With_Quotes()
+{    const string parametersLine = @&quot;Parameter1:Value1;Parameter2:&quot;&quot;12\&quot;&quot;1.2\&quot;&quot;32&quot;&quot;;&quot;;
+&#160;
+    var parameters = ParametersParser.ReadParameters(parametersLine);
+&#160;    Assert.AreEqual(&quot;Value1&quot;, parameters[&quot;Parameter1&quot;]);
+    Assert.AreEqual(&quot;12\&quot;1.2\&quot;32&quot;, parameters[&quot;Parameter2&quot;]);
+}
+</code></pre>
+
+<h2>Результат</h2>
+
+<p>В итоге теперь можно при помощи утилиты проработать такой пример. Исходный файл (s.config):</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&#160;&lt;configuration&gt;
+&#160;    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;False&quot; /&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;600&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;C:\Test\&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+&#160;        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Теперь файл трансформации (t.config), в нем описано два параметра, один Parameter1, значение которого указывать необязательно, и параметр с именем Test3Value:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;configuration xmlns:xdt=&quot;http://schemas.microsoft.com/XML-Document-Transform&quot;&gt;
+    &lt;custom&gt;
+        &lt;groups&gt;
+            &lt;group name=&quot;TestGroup1&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test2&quot; value=&quot;601&quot; xdt:Transform=&quot;Replace&quot;  xdt:Locator=&quot;Match(key)&quot; /&gt;
+                    &lt;value key=&quot;Test1&quot; value=&quot;{Parameter1:True5665}&quot; xdt:Transform=&quot;Replace&quot;  xdt:Locator=&quot;Match(key)&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+            &lt;group name=&quot;TestGroup2&quot;&gt;
+                &lt;values&gt;
+                    &lt;value key=&quot;Test3&quot; value=&quot;{Test3Value}&quot; xdt:Transform=&quot;Replace&quot;  xdt:Locator=&quot;Match(key)&quot; /&gt;
+                &lt;/values&gt;
+            &lt;/group&gt;
+        &lt;/groups&gt;
+    &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>Вызываем утилиту:</p>
+
+<pre><code>ctt s:s.config t:t.config d:d.config p:Parameter1:True;Test3Value:&quot;c:\Program Files\Test&quot;
+</code></pre>
+
+<p>Как и следовало ожидать получаем d.config:</p>
+
+<pre><code>&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;configuration&gt;
+  &lt;custom&gt;
+    &lt;groups&gt;
+      &lt;group name=&quot;TestGroup1&quot;&gt;
+        &lt;values&gt;
+          &lt;value key=&quot;Test1&quot; value=&quot;True&quot; /&gt;
+          &lt;value key=&quot;Test2&quot; value=&quot;601&quot; /&gt;
+        &lt;/values&gt;
+      &lt;/group&gt;
+      &lt;group name=&quot;TestGroup2&quot;&gt;
+        &lt;values&gt;
+          &lt;value key=&quot;Test3&quot; value=&quot;c:\Program Files\Test&quot; /&gt;
+        &lt;/values&gt;
+      &lt;/group&gt;
+    &lt;/groups&gt;
+  &lt;/custom&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+<p>К аргументам утилиты еще добавил fpt – этот параметр следует применять, когда в файле-трансформере находятся параметры со значениями по умолчанию, а в командной строке вызова утилиты значения параметров не указываете, тогда под действием этого параметра утилиты пробежится и все-таки проставит значения по-умолчанию. Без параметра утилита не вызывает задача подстановки параметров, если в командной строке параметры со значениями не указаны.</p>
+
+<h2>Итог</h2>
+
+<p>Скорее всего есть очень много проблемных мест и недочетов, если видите что-то, либо знаете коварный тест, где точно не проработает – отпишитесь, пожалуйста, в комментариях, постараюсь все допилить. Ну и буду рад любым замечаниям и предложениям. Исходники и собранную версию можно скачать на сайте проекта на CodePlex: <a href="http://ctt.codeplex.com">http://ctt.codeplex.com</a>, последняя версия <a href="http://ctt.codeplex.com/releases/view/52027">Config Transformation Tool v1.1</a>.</p>

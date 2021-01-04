@@ -1,0 +1,234 @@
+---
+categories: ru
+date: "2009-03-21T09:10:00Z"
+redirect_from: ru/blog/show/123/
+tags:
+- Chart
+- WinForms
+- .NET
+- C#
+title: 'MS Chart: пример Perfomance Counters c 3D вращением'
+slug: "ms-chart-пример-perfomance-counters-c-3d-вращением"
+---
+<p>На одной из встреч <a href="http://yana.ineta.ru/Events/EventMultiSessionInfo.aspx?Id=de1f252a-e804-43de-ae4a-b12e89b4b21d">User Group</a> я рассказывал доклад &laquo;Создание диаграмм при помощи MS Chart&raquo;, для которого сделал пример WinForms приложения performance counter, которое выводит информацию о 3х показателях системы в реальном времени: загруженность процессора, использование физической и виртуальной памяти, и еще имеет возможность 3D вращения. Не знаю, пригодиться ли кому-нибудь данный пример, но все же решил рассказать о нем.</p><p>Сначала пару слов о MS Chart: это дополнение к Microsoft .NET Framework 3.5 SP1, которое позволяет создавать диаграммы в приложениях WinForms(что дает нам и WPF) и WebForms. В будущем это будет частью Microsoft .NET Framework 4. MS Chart был создан не с нуля, а позаимствован из библиотеки Dundas (<a href="http://blogs.msdn.com/alexgor/archive/2008/11/07/microsoft-chart-control-vs-dundas-chart-control.aspx">источник</a>).<br /><br />Для того чтобы начать работу с MS Chart &ndash; необходимо установить компоненты MS Chart Controls. Скачать их можно по следующим ссылкам:</p><ul><li><a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=130F7986-BF49-4FE5-9CA8-910AE6EA442C&amp;displaylang=en">Microsoft Chart Controls for Microsoft .NET Framework 3.5</a> (сами контролы)</li><li><a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=1D69CE13-E1E5-4315-825C-F14D33A303E9&amp;displaylang=en">Microsoft Chart Controls Add-on for Microsoft Visual Studio 2008</a> (add-on для работы с контролами в среде MS Visual Studio 2008)</li><li><a href="http://code.msdn.microsoft.com/mschart">Microsoft Chart Controls Samples</a> (Примеры использования)</li><li><a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=EE8F6F35-B087-4324-9DBA-6DD5E844FD9F&amp;displaylang=en">Microsoft Chart Controls for .NET Framework Documentation</a> (Документация)</li><li><a href="http://www.microsoft.com/downloads/details.aspx?displaylang=ru&amp;FamilyID=581ff4e3-749f-4454-a5e3-de4c463143bd">Microsoft Chart Controls for Microsoft .NET Framework 3.5 Language Pack</a> (Русификация, либо ... ну в общем около 23 разных языков)</li></ul>
+<p>
+Хочется еще сказать, что примеры намного богаче, чем документация по данным контролам, потому лучше сразу смотреть примеры, чем читать саму документацию.
+</p>
+<p>
+Итак, мы установили MS Chart. Создаем новый WinForms проект. Кладем на него контрол Chart. Выставляем у свойства объекта Area Area3DStyle.Enabled3D в true. Кладем 3 набора Series с типами Spline (это один из типов графиков, который позволяет класть несколько графиков на один Area). В итогге у нас есть некоторое представление, которое мы можем заполнять информацией. Дальше можно подстроить вид графиков, цвета и многое другое, что я и сделал. 
+</p>
+
+<p><a href="/library/images/01/0000006.jpeg"><img width="640" height="344" border="0" alt="" src="/library/images/01/0000006.jpeg" /></a>
+</p>
+
+<p>Дальше нам необходимо создать 3 PerfomanceCounter объекта из пространства имен System.Diagnostics:</p>
+
+<pre><code>#region Counters
+&nbsp;
+private PerformanceCounter pcCpu;
+private PerformanceCounter pcRam;
+private PerformanceCounter pcPage;
+&nbsp;
+/// &lt;summary&gt;
+/// Инициализация счетчиков
+/// &lt;/summary&gt;
+private void InitCounters()
+{
+  pcCpu = new PerformanceCounter("Processor", "% Processor Time", "_Total", Environment.MachineName);
+  pcRam = new PerformanceCounter("Memory", "% Committed Bytes In Use", String.Empty, Environment.MachineName);
+  pcPage = new PerformanceCounter("Paging File", "% Usage", "_Total", Environment.MachineName);
+}
+&nbsp;
+/// &lt;summary&gt;
+/// Освобождаем ресурсы - PerformanceCounters
+/// &lt;/summary&gt;
+private void DisposeCounters()
+{
+  try
+  {
+   if (pcCpu != null)
+    pcCpu.Dispose(); 
+   if (pcRam != null)
+    pcRam.Dispose(); 
+   if (pcPage != null)
+    pcPage.Dispose(); 
+  }
+  finally
+  {
+   PerformanceCounter.CloseSharedResources();
+  }
+}
+&nbsp;
+#endregion</code></pre>
+
+<p>
+Метод InitCounters вызываем в конструкторе формы. А метод DisposeCounters в методе Dispose. Далее описываем работу потока, который будет добавлять данные в график каждые 0.1 секунды. Данный подход есть в одном из примеров, поставляемых с MS Chart, я взял его оттуда.
+</p>
+
+<pre><code>#region Thread Sample
+&#160;
+private Thread addDataRunner;
+public delegate void AddDataDelegate();
+public AddDataDelegate addDataDel;
+&#160;
+/// &lt;summary&gt;
+/// Инициализируем поток, который будет добавлять нам данные в график
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+protected override void OnLoad(EventArgs e)
+{
+  base.OnLoad(e);
+  Application.DoEvents();
+&#160;
+  // create the Adding Data Thread but do not start until start button clicked
+  ThreadStart addDataThreadStart = new ThreadStart(AddDataThreadLoop);
+addDataRunner = new Thread(addDataThreadStart);
+&#160;
+  // create a delegate for adding data
+  addDataDel += new AddDataDelegate(AddData);
+&#160;
+  // start worker threads.
+  if (addDataRunner.IsAlive == true)
+  {
+   addDataRunner.Resume();
+  }
+  else
+  {
+   addDataRunner.Start();
+  }
+}
+&#160;
+/// &lt;summary&gt;
+/// Вызываем работу подсчета каждые 0.1 секунды
+/// &lt;/summary&gt;
+private void AddDataThreadLoop()
+{
+  while (true)
+  {
+   if (!chartPerfomance.IsHandleCreated)
+    return;
+&#160;
+   chartPerfomance.Invoke(addDataDel);
+&#160;
+   Thread.Sleep(100);
+  }
+}
+&#160;
+/// &lt;summary&gt;
+/// Заканчиваем работу потока
+/// &lt;/summary&gt;
+private void DisposeThread()
+{
+  if ((addDataRunner.ThreadState &amp; ThreadState.Suspended) == ThreadState.Suspended)
+  {
+   addDataRunner.Resume();
+  }
+  addDataRunner.Abort();
+}
+&#160;
+#endregion</code></pre>
+
+<p>
+Метод DisposeThread необходимо вызвать в методе Dispose формы для окончания работы потока. Дальше описываем методы для добавления точек в графики:
+</p>
+
+<pre><code>#region Add Data 
+&#160;
+/// &lt;summary&gt;
+/// Метод добавляет данные в три графика на данный период времени
+/// &lt;/summary&gt;
+public void AddData()
+{
+  DateTime timeStamp = DateTime.Now;
+&#160;
+  AddNewPoint(timeStamp, chartPerfomance.Series[0], pcCpu.NextValue());
+  AddNewPoint(timeStamp, chartPerfomance.Series[1], pcRam.NextValue());
+  AddNewPoint(timeStamp, chartPerfomance.Series[2], pcPage.NextValue());
+}
+&#160;
+/// &lt;summary&gt;
+/// Добавление точки (timeStamp, nexVal) в график ptSeries
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;timeStamp&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;ptSeries&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;nexVal&quot;&gt;&lt;/param&gt;
+public void AddNewPoint( DateTime timeStamp, Series ptSeries, float nexVal )
+{
+  ptSeries.Points.AddXY(timeStamp.ToOADate(), nexVal);
+&#160;
+  double removeBefore = timeStamp.AddSeconds( (double)(9) * ( -1 )).ToOADate();
+&#160;
+  while ( ptSeries.Points[0].XValue &lt; removeBefore )
+  {
+   ptSeries.Points.RemoveAt(0);
+  }
+&#160;
+  chartPerfomance.ChartAreas[0].AxisX.Minimum = ptSeries.Points[0].XValue;
+  chartPerfomance.ChartAreas[0].AxisX.Maximum = DateTime.FromOADate(ptSeries.Points[0].XValue).AddSeconds(10).ToOADate();
+&#160;
+  chartPerfomance.Invalidate();
+}</code></pre>
+
+<p>Теперь добавляем логику вращения:</p>
+
+<pre><code>#region Mouse Events
+&#160;
+/// &lt;summary&gt;
+/// Движение мыши 
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+private void chartPerfomance_MouseMove(object sender, MouseEventArgs e)
+{
+  if (e.Button == MouseButtons.Left)
+  {
+   int x = savedRotation - (savedLocation.X - e.X);
+   int y = savedInclination - (savedLocation.Y - e.Y);
+   chartPerfomance.ChartAreas[0].Area3DStyle.Rotation = Math.Max(Math.Min(x, 180), -180); 
+   chartPerfomance.ChartAreas[0].Area3DStyle.Inclination = Math.Max(Math.Min(y, 90), -90);
+}
+}
+&#160;
+/// &lt;summary&gt;
+/// Нажатие на кнопку мыши
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+private void chartPerfomance_MouseDown(object sender, MouseEventArgs e)
+{
+  if (e.Button == MouseButtons.Left)
+  {
+   Cursor = Cursors.NoMove2D;
+   savedLocation = e.Location;
+   savedRotation = chartPerfomance.ChartAreas[0].Area3DStyle.Rotation;
+   savedInclination = chartPerfomance.ChartAreas[0].Area3DStyle.Inclination;
+}
+}
+&#160;
+/// &lt;summary&gt;
+/// Кнопку отпустили
+/// &lt;/summary&gt;
+/// &lt;param name=&quot;sender&quot;&gt;&lt;/param&gt;
+/// &lt;param name=&quot;e&quot;&gt;&lt;/param&gt;
+private void chartPerfomance_MouseUp(object sender, MouseEventArgs e)
+{
+  if (e.Button == MouseButtons.Left)
+  {
+   Cursor = Cursors.Default;
+  }
+}
+&#160;
+private Point savedLocation;
+private int savedRotation;
+private int savedInclination;
+&#160;
+#endregion</code></pre>
+
+<p>
+Угол по оси Y можно выставить только в пределах от -90 до 90 градусов, потому полное 3d вращение сделать не удастся. Перевернуть график вверх ногами не получиться (правда сделать конечно можно, но не так просто).  По оси X угол можно выставить от -180 до 180 градусов, потому там можно сделать полное вращение, выставляя на движение мыши свойству Rotation значение x % 360 - 360 * ((x / 180) % 2).</p>
+<p>
+Все три метода нужно прицепить к объекту контрола Chart на события MouseMove, MouseDown и MouseUp соответственно. <br />В результате у нас должно получиться такой результат:</p>
+
+<p><a href="/library/images/01/0000007.jpeg"><img width="604" height="480" border="0" alt="" src="/library/images/01/0000007.jpeg" /></a></p>
+
+<p>Вот такой простой пример работы с MS Chart. Хочу сказать, что это достаточно мощная библиотека, которая предоставляет возможность представления данных в виде графиков. И из бесплатных аналогов, наверное, лучшая. Бесплатных аналогов я, правда, знаю всего один - <a href="http://zedgraph.sourceforge.net/samples.html">ZedGraph</a>, и до появления MS Chart им только и пользовался. Не скажу что MS Chart принес больше функциональности, но он имеет возможность размещения умных подписей (чтобы они друг на друга не залазили), методов для вычисления финансовых формул (медианы и многое другое), отображения легенд ну и много другого.</p><p>По окончании хочу привести несколько ссылок, где можно еще почерпать информации о MS Chart:</p><ul><li><a href="http://blogs.msdn.com/alexgor/ ">Alex Gorev's Weblog</a></li><li><a href="http://social.msdn.microsoft.com/Forums/en-US/MSWinWebChart/threads/">MS Chart Forum</a></li></ul><h4>Скачать пример: <a href="/library/content/01/PerfomanceCounterChart.zip">PerfomanceCounterChart.zip</a></h4>

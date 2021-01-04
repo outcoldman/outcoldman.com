@@ -1,0 +1,15 @@
+{{ define "body" }}
+
+<article>
+	<header>
+		<h1>
+			{{ .Title }}
+		</h1>
+	</header>
+
+	{{ .TableOfContents }}
+
+	{{ .Content }}
+</article>
+
+{{ end }}

@@ -1,0 +1,232 @@
+---
+categories: ru
+date: "2010-10-19T19:44:00Z"
+redirect_from: ru/blog/show/249/
+tags:
+- Silverlight
+- XAML
+- Validation
+title: Silverlight. Основы. Валидация. Часть 1. DataAnnotations & ValidatesOnExceptions
+slug: "silverlight-основы-валидация-часть-1-dataannotations-validatesonexceptions"
+---
+<p>В Silverlight 4 есть несколько способов для валидации введённых данных, точнее несколько подходов для реализации валидации. Первый вариант, реализация валидации на <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations(VS.95).aspx">DataAnnotation</a>. Вариант, когда правила валидации описываются при помощи атрибутов. Два других подхода – это реализация одного из интерфейсов <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.idataerrorinfo(VS.95).aspx">IDataErrorInfo</a> или <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifydataerrorinfo(VS.95).aspx">INotifyDataErrorInfo</a>. Я хотел бы остановиться на каждом из подходов, поговорить о преимуществах и недостатках каждого из них. Цель данной статьи выявить лучшие практики для валидации для себя и для вас. Так получилось, что статья оказалась большой, потому реализую ее в два или три подхода. Эта часть только про DataAnnotation.</p>    <h2>Подготовка</h2>  <p>Итак, давайте перейдем к примеру. Я всю валидацию буду описывать при помощи одного простого окна изменения пароля. </p>  <p><img style="background-image: none; border-right-width: 0px; padding-left: 0px; padding-right: 0px; display: block; float: none; border-top-width: 0px; border-bottom-width: 0px; margin-left: auto; border-left-width: 0px; margin-right: auto; padding-top: 0px" title="Capture" border="0" alt="Capture" src="/library/2010/10/19/Capture_1F726807.png" width="587" height="84" /></p>  <p>В нем у меня два контрола <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.passwordbox(VS.95).aspx">PasswordBox</a>, одна кнопка, и <a href="http://msdn.microsoft.com/en-us/library/system.windows.controls.validationsummary(VS.95).aspx">ValidationSummary</a>. Для каждого примера у меня будет меняться только объект, который байдится к DataContext этого контрола. В реализации этого объекта и будет скрыта валидация введённых данных. Xaml-описание этого окна:</p>  <pre><code>&lt;UserControl x:Class=&quot;SilverlightValidation.MainPage&quot;
+    xmlns=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&quot;
+    xmlns:x=&quot;http://schemas.microsoft.com/winfx/2006/xaml&quot;
+    xmlns:d=&quot;http://schemas.microsoft.com/expression/blend/2008&quot;
+    xmlns:mc=&quot;http://schemas.openxmlformats.org/markup-compatibility/2006&quot; 
+    xmlns:sdk=&quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk&quot; 
+    xmlns:DataAnnotations=&quot;clr-namespace:SilverlightValidation.DataAnnotations&quot; 
+    xmlns:SilverlightValidation=&quot;clr-namespace:SilverlightValidation&quot;    
+    mc:Ignorable=&quot;d&quot; d:DesignHeight=&quot;300&quot; d:DesignWidth=&quot;400&quot;&gt;
+&#160;    &lt;UserControl.DataContext&gt;
+        &lt;DataAnnotations:BindingModel /&gt;
+    &lt;/UserControl.DataContext&gt;
+    &lt;Grid x:Name=&quot;LayoutRoot&quot; Background=&quot;White&quot; Width=&quot;500&quot;&gt;
+&#160;        &lt;Grid.ColumnDefinitions&gt;
+            &lt;ColumnDefinition Width=&quot;Auto&quot; /&gt;
+            &lt;ColumnDefinition Width=&quot;*&quot; /&gt;
+        &lt;/Grid.ColumnDefinitions&gt;
+        &lt;Grid.RowDefinitions&gt;
+            &lt;RowDefinition Height=&quot;Auto&quot; /&gt;
+            &lt;RowDefinition Height=&quot;Auto&quot; /&gt;
+            &lt;RowDefinition Height=&quot;Auto&quot; /&gt;
+            &lt;RowDefinition Height=&quot;Auto&quot; /&gt;
+        &lt;/Grid.RowDefinitions&gt;
+&#160;        &lt;TextBlock HorizontalAlignment=&quot;Right&quot;&gt;New Password:&lt;/TextBlock&gt;
+&#160;        &lt;PasswordBox Grid.Column=&quot;1&quot; Password=&quot;{Binding Path=NewPassword, Mode=TwoWay, 
+            ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}&quot; /&gt;
+&#160;        &lt;TextBlock Grid.Row=&quot;1&quot; HorizontalAlignment=&quot;Right&quot;&gt;New Password Confirmation:&lt;/TextBlock&gt;
+&#160;        &lt;PasswordBox Grid.Row=&quot;1&quot;  Grid.Column=&quot;1&quot; Password=&quot;{Binding Path=NewPasswordConfirmation, Mode=TwoWay, 
+            ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}&quot;  /&gt;
+&#160;        &lt;Button Grid.Row=&quot;2&quot; Grid.ColumnSpan=&quot;2&quot; HorizontalAlignment=&quot;Right&quot;  Content=&quot;Change&quot; 
+                Command=&quot;{Binding Path=ChangePasswordCommand}&quot; /&gt;
+&#160;        &lt;sdk:ValidationSummary Grid.Row=&quot;3&quot; Grid.ColumnSpan=&quot;2&quot; /&gt;
+    &lt;/Grid&gt;
+&lt;/UserControl&gt;
+</code></pre>
+
+<p>В байдинге для PasswordBox у меня сразу же прописаны 4 свойства, связанных с валидацией. Пока скажу только про <a href="http://msdn.microsoft.com/en-us/library/system.windows.data.binding.notifyonvalidationerror(VS.95).aspx">NotifyOnValidationError</a>, он нужен для того, чтобы сообщить ValidationSummary о том, что нужно отобразить ошибки валидации.</p>
+
+<p>Если кто не знает – PasswordBox имеет только односторонний байдинг от контрола к объекту, сделано это из соображений безопасности. Сам процесс байдинга происходит только при смене фокуса (так правда и у обычного контрола TextBox). В WPF есть возможность изменить это поведение, сделать так, чтобы байдинг происходил на нажатие клавиши, в Silverlight это тоже можно реализовать при помощи <a href="http://msdn.microsoft.com/en-us/library/cc265152(VS.95).aspx">Attached Property</a>. Сделать это можно так:</p>
+
+<pre><code>public static class UpdateSourceTriggerHelper
+{    public static readonly DependencyProperty UpdateSourceTriggerProperty =
+        DependencyProperty.RegisterAttached(&quot;UpdateSourceTrigger&quot;, typeof(bool), typeof(UpdateSourceTriggerHelper),
+                                            new PropertyMetadata(false, OnUpdateSourceTriggerChanged));
+&#160;    public static bool GetUpdateSourceTrigger(DependencyObject d)
+    {        return (bool)d.GetValue(UpdateSourceTriggerProperty);
+    }
+&#160;    public static void SetUpdateSourceTrigger(DependencyObject d, bool value)
+    {        d.SetValue(UpdateSourceTriggerProperty, value);
+    }
+&#160;    private static void OnUpdateSourceTriggerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {        if (e.NewValue is bool &amp;&amp; d is PasswordBox)
+        {            PasswordBox textBox = d as PasswordBox;
+            textBox.PasswordChanged -= PassportBoxPasswordChanged;
+&#160;            if ((bool)e.NewValue)
+                textBox.PasswordChanged += PassportBoxPasswordChanged;
+        }
+    }
+&#160;    private static void PassportBoxPasswordChanged(object sender, RoutedEventArgs e)
+    {        var frameworkElement = sender as PasswordBox;
+        if (frameworkElement != null)
+        {
+            BindingExpression bindingExpression = frameworkElement.GetBindingExpression(PasswordBox.PasswordProperty);            if (bindingExpression != null)
+                bindingExpression.UpdateSource();
+        }
+    }
+}
+</code></pre>
+
+<p>Чтобы использовать нужно просто устанавливать это свойство для PasswordBox:</p>
+
+<pre><code>&lt;PasswordBox Grid.Column=&quot;1&quot; Password=&quot;{Binding Path=NewPassword, Mode=TwoWay, 
+    ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True, ValidatesOnDataErrors=True, NotifyOnValidationError=True}&quot;
+    SilverlightValidation:UpdateSourceTriggerHelper.UpdateSourceTrigger=&quot;True&quot;/&gt;
+</code></pre>
+
+<p>Так как я не буду использовать никаких фреймворков в этих примерах, то мне потребуется так же самая обычная реализация DelegateCommand:</p>
+
+<pre><code>public class DelegateCommand : ICommand
+{    private readonly Action&lt;object&gt; _execute;
+    private readonly Func&lt;object, bool&gt; _canExecute;
+&#160;    public DelegateCommand(Action&lt;object&gt; execute)
+    {        if (execute == null)
+            throw new ArgumentNullException(&quot;execute&quot;);
+        _execute = execute;
+    }
+&#160;    public DelegateCommand(Action&lt;object&gt; execute, Func&lt;object, bool&gt; canExecute)
+        : this(execute)
+    {        if (canExecute == null)
+            throw new ArgumentNullException(&quot;canExecute&quot;);
+        _canExecute = canExecute;
+    }
+&#160;    public bool CanExecute(object parameter)
+    {        if (_canExecute != null)
+            return _canExecute(parameter);
+        return true;
+    }
+&#160;    public void Execute(object parameter)
+    {
+        _execute(parameter);
+    }
+&#160;    public void RaiseCanExecuteChanged()
+    {        CanExecuteChanged(this, EventArgs.Empty);
+    }
+&#160;    public event EventHandler CanExecuteChanged = delegate {};
+}
+</code></pre>
+
+<p><strong>Эта реализация не очень хороша, с ней возможно получить утечки памяти (<a href="http://compositewpf.codeplex.com/workitem/4065?ProjectName=compositewpf">Memory Leak caused by DelegateCommand.CanExecuteChanged Event</a>), лучше будет взять реализацию из Prism версии 2.1 или выше.</strong></p>
+
+<p>В мною описанном примере мне нужно реализовать несколько правил для валидации:</p>
+
+<ul>
+  <li>New Password должен быть введен; </li>
+
+  <li>New Password имеет ограниченную длину ввода, пускай 20 символов (печально, что многие разработчики совсем забывают, что за этим тоже нужно следить, а потом получают ошибки, вроде string truncated); </li>
+
+  <li>New Password Confirmation должен совпадать с New Password. </li>
+</ul>
+
+<h2>#1 DataAnnotations &amp; ValidatesOnExceptions</h2>
+
+<p>Этот вариант валидации появился еще до Silverlight 4, либо со второй, либо с третьей версии. Я с Silverlight знаком на хорошем уровне только с 3-ей версии, потому точно могу сказать только, что он был именно в этой версии. Единственный, наверное, плюс этого типа валидации то, что он есть во всех технологиях (или практически во всех?). По крайней мере, в ASP.NET он тоже есть. Основная идея в этом варианте – валидация на бросаниях исключений. Хотя не обязательно, можно реализовать и по-другому. По крайней мере, примеры, которые вы найдете, будут именно основываться на них, и вся инфраструктура будет заточена под них. В Silverlight 3 валидация на исключениях была единственным возможным вариантом (исключаем с нуля написания своего варианта). В байдинге за поддержку валидации на исключениях отвечает свойство <a href="http://msdn.microsoft.com/en-us/library/system.windows.data.binding.validatesonexceptions(VS.95).aspx">ValidatesOnExceptions</a>.</p>
+
+<p>Давайте приступим к реализации. Буду описывать BindingModel. Все примеры будут начинаться с одной и той же реализации с поддержкой интерфейса <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifypropertychanged(VS.95).aspx">INotifyPropertyChanged</a> и набором полей – два поля на пароль и одно свойство – это команда, которая байдиться на кнопку и которая должна производить смену пароля (инициализировать ее буду в конструкторе потом):</p>
+
+<pre><code>public class BindingModel : INotifyPropertyChanged
+{    private string _newPassword;
+    private string _newPasswordConfirmation;
+&#160;    public DelegateCommand ChangePasswordCommand { get; private set; }
+&#160;    #region INotifyPropertyChanged
+&#160;    public event PropertyChangedEventHandler PropertyChanged = delegate { };
+&#160;    private void OnPropertyChanged(string propertyName)
+    {        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+    }
+&#160;    #endregion
+}
+</code></pre>
+
+<p>Для этого этого примера нам так же потребуются два вспомогательных метода:</p>
+
+<pre><code>private bool IsValidObject()
+{    ICollection&lt;ValidationResult&gt; results = new Collection&lt;ValidationResult&gt;();
+    return Validator.TryValidateObject(this, new ValidationContext(this, null, null), results, true) &amp;&amp; results.Count == 0;
+}
+&#160;private void ValidateProperty(string propertyName, object value)
+{    Validator.ValidateProperty(value, new ValidationContext(this, null, null) { MemberName = propertyName });
+}
+</code></pre>
+
+<p>Первый проверяет валидность всего объекта BindingModel, второй проверяет валидность определенного свойства. Оба метода используют класс <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validator(VS.95).aspx">Validator</a>, это инфраструктура Silverlight. Этот класс собирает все аттрибуты, в которых описывается валидация, и соответственно производит валидирование. В методе IsValidObject он просто вернет булевское значение. Метод ValidateProperty бросить исключение, если какое-то из условий валидации не пройдет. Условия можно описать при помощи следующих заготовленных аттрибутов, наследованных от <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationattribute(VS.95).aspx">ValidationAttribute</a> (можно реализовать свой): <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.stringlengthattribute(VS.95).aspx">StringLengthAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.requiredattribute(VS.95).aspx">RequiredAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.regularexpressionattribute(VS.95).aspx">RegularExpressionAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.rangeattribute(VS.95).aspx">RangeAttribute,</a> <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.datatypeattribute(VS.95).aspx">DataTypeAttribute</a>, <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.customvalidationattribute(VS.95).aspx">CustomValidationAttribute</a>. По ссылкам можно ознакомиться ближе с каждым из ним, а я теперь опишу два свойства моего типа BindingModel:</p>
+
+<pre><code>[Required]
+[StringLength(20)][Display(Name = &quot;New password&quot;)]
+public string NewPassword
+{    get { return _newPassword; }
+    set
+    {        _newPassword = value;
+        OnPropertyChanged(&quot;NewPassword&quot;);
+        ChangePasswordCommand.RaiseCanExecuteChanged();        ValidateProperty(&quot;NewPassword&quot;, value);
+    }
+}
+&#160;[CustomValidation(typeof(BindingModel), &quot;CheckPasswordConfirmation&quot;)]
+[Display(Name = &quot;New password confirmation&quot;)]
+public string NewPasswordConfirmation
+{    get { return _newPasswordConfirmation; }
+    set
+    {        _newPasswordConfirmation = value;
+        OnPropertyChanged(&quot;NewPasswordConfirmation&quot;);
+        ChangePasswordCommand.RaiseCanExecuteChanged();        ValidateProperty(&quot;NewPasswordConfirmation&quot;, value);
+    }
+}
+</code></pre>
+
+<p>Думаю, что с <em>NewPassword</em> свойством все ясно, там используется два аттрибута Required и StringLenght, которые реализуют два условия валидации. Так же я использую <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.displayattribute(VS.95).aspx">DisplayAttribute</a> для того, чтобы ValidationSummary правильно отображало, что скрывается за этим полем, а не простое “NewPassword”. Оба свойства имеют в set методах одинаковую процедуру: установить значение, сказать, что значение изменилось, сказать команде, что может быть изменилось значение <em>CanExecute</em> метода (если используем), и произвести валидацию для этого свойства. Свойство <em>NewPasswordConfirmation</em> использует CustomValidatorAttribute, в нем описан метод, который нужно вызвать для того, чтобы произвести валидацию, а так же описан тип, в котором этот метод описан. На этот метод накладываются следующие правила: он должен быть публичным, статичным, возвращать тип <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationresult(VS.95).aspx">ValidationResult</a>, принимать первым параметром переменную, тип у которой должен быть такой же как у свойства, второй параметр может быть <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.dataannotations.validationcontext(VS.95).aspx">ValidationContext</a>. Моя реализация следующая:</p>
+
+<pre><code>public static ValidationResult CheckPasswordConfirmation(string value, ValidationContext context)
+{    var bindingModel = context.ObjectInstance as BindingModel;
+    if (bindingModel == null)
+        throw new NotSupportedException(&quot;ObjectInstance must be BindingModel&quot;);
+&#160;    if (string.CompareOrdinal(bindingModel._newPassword, value) != 0)
+        return new ValidationResult(&quot;Password confirmation not equal to password.&quot;);
+&#160;    return ValidationResult.Success;
+}
+</code></pre>
+
+<p>Дальше нужно решить как быть с кнопкой, как она будет работать. Сделаю следующим образом:</p>
+
+<pre><code>public BindingModel()
+{    ChangePasswordCommand = new DelegateCommand(ChangePassword, CanChangePassword);
+}
+&#160;private bool CanChangePassword(object arg)
+{    return IsValidObject();
+}
+&#160;private void ChangePassword(object obj)
+{    if (ChangePasswordCommand.CanExecute(obj))
+    {        MessageBox.Show(&quot;Bingo!&quot;);
+    }
+}
+</code></pre>
+
+<p>Для этого примера я так же установлю для обоих контролов PasswordBox <em>UpdateSourceTrigger=”True” </em>в Xaml разметке. Итого получаем следующий результат (внизу SL пример):</p>
+<object data="data:application/x-silverlight-2," type="application/x-silverlight-2" width="100%" height="150px">
+		  <param name="source" value="/library/content/03/SLValidation/SilverlightValidation1.xap" />
+		  <param name="background" value="white" />
+		  <param name="minRuntimeVersion" value="4.0.50826.0" />
+		  <param name="autoUpgrade" value="true" />
+		  <a href="http://go.microsoft.com/fwlink/?LinkID=149156&amp;v=4.0.50826.0" style="text-decoration:none">
+ 			  <img src="http://go.microsoft.com/fwlink/?LinkId=161376" alt="Get Microsoft Silverlight" style="border-style:none" />
+		  </a>
+	    </object>
+
+<p>Минусы этого подхода очевидны. Основной минус – это сами бросания исключений. Они мешают везде. Если отлаживаете приложение, то это, скорее всего, лишнее при отладке (особенно если включите байдинг на каждое изменение значение, на каждое нажатие клавиши). Самое неприятное, что, например, нет нормальной возможности обнулить поле извне без какого-нибудь backend свойства или метода. Например, нам нужно было бы установить null в оба поля при загрузке контрола, а не сможем просто так - получим исключения. Очень не приятно. Конечно, решается, при помощи какого-нибудь метода Set[Property]Value, но в целом свойства реально можно будет использовать только для байдинга, что немного архитектурно странно.</p>
+
+<p>Другое, что мне тоже очень не нравится, это сама реализация. Приходится использовать CanExecute свойство для команды, и делать неактивным кнопку изменения пароля, что, мне кажется, не совсем очевидным и ясным для пользователя. Очевиднее, когда кнопка активна всегда. А когда пользователь нажмет ее в случае, если ничего не установлено – он увидит список ошибок валидации. Но так просто это реализовать не получится (или я не знаю как). Нельзя просто провалидировать весь объект и сказать контролам о том, что произошли какие-то ошибки валидации. То есть в методе ChangePassword я могу только проверить (и это делаю на всякий случай), но не вызвать какое-нибудь событие о том, что произошли ошибки валидации. Хотя реализовать подобное поведение, конечно же, можно. Нужно просто дернуть для каждого контрола UpdateBinding, для этого нужно написать специальный класс (типа Validation Scope), который бы это делал. </p>
+
+<p>Мне так же приходится в этом случае постоянно использовать <em>UpdateSourceTrigger</em>, так как если байдинг будет происходить на смену фокуса, то у пользователя будет ступор. Он ввел New Password, ввел Confirmation, оба пароля одинаковые, а кнопка до сих пор не валидна, просто потому, что байдинг еще не произошел. А когда используешь <em>UpdateSourceTrigger </em>при вводе Confirmation пароля на каждое нажатие клавиши уже видишь, что пароли не совпадают. Ужасно кривое решение.</p>
+
+<p>В общем, этот вариант валидации явно ужасен. Хорошо, разработчики Silverlight услышали просьбы, и реализовали интерфейсы <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.idataerrorinfo(VS.95).aspx">IDataErrorInfo</a> и <a href="http://msdn.microsoft.com/en-us/library/system.componentmodel.inotifydataerrorinfo(VS.95).aspx">INotifyDataErrorInfo</a>, но о них <strong><a href="/ru/blog/show/250">в следующей статье</a></strong>. </p>
+
+<p>Этот пример можно скачать с <a href="https://www.assembla.com/code/outcoldman_p/subversion/nodes/BlogProjects/SilverlightValidation?rev=9">assembla.com</a></p>

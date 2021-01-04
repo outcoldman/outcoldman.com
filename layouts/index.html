@@ -1,0 +1,50 @@
+{{ define "body" }}
+
+<style>
+    ul.blog-list {
+        padding: 0;
+        list-style-type: none;
+    }
+    ul.blog-list > li > a {
+        margin: 0 0 0 0;
+        display: block;
+        margin-left: 3em;
+    }
+    ul.blog-list > li > time {
+        color: #555;
+        width: 3em;
+        float: left;
+    }
+    ul.blog-list > li > sup {
+        font-family: monospace;
+        font-weight: normal;
+        color: #555;
+        margin-left: 4.5em;
+        display: block;
+    }
+</style>
+
+<h1>Blog</h1>
+<ul>
+    <li>English</li>
+    <li><a href="/ru">Russian</a></li>
+</ul>
+
+<ul class="blog-list">
+
+{{ range where .Site.Pages "Kind" "page" }}
+    <li>
+        <time>{{.Date.Format "2006-01-02"}}</time>
+        <a href="{{.Permalink}}">{{.Title}}</a>
+    </li>
+{{ end }}
+
+</ul>
+
+<h2>Cheatsheets</h2>
+<ul>
+    <li><a href="/cheatsheets/tmux/">tmux</a></li>
+    <li><a href="/cheatsheets/vim/">vim</a></li>
+</ul>
+
+{{ end }}

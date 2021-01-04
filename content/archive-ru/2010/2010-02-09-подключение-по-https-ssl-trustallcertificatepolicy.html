@@ -1,0 +1,33 @@
+---
+categories: ru
+date: "2010-02-09T13:04:00Z"
+redirect_from: ru/blog/show/186/
+tags:
+- SSL
+- Certificate
+- .NET
+- C#
+- https
+title: Подключение по HTTPS (SSL) - TrustAllCertificatePolicy
+slug: "подключение-по-https-ssl-trustallcertificatepolicy"
+---
+<p>Когда подключаетесь по HTTPS (SSL) к веб-ресурсу – можно получить такую ошибку:</p>  <p><em>&quot;The underlying connection was closed: Could not establish trust relationship with remote server.&quot;</em></p> <lj-cut>  <p>Дело может быть в том, что сервер использует либо просроченный сертификат, либо какой-то самоизданный сертификат, сертификат УЦ которого не установлен на вашем компьютере, либо сертификат выдан на DNS имя, а подключаетесь вы по IP. В общем, причин может быть масса. Когда вы открываете веб-сайт через браузер – он вам предложит на выбор: открыть соединение или нет, программно так вам никто не сделает само собой. Проблему эту можно обойти при помощи свойства <a href="http://msdn.microsoft.com/en-us/library/system.net.servicepointmanager.certificatepolicy.aspx">ServicePointManager.CertificatePolicy</a> и интерфейса <a href="http://msdn.microsoft.com/en-us/library/system.net.icertificatepolicy.aspx">ICertificatePolicy</a>. Пишем свой Policy, очень простой:</p>  
+
+<pre><code>using System.Net; 
+using System.Security.Cryptography.X509Certificates; 
+ 
+public class TrustAllCertificatePolicy : ICertificatePolicy 
+{ 
+    public bool CheckValidationResult(ServicePoint sp, 
+        X509Certificate cert, WebRequest req, int problem) 
+    { 
+        return true; 
+    } 
+} </code></pre>
+
+<p>Затем перед использованием веб-ресурсов выставляем это Policy по умолчанию:</p>
+
+<pre><code>System.Net.ServicePointManager.CertificatePolicy = new TrustAllCertificatePolicy();</code></pre>
+
+<p>
+</p>
