@@ -1,0 +1,29 @@
+{{ define "body" }}
+
+<article>
+    <header>
+        <h1>{{.Title}}</h1>
+    </header>
+
+    {{.Content}}
+
+    <ul>
+        {{ range .Pages }}
+        <li>
+            <time>
+                {{ if (isset .Params "date") }}
+                    {{ .Date.Format "2006-01-02"}}
+                {{ else }}
+                    {{ .Lastmod.Format "2006-01-02"}}
+                {{ end }}
+                {{ with .Date }}
+                    {{.Format "2006-01-02"}}
+                {{ end }}
+            </time>
+            <a href="{{.Permalink}}">{{.Title}}</a>
+        </li>
+        {{ end }}
+    </ul>
+</article>
+
+{{ end }}
