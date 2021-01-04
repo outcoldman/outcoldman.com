@@ -97,6 +97,7 @@ body {
 
 a, a:visited, a:hover {
     color: #299BFF;
+    text-decoration: none;
 }
 
 .main-container {
@@ -152,6 +153,71 @@ article img {
 
 article #TableOfContents {
     border-bottom: #E8E8E811 1px solid;;
+}
+
+article sup.post-sup {
+    display: block;
+    padding: 6px 0 24px 0;
+}
+
+article ul.flat {
+    display: inline-block;
+    list-style: none;
+    overflow: hidden;
+    padding: 0;
+}
+
+article ul.flat > li {
+    display: inline-block;
+}
+
+article ul.tags {
+    font-family: "Ubuntu Mono", monospace;
+}
+
+article ul.tags li:not(:last-child)::after {
+    content: ',';
+}
+
+article ul.page-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+article ul.page-list h2 {
+    margin: 0;
+    padding: 24px 0 0 0;
+}
+
+article ul.page-list a {
+    color: inherit;
+}
+
+article sup.post-sup ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+article sup.post-sup ul li {
+    text-align: center;
+}
+
+article .list-content ul {
+    display: block;
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    text-align: center;
+}
+
+article .list-content li {
+    display: inline-block;
+}
+
+article .list-content li:not(:last-child) {
+    padding-right: 24px;
 }
 
 code {

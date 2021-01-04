@@ -5,6 +5,45 @@
 		<h1>
 			{{ .Title }}
 		</h1>
+
+		<sup class="post-sup">
+			<ul>
+				{{ with .Date }}
+				<li>
+					<time>
+						{{.Format "2006-01-02"}}
+					</time>
+				</li>
+				{{ end }}
+
+				{{ with .Params.tags }}
+				<li>
+					<ul class="flat tags">
+						{{ range . }}
+						<li>{{ . }}</li>
+						{{ end }}
+					</ul>
+				</li>
+				{{ end }}
+
+
+				{{ with .Lastmod }}
+				<li>
+                        <span>
+                            modified: <time>{{ .Format "2006-01-02"}}</time>
+                        </span>
+				</li>
+				{{ end }}
+
+				{{ with .ReadingTime }}
+				<li>
+                        <span>
+                            reading: {{ . }} minutes
+                        </span>
+				</li>
+				{{ end }}
+			</ul>
+		</sup>
 	</header>
 
 	{{ .TableOfContents }}
