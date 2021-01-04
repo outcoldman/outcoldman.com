@@ -116,7 +116,7 @@ a, a:visited, a:hover {
 }
 
 article {
-    padding-bottom: 64px;
+    padding: 32px 0 64px 0;
 }
 
 article > blockquote {

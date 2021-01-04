@@ -5,5 +5,4 @@
 Creator: Denis Gladkikh
 Twitter: @outcoldman
 /* SITE */
-Last update: {{ site.time | date: '%F' }}
-Software: Jekyll
+Software: Hugo
