@@ -7,6 +7,6 @@ disableKinds: ["taxonomy", "term"]
 enableGitInfo: true
 
 permalinks:
-  archive-en: /en/archive/:year/:month/:day/:slug/
-  archive-ru: /ru/archive/:year/:month/:day/:slug/
-  archive-cheatsheets: /cheatsheets/:filename/
+  en: /en/archive/:year/:month/:day/:slug/
+  ru: /ru/archive/:year/:month/:day/:slug/
+  cheatsheets: /cheatsheets/:filename/
