@@ -1,8 +1,8 @@
 ---
 categories: en
 date: "2014-10-21T00:00:00Z"
-redirect_from:
-- en/archive/2014/10/14/ubuntu-as-a-home-server-part-2-openvpn/
+aliases:
+- /en/archive/2014/10/14/ubuntu-as-a-home-server-part-2-openvpn/
 tags:
 - Ubuntu
 - OpenVPN

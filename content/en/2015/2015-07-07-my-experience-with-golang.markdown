@@ -1,9 +1,9 @@
 ---
 categories: en
 date: "2015-07-07T00:00:00Z"
-redirect_from:
-- en/archive/2015/06/08/my-experience-with-golang/
-- en/archive/2015/07/08/my-experience-with-golang/
+aliases:
+- /en/archive/2015/06/08/my-experience-with-golang/
+- /en/archive/2015/07/08/my-experience-with-golang/
 tags:
 - golang
 - languages
