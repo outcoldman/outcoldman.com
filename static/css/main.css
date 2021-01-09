@@ -160,14 +160,14 @@ article sup.post-sup {
     padding: 6px 0 24px 0;
 }
 
-article ul.flat {
+ul.flat {
     display: inline-block;
     list-style: none;
     overflow: hidden;
     padding: 0;
 }
 
-article ul.flat > li {
+ul.flat > li {
     display: inline-block;
 }
 
@@ -223,6 +223,28 @@ article .list-content li:not(:last-child) {
 code {
     font-family: "Ubuntu Mono", monospace;
     font-size: 16px;
+}
+
+.post-footer {
+    padding: 24px 0;
+    text-align: center;
+}
+
+.post-footer > p {
+    display: block;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+    font-size: small;
+}
+
+.post-footer > ul {
+    margin: 0;
+    padding: 5px 0 0 0;
+}
+
+.post-footer > ul > li:not(:last-child) {
+    padding: 0 10px 0 0;
 }
 
 

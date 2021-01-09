@@ -4,19 +4,21 @@ title: "Cheatsheet: macOS Setup (Apple Silicon edition)"
 draft: true
 ---
 
-## Applications
+## Homebrew and CLI tools
 
-Check compatibility on (Is Apple Silicon ready?)[https://isapplesiliconready.com]
+### Homebrew
 
-### homebrew
-
-Run it under Rosetta 2 for now. Add to your `.zshrc` alias
+Run it under Rosetta 2 for now (see ). Add to your `.zshrc` alias
 
 ```bash
 alias brew="arch -x86_64 brew"
 ```
 
 > For now some of the most important I install manually (go, hugo, etc)
+
+## Applications
+
+Check compatibility on (Is Apple Silicon ready?)[https://isapplesiliconready.com]
 
 ### Docker
 
