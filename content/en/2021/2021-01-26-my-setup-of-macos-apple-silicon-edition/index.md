@@ -88,8 +88,8 @@ And a few notes about how I choose the applications I use:
   
 ## SetApp (alternative to Apple Store)
 
-I also use a SetApp subscription that gives access to many high-quality applications. If you have not tried it yet, 
-this is a [referral link](https://go.setapp.com/invite/wtefwi79) for 2 months of trial. Some applications that I use
+I also use a [Setapp](https://go.setapp.com/stp313?utm_medium=vendor_program&utm_source=Denis+Gladkikh&utm_content=link) 
+subscription that gives access to many high-quality applications. Some applications that I use
 are available at SetApp.
 
 ## Apple Apps

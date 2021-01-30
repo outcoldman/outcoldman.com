@@ -238,8 +238,7 @@ with visualizations.
 
 ### SQLPro for SQLite
 
-If you have [SetApp.com](https://setapp.com) subscription for macOS (if not, feel free to use my 
-[referral](https://go.setapp.com/invite/wtefwi79), which will give you one month of free trial instead of 7 days).
+If you have [SetApp.com](https://go.setapp.com/stp313?utm_medium=vendor_program&utm_source=Denis+Gladkikh&utm_content=link) subscription for macOS.
 Or maybe you already have access to [SQLPro Studio](https://www.sqlprostudio.com), you can use it as well.
 
 Create a new SQLite database. Switch to query, and let's create a new table by running the following query
