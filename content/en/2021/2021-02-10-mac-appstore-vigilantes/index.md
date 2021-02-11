@@ -1,12 +1,12 @@
 ---
-date: "2021-02-11"
+date: "2021-02-10"
 tags:
 - openin
 - loshadki
 - drama
 - appstore
 - privacy
-title: 'Drama: accused to be a russian spy for building semi-successful application and having a Russian last name'
+title: 'Drama: accused of being a russian spy for building semi-successful application and having a Russian last name'
 slug: mac-appstore-vigilantes
 draft: false
 ---
@@ -16,8 +16,8 @@ There is some drama for you, my dear reader.
 It was a regular day. I was skiing with my skydiver friends when I received that email. At first, I thought this 
 was one of those emails, you know, we can do SEO for you, build apps, hire you, promote you, teach you. 
 
-But not, this 
-was a personal email that I have never received before. A person, claiming himself to be a Mac AppStore vigilantes 
+But no, this 
+was a personal email that I have never received before. A person, claiming to be a Mac AppStore vigilante 
 or a security researcher, told me that they found an abusive behavior in my application. So I took it seriously.
 
 
@@ -31,8 +31,8 @@ or a security researcher, told me that they found an abusive behavior in my appl
 > 
 > *...*
 
-Ok, I can give you some respect for that. You seem a little arrogant, but if you do, what you claim to do, maybe 
-you can help developers and users, with issues reported in this article [Scam iOS Apps Still Raking in Millions in Revenue on App Store](https://www.macrumors.com/2021/02/09/scam-apps-ios-making-millions-revenue/)
+Ok, I can give you some respect for that. You seem a little arrogant, but if you do what you claim to do, maybe 
+you can help developers and users with issues reported in this article [Scam iOS Apps Still Raking in Millions in Revenue on App Store](https://www.macrumors.com/2021/02/09/scam-apps-ios-making-millions-revenue/)
 
 You suggested googling your alias. I did. I could not find anything. Yes, only one tweet about finding one app 
 was stealing user data. I am sure there are many more. Keep doing what you are doing.
@@ -61,9 +61,8 @@ Ok, you can call it an A.I., I will call it a script.
 > *...*
 
 It is simple. Be respectful of your users. Give them access to you, don’t hide under aliases. Publish your applications 
-in places where it is allowed: ProductHunt, relative subreddits, and any communities that will find it useful. Ok, 
-I admit, one community banned me for self-promoting. They have strict rules about that, I forgot. If you have an 
-email where users can write, you can talk to them, hear feedback, discover bugs, and fix them.
+in places where it is allowed: ProductHunt, relative subreddits, and any communities that will find it useful. If you
+have an email where users can write, you can talk to them, hear feedback, discover bugs, and fix them.
 
 ProductHunt rated the app [pretty well](https://www.producthunt.com/posts/openin-app). 
 Some users on Reddit found my app pretty useful.
@@ -108,7 +107,7 @@ Please tell me when my app will get to the Top 200 apps.
 >
 > *...*
 
-Good, I don't really want to hear from you again. Unless you keep me posting on some stats you can get out of the App Store.
+Good, I don't really want to hear from you again. Unless you want to keep me posted on some stats you can get out of the App Store.
 
 > *...*
 >
@@ -117,8 +116,8 @@ Good, I don't really want to hear from you again. Unless you keep me posting on 
 > *...*
 
 Ok... bud... That is low. I just looked at Twitter, and it seems like you are from Germany... Are we playing a game? 
-Who can say mean things about each other? Just a note, I am U.S. Citizen, originally from Russia. 
-Should I call you an N-word for being from Germany?
+Who can say mean things about each other? Not that it should matter, but I am U.S. Citizen, originally from Russia.
+History of the nation, location or ethnicity should not define the person, right?
 
 > *...*
 > 
@@ -135,8 +134,9 @@ I don't really think you do.
 
 Good luck to you too, bud. Just a few suggestions for you.
 
-At first, If you want to keep calling yourself a researcher,
-please do some research before accusing anybody of anything. At first, use Google, try to find out about this person. 
+First, If you want to keep calling yourself a researcher,
+please do some research before firing off random half baked accusation. Maybe try using Google, 
+find out about the person. 
 Maybe you can find many articles, discussions on various forums, public talks, public profiles in social networks, 
 work history, and some other projects or companies built by that person.
 
