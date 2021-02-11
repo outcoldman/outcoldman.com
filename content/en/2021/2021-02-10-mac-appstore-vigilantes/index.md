@@ -145,3 +145,6 @@ Second, think before you write.
 And the last, fix some bugs in your `script_ai.py`. 
 
 Sincerely yours, Russian Spy. 
+
+P.S. Today was a happy day, my app was accepted in the SetApp store, and I keep getting positive reviews,
+feedback and feature suggestions! If you are interested, check it out [loshadki.app/openin](https://loshadki.app/openin/).
