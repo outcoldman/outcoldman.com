@@ -16,7 +16,7 @@ MBP that I could buy at that time with the price of close to $5,000. I tried to 
 lowball me to 2,000. The Apple Trade-In program is also willing to give me $1,750 for the laptop I bought a little over
 a year ago.
 
-I have decided to look at the better options to use it. My recent hobby is making macOS and iOS applications. With iOS,
+I have decided to look at the better options to use it. My recent hobby is making macOS and iOS applications ([loshadki.app](https://loshadki.app)). With iOS,
 it is pretty easy to test applications on previous iOS devices. You can download a simulator down to iOS 10. With macOS,
 it is more complicated. You can use Parallels to test applications on the previous macOS, but the experience is not that
 great. Performance is not even close to the macOS installed directly on Mac.
