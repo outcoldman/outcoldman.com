@@ -224,6 +224,10 @@ right browser for a right link.
 
 ## Developers
 
+- [ShellHistory](https://loshadki.app/shellhistory/). Full-Text Search over your shell history. This app allows to
+  backup and synchronize shell history with iCloud, and create nice looking Notebooks from the commands you use in shell.
+  This is one of the applications that I built.
+
 - [Sublime Merge](https://www.sublimemerge.com). Unfortunately, no Apple Silicon support yet. But similar to Sublime 
   Text, I love this product. Most of the work with git I do with a terminal. SM I use mostly for reviewing changes.
   

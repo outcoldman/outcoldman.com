@@ -9,6 +9,8 @@ title: 'DBHist: bash history in sqlite'
 slug: dbhist
 ---
 
+> If you are on Mac, I highly recommend trying the app I have built [ShellHistory](https://loshadki.app/shellhistory/).
+
 I spend a lot of time in terminals, as most of you. I never been more productive
 than when I started to use `dbhist`.
 
