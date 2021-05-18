@@ -8,8 +8,10 @@ tags:
 - sales
 - developer tools
 title: 'My apps were listed at the top of Developers Tools (iOS and Mac App Stores), I made around $60'
-slug: running-multiple-macos-side-by-side
+slug: apple-dev-tools
 draft: false
+aliases:
+ - /en/archive/2021/05/18/running-multiple-macos-side-by-side/
 ---
 
 I love building developer tools and utilities. And, I believe the reason is simple, because I am a developer, and 
