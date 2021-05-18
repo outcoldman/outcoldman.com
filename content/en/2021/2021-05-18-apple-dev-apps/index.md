@@ -111,3 +111,7 @@ Primarily for myself. I am sure there will be people who find them useful as wel
 
 I doubt that this hobby will help me to retire. But it brings me joy.
 
+## Discuss
+
+- [Hacker News](https://news.ycombinator.com/item?id=27198372)
+- [r/programming](https://www.reddit.com/r/programming/comments/nfh73s/my_apps_were_listed_at_the_top_of_developers/)
