@@ -98,6 +98,9 @@ because it does not run in Retina, and my guess, does not use ProMotion.
 
 ## Windows on Mac with Parallels
 
+> Updated: one of the readers pointed me to the link [Fix Settings or Start menu not working correctly in Windows 11 on Mac computers with Apple M1 chips](https://kb.parallels.com/128611),
+> that has a link to the latest version of Windows 11, which is not Dev Channel.
+
 You can only run arm64 version of Windows 11 at this moment. Dev Channel. Which means this version might be very unstable.
 But I gave it a try. There are a lot of issues with just clean installation. You need to figure out how to get to the
 Windows Store, because for some reason it does not come in the Dev Channel.
