@@ -153,7 +153,7 @@ export WINEPREFIX=~/Games/battle-net
 Prepare the folder for Diablo IV
 
 ```bash
-brew --prefix game-porting-toolkit`/bin/wine64 winecfg
+`brew --prefix game-porting-toolkit`/bin/wine64 winecfg
 ```
 
 A “Wine configuration” window should appear on your screen. Change the version of Windows to Windows 10. 
