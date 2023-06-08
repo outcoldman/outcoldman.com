@@ -248,3 +248,8 @@ to the top left corner of the window. It should replace the default icon.
 Now you can launch Diablo IV from the Applications folder.
 
 ![Diablo IV.app](in-game.png)
+
+## Having issues?
+
+If you have any questions, the best place to ask questions is [r/macgaming](https://www.reddit.com/r/macgaming/).
+You can reach out to me, but CrossOver and Wine is new to me too. I am just sharing my experience.
