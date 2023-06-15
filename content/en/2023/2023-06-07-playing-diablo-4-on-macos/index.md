@@ -255,3 +255,23 @@ Now you can launch Diablo IV from the Applications folder.
 
 If you have any questions, the best place to ask questions is [r/macgaming](https://www.reddit.com/r/macgaming/).
 You can reach out to me, but CrossOver and Wine is new to me too. I am just sharing my experience.
+
+### Troubleshooting and known issues
+
+#### Battle.net app is asking for an update
+
+If you see a message, that Battle.net app needs to be updated. At the current moment, you can still play Diablo IV without updating.
+Do not try to update Battle.net app, as it will not finish successfully and probably froze during the update.
+
+If you already started the process of updating, you will have to kill the wine processes in your Activity Monitor.
+To do that, open Activity Monitor, search for `wine` and kill all the processes.
+
+#### Removing HUD (performance overlay)
+
+During this guide I have used `gameportingtoolkit` to install the game, and later switched to `gameportingtoolkit-no-hud` to
+disable the performance overlay. Both of the binaries are available in the mounted volume of Game Porting Toolkit. 
+And during this guide I have copied both of them to `/usr/local/bin`. 
+
+---
+
+> If you want to suggest a change or update this guide, you can open a pull request to [this repository](https://github.com/outcoldman/outcoldman.com/blob/master/content/en/2023/2023-06-07-playing-diablo-4-on-macos/index.md).
