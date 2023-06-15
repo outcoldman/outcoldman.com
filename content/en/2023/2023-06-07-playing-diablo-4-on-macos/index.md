@@ -210,6 +210,8 @@ Quality Preset to Ultra, and changed FidelityFX Super Resolution to Quality. I s
 
 ![Diablo IV Graphics settings 1](./settings-1.jpg)
 
+{{< setapp >}}
+
 ![Diablo IV Graphics settings 2](./settings-2.jpg)
 
 
