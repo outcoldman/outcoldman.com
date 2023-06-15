@@ -234,7 +234,7 @@ export PATH="/usr/local/bin:${PATH}"
 (arch -x86_64 /usr/local/bin/gameportingtoolkit-no-hud ~/Games/battle-net  ~/Games/battle-net/drive_c/Program\ Files\ \(x86\)/Diablo\ IV/Diablo\ IV\ Launcher.exe) || true
 ```
 
-![Automator.app](automator-app.jpg)
+![Automator.app](automator-app.png)
 
 Save the application to `~/Applications/Diablo IV.app` (create the folder `~/Applications` if it doesn't exist).
 
