@@ -12,7 +12,7 @@ slug: playing-diablo-4-on-macos
 draft: false
 ---
 
-![Diablo IV on macOS](diablo-iv.png)
+![Diablo IV on macOS](diablo-iv.jpg)
 
 It is incredible. You can actually play AAA games on your Mac that require DirectX12. Diablo IV is one of them.
 I am able to play Diablo IV on my maxed-out MacBook Pro 16" 2023 with M2 Max 96Gb of RAM. 
@@ -208,9 +208,9 @@ Graphics settings to get the best performance. Later we can disable them.
 I am playing on 6k external display. My resolution is set to 3072x1728 in game. To get the best performance, I have set
 Quality Preset to Ultra, and changed FidelityFX Super Resolution to Quality. I see about 40-50 FPS in the game.
 
-![Diablo IV Graphics settings 1](./settings-1.png)
+![Diablo IV Graphics settings 1](./settings-1.jpg)
 
-![Diablo IV Graphics settings 2](./settings-2.png)
+![Diablo IV Graphics settings 2](./settings-2.jpg)
 
 
 ## Creating a shortcut to launch Diablo IV
@@ -234,7 +234,7 @@ export PATH="/usr/local/bin:${PATH}"
 (arch -x86_64 /usr/local/bin/gameportingtoolkit-no-hud ~/Games/battle-net  ~/Games/battle-net/drive_c/Program\ Files\ \(x86\)/Diablo\ IV/Diablo\ IV\ Launcher.exe) || true
 ```
 
-![Automator.app](automator-app.png)
+![Automator.app](automator-app.jpg)
 
 Save the application to `~/Applications/Diablo IV.app` (create the folder `~/Applications` if it doesn't exist).
 
@@ -247,7 +247,7 @@ to the top left corner of the window. It should replace the default icon.
 
 Now you can launch Diablo IV from the Applications folder.
 
-![Diablo IV.app](in-game.png)
+![Diablo IV.app](in-game.jpg)
 
 ## Having issues?
 
