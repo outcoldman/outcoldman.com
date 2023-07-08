@@ -249,6 +249,59 @@ Now you can launch Diablo IV from the Applications folder.
 
 ![Diablo IV.app](in-game.png)
 
+## How to upgrade to Game Porting Toolkit 1.0.2
+
+> At this point, we assume that you have already installed Game Porting Toolkit 1 using this guide.
+
+Make sure to download the latest Xcode 15 Beta 3, Command Line Tools for Xcode 13 Beta 3, and macOS 12 Beta 3.
+
+After that download `Game_porting_toolkit_beta_1.02.dmg` from [https://developer.apple.com/download/all](https://developer.apple.com/download/all/?q=game%20porting%20toolkit)
+and run downloaded `Game_porting_toolkit_beta.dmg`. It will mount a volume in `"/Volumes/Game Porting Toolkit-1.0"`.
+
+Open terminal. 
+
+Verify that Xcode command line tools are still pointing to Xcode Beta:
+
+```bash
+xcode-select -p
+```
+
+Should show something like `/Applications/Xcode-beta.app/Contents/Developer`.
+
+Update/install Rosetta
+
+```bash
+softwareupdate --install-rosetta
+```
+
+Switch to the x86_64 architecture
+
+```bash
+arch -x86_64 zsh
+```
+
+Point to the x86_64 version of Homebrew
+
+```text
+export PATH="/usr/local/bin:${PATH}"
+```
+
+And run the following commands (this command will take a long time to finish):
+
+```bash
+brew update
+brew upgrade
+```
+
+Now copy all the required executables and libraries to `/usr/local/bin`.
+
+```bash
+ditto /Volumes/Game\ Porting\ Toolkit-1.0/lib/ `brew --prefix game-porting-toolkit`/lib/
+cp /Volumes/Game\ Porting\ Toolkit-1.0/gameportingtoolkit* /usr/local/bin
+```
+
+At this point, you should be able to launch Diablo/Battle.net using that Automator shortcut we created earlier.
+
 ## Having issues?
 
 If you have any questions, the best place to ask questions is [r/macgaming](https://www.reddit.com/r/macgaming/).
