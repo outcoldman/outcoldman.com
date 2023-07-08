@@ -12,7 +12,7 @@ slug: playing-diablo-4-on-macos
 draft: false
 ---
 
-![Diablo IV on macOS](diablo-iv.png)
+![Diablo IV on macOS](diablo-iv.jpg)
 
 It is incredible. You can actually play AAA games on your Mac that require DirectX12. Diablo IV is one of them.
 I am able to play Diablo IV on my maxed-out MacBook Pro 16" 2023 with M2 Max 96Gb of RAM. 
@@ -208,9 +208,11 @@ Graphics settings to get the best performance. Later we can disable them.
 I am playing on 6k external display. My resolution is set to 3072x1728 in game. To get the best performance, I have set
 Quality Preset to Ultra, and changed FidelityFX Super Resolution to Quality. I see about 40-50 FPS in the game.
 
-![Diablo IV Graphics settings 1](./settings-1.png)
+![Diablo IV Graphics settings 1](./settings-1.jpg)
 
-![Diablo IV Graphics settings 2](./settings-2.png)
+{{< setapp >}}
+
+![Diablo IV Graphics settings 2](./settings-2.jpg)
 
 
 ## Creating a shortcut to launch Diablo IV
@@ -247,7 +249,7 @@ to the top left corner of the window. It should replace the default icon.
 
 Now you can launch Diablo IV from the Applications folder.
 
-![Diablo IV.app](in-game.png)
+![Diablo IV.app](in-game.jpg)
 
 ## How to upgrade to Game Porting Toolkit 1.0.2
 
@@ -306,3 +308,23 @@ At this point, you should be able to launch Diablo/Battle.net using that Automat
 
 If you have any questions, the best place to ask questions is [r/macgaming](https://www.reddit.com/r/macgaming/).
 You can reach out to me, but CrossOver and Wine is new to me too. I am just sharing my experience.
+
+### Troubleshooting and known issues
+
+#### Battle.net app is asking for an update
+
+If you see a message, that Battle.net app needs to be updated. At the current moment, you can still play Diablo IV without updating.
+Do not try to update Battle.net app, as it will not finish successfully and probably froze during the update.
+
+If you already started the process of updating, you will have to kill the wine processes in your Activity Monitor.
+To do that, open Activity Monitor, search for `wine` and kill all the processes.
+
+#### Removing HUD (performance overlay)
+
+During this guide I have used `gameportingtoolkit` to install the game, and later switched to `gameportingtoolkit-no-hud` to
+disable the performance overlay. Both of the binaries are available in the mounted volume of Game Porting Toolkit. 
+And during this guide I have copied both of them to `/usr/local/bin`. 
+
+---
+
+> If you want to suggest a change or update this guide, you can open a pull request to [this repository](https://github.com/outcoldman/outcoldman.com/blob/master/content/en/2023/2023-06-07-playing-diablo-4-on-macos/index.md).
