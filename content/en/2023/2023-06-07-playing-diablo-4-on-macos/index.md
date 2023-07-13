@@ -255,7 +255,7 @@ Now you can launch Diablo IV from the Applications folder.
 
 > At this point, we assume that you have already installed Game Porting Toolkit 1 using this guide.
 
-Make sure to download the latest Xcode 15 Beta 3, Command Line Tools for Xcode 13 Beta 3, and macOS 12 Beta 3.
+Make sure to download the latest Xcode 15 Beta 3, Command Line Tools for Xcode 15 Beta 3, and macOS 14 Beta 3.
 
 After that download `Game_porting_toolkit_beta_1.02.dmg` from [https://developer.apple.com/download/all](https://developer.apple.com/download/all/?q=game%20porting%20toolkit)
 and run downloaded `Game_porting_toolkit_beta.dmg`. It will mount a volume in `"/Volumes/Game Porting Toolkit-1.0"`.
