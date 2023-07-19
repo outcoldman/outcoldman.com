@@ -37,7 +37,13 @@ After downloading and installing, verify that they are used by default. Open ter
 xcode-select -p
 ```
 
-It should print something like:
+If your system does not have Xcode installed, it should print something like:
+
+```text
+/Library/Developer/CommandLineTools
+```
+
+If you do, it should print something like:
 
 ```text
 /Applications/Xcode-beta.app/Contents/Developer
