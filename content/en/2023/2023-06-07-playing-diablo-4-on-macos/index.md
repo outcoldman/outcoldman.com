@@ -25,9 +25,11 @@ Don't want to get credit on that, as I have found an almost working for me solut
 I am running macOS 14 Developer Beta 1 (Sonoma), but some people mentioned that it might work on macOS Ventura as well (the latest release 13.4).
 You need to have an Apple Silicon Mac, as it will not work on Intel-based Macs.
 
-### Install Command Line Tools for Xcode 15 Beta
+### Install Command Line Tools for Xcode 15 Beta 2
 
-Download Command Line Tools from [https://developer.apple.com/download/all/](https://developer.apple.com/download/all/?q=xcode%20command%20line%20tools%2015).
+Download Command Line Tools from [https://developer.apple.com/download/all/](https://developer.apple.com/download/all/?q=Command%20Line%20Tools%20for%20Xcode%2015%20beta%202).
+
+**Make sure to install the Beta 2 version!** Versions 3 and 4 have a [known issue](https://developer.apple.com/forums/thread/732940) which won't allow you to progress further in the guide.
 
 After downloading and installing, verify that they are used by default. Open terminal and run:
 
