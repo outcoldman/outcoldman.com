@@ -233,7 +233,11 @@ create a new Application. Add a `Run Shell Script` action and paste the followin
 
 export PATH="/usr/local/bin:${PATH}"
 
-(arch -x86_64 /usr/local/bin/gameportingtoolkit-no-hud ~/Games/battle-net  ~/Games/battle-net/drive_c/Program\ Files\ \(x86\)/Diablo\ IV/Diablo\ IV\ Launcher.exe) || true
+arch -x86_64 \
+  gameportingtoolkit-no-hud \
+    ~/Games/battle-net  \
+    ~/Games/battle-net/drive_c/Program\ Files\ \(x86\)/Diablo\ IV/Diablo\ IV\ Launcher.exe \
+    > /dev/null 2>&1 &
 ```
 
 ![Automator.app](automator-app.png)
