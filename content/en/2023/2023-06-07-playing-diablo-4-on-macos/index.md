@@ -203,7 +203,7 @@ After installing, you can launch the game.
 By default, you will see a performance HUD, that shows you FPS, CPU, and GPU usage. You can use it to configure the game
 Graphics settings to get the best performance. Later we can disable them.
 
-## Diablo IV Grahic settings
+## Diablo IV Graphics settings
 
 I am playing on 6k external display. My resolution is set to 3072x1728 in game. To get the best performance, I have set
 Quality Preset to Ultra, and changed FidelityFX Super Resolution to Quality. I see about 40-50 FPS in the game.
@@ -251,13 +251,13 @@ Now you can launch Diablo IV from the Applications folder.
 
 ![Diablo IV.app](in-game.jpg)
 
-## How to upgrade to Game Porting Toolkit 1.0.2
+## How to upgrade Game Porting Toolkit
 
 > At this point, we assume that you have already installed Game Porting Toolkit 1 using this guide.
 
-Make sure to download the latest Xcode 15 Beta 3, Command Line Tools for Xcode 15 Beta 3, and macOS 14 Beta 3.
+Make sure to download the latest Xcode 15 Beta, Command Line Tools for Xcode 15 Beta, and macOS 14 Beta.
 
-After that download `Game_porting_toolkit_beta_1.02.dmg` from [https://developer.apple.com/download/all](https://developer.apple.com/download/all/?q=game%20porting%20toolkit)
+After that download the latest `Game_porting_toolkit_beta_X.XX.dmg` from [https://developer.apple.com/download/all](https://developer.apple.com/download/all/?q=game%20porting%20toolkit)
 and run downloaded `Game_porting_toolkit_beta.dmg`. It will mount a volume in `"/Volumes/Game Porting Toolkit-1.0"`.
 
 Open terminal. 
