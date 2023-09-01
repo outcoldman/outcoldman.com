@@ -162,7 +162,7 @@ Choose Apply and then OK to exit winecfg.
 Install Game Porting Toolkit library directory into Wine’s library directory
 
 ```text
-ditto /Volumes/Game\ Porting\ Toolkit-1.0/lib/ `brew --prefix game-porting-toolkit`/lib/
+ditto /Volumes/Game\ Porting\ Toolkit-1.0/redist/lib/ `brew --prefix game-porting-toolkit`/lib/
 ```
 
 And copy all the required executables to `/usr/local/bin`, so you can access them later without attaching Game Porting Toolkit volume.
@@ -298,7 +298,7 @@ brew upgrade
 Now copy all the required executables and libraries to `/usr/local/bin`.
 
 ```bash
-ditto /Volumes/Game\ Porting\ Toolkit-1.0/lib/ `brew --prefix game-porting-toolkit`/lib/
+ditto /Volumes/Game\ Porting\ Toolkit-1.0/redist/lib/ `brew --prefix game-porting-toolkit`/lib/
 cp /Volumes/Game\ Porting\ Toolkit-1.0/gameportingtoolkit* /usr/local/bin
 ```
 
