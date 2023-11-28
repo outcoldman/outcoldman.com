@@ -22,30 +22,12 @@ Don't want to get credit on that, as I have found an almost working for me solut
 
 ## Prerequisites
 
-I am running macOS 14 Developer Beta 1 (Sonoma), but some people mentioned that it might work on macOS Ventura as well (the latest release 13.4).
+I am running the latest macOS 14 (Sonoma), but some people mentioned that it might work on macOS Ventura as well.
 You need to have an Apple Silicon Mac, as it will not work on Intel-based Macs.
 
-### Install Command Line Tools for Xcode 15 Beta
+### Install Command Line Tools for Xcode 15
 
-Download Command Line Tools from [https://developer.apple.com/download/all/](https://developer.apple.com/download/all/?q=xcode%20command%20line%20tools%2015).
-
-After downloading and installing, verify that they are used by default. Open terminal and run:
-
-```bash
-xcode-select -p
-```
-
-It should print something like:
-
-```text
-/Applications/Xcode-beta.app/Contents/Developer
-```
-
-If you see `Xcode.app` instead of `Xcode-beta.app`, then run:
-
-```bash
-xcode-select -s /Applications/Xcode-beta.app/Contents/Developer
-```
+Download and Install Command Line Tools from [https://developer.apple.com/download/all/](https://developer.apple.com/download/all/?q=xcode%20command%20line%20tools%2015).
 
 ### Install Rosetta 2
 
@@ -58,10 +40,10 @@ Open terminal and run:
 softwareupdate --install-rosetta
 ```
 
-## Install Game porting toolkit beta
+## Install Game porting toolkit
 
 Download it from [https://developer.apple.com/download/all](https://developer.apple.com/download/all/?q=game%20porting%20toolkit)
-and run `Game_porting_toolkit_beta.dmg`. It will mount a volume in `"/Volumes/Game Porting Toolkit-1.0"`.
+and run `Game_porting_toolkit_1.1.dmg`. It will mount a volume in `"/Volumes/Game Porting Toolkit-1.1"`.
 
 You can open `Read Me.rtf` file to read more about the Game porting toolkit and how to use it.
 
@@ -130,6 +112,8 @@ And install them
 brew -v install apple/apple/game-porting-toolkit
 ```
 
+> If you see an error similar to one I had, that svn is missing just run `brew install subversion` and try again.
+
 That command will run for a while (40 minutes on my MBP 16" 2023). It will install a lot of dependencies.
 
 ### Prepare Diablo IV
@@ -162,13 +146,13 @@ Choose Apply and then OK to exit winecfg.
 Install Game Porting Toolkit library directory into Wine’s library directory
 
 ```text
-ditto /Volumes/Game\ Porting\ Toolkit-1.0/redist/lib/ `brew --prefix game-porting-toolkit`/lib/
+ditto /Volumes/Game\ Porting\ Toolkit-1.1/redist/lib/ `brew --prefix game-porting-toolkit`/lib/
 ```
 
 And copy all the required executables to `/usr/local/bin`, so you can access them later without attaching Game Porting Toolkit volume.
 
 ```text
-cp /Volumes/Game\ Porting\ Toolkit-1.0/gameportingtoolkit* /usr/local/bin
+cp /Volumes/Game\ Porting\ Toolkit-1.1/gameportingtoolkit* /usr/local/bin
 ```
 
 Update a Windows version in Wine registry to match expected build by Battle.net app
@@ -253,22 +237,14 @@ Now you can launch Diablo IV from the Applications folder.
 
 ## How to upgrade Game Porting Toolkit
 
-> At this point, we assume that you have already installed Game Porting Toolkit 1 using this guide.
+> At this point, we assume that you have already installed Game Porting Toolkit 1.1 using this guide.
 
-Make sure to download the latest Xcode 15 Beta, Command Line Tools for Xcode 15 Beta, and macOS 14 Beta.
+Make sure to download the latest Xcode 15, Command Line Tools for Xcode 15, and macOS 14.
 
-After that download the latest `Game_porting_toolkit_beta_X.XX.dmg` from [https://developer.apple.com/download/all](https://developer.apple.com/download/all/?q=game%20porting%20toolkit)
-and run downloaded `Game_porting_toolkit_beta.dmg`. It will mount a volume in `"/Volumes/Game Porting Toolkit-1.0"`.
+After that download the latest `Game_porting_toolkit_X.XX.dmg` from [https://developer.apple.com/download/all](https://developer.apple.com/download/all/?q=game%20porting%20toolkit)
+and run downloaded `Game_porting_toolkit_1.1.dmg`. It will mount a volume in `"/Volumes/Game Porting Toolkit-1.1"`.
 
 Open terminal. 
-
-Verify that Xcode command line tools are still pointing to Xcode Beta:
-
-```bash
-xcode-select -p
-```
-
-Should show something like `/Applications/Xcode-beta.app/Contents/Developer`.
 
 Update/install Rosetta
 
@@ -298,8 +274,8 @@ brew upgrade
 Now copy all the required executables and libraries to `/usr/local/bin`.
 
 ```bash
-ditto /Volumes/Game\ Porting\ Toolkit-1.0/redist/lib/ `brew --prefix game-porting-toolkit`/lib/
-cp /Volumes/Game\ Porting\ Toolkit-1.0/gameportingtoolkit* /usr/local/bin
+ditto /Volumes/Game\ Porting\ Toolkit-1.1/redist/lib/ `brew --prefix game-porting-toolkit`/lib/
+cp /Volumes/Game\ Porting\ Toolkit-1.1/gameportingtoolkit* /usr/local/bin
 ```
 
 At this point, you should be able to launch Diablo/Battle.net using that Automator shortcut we created earlier.
