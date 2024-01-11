@@ -3,6 +3,6 @@
 
 /* TEAM */
 Creator: Denis Gladkikh
-Twitter: @outcoldman
+Mastodon: @outcoldman@techhub.social
 /* SITE */
 Software: Hugo

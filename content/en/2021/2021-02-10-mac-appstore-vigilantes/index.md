@@ -37,8 +37,6 @@ you can help developers and users with issues reported in this article [Scam iOS
 You suggested googling your alias. I did. I could not find anything. Yes, only one tweet about finding one app 
 was stealing user data. I am sure there are many more. Keep doing what you are doing.
 
-{{< tweet 1031428304543395840 >}}
-
 > *...*
 > 
 > *Now let's get to the point. First of all one of my A.I scanning algorithms triggered the following*
@@ -48,7 +46,9 @@ was stealing user data. I am sure there are many more. Keep doing what you are d
 
 A.I.? Seriously? You probably heard this joke, right?
 
-{{< tweet 1065778379612282885 >}}
+> - Difference between machine learning and AI:
+> - If it is written in Python, it's probably machine learning
+> - If it is written in PowerPoint, it's probably AI
 
 Ok, you can call it an A.I., I will call it a script.
 
