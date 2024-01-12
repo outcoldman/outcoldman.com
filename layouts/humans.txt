@@ -3,7 +3,7 @@
 
 /* TEAM */
 Creator: Denis Gladkikh
-Mastodon: @outcoldman@techhub.social
+Mastodon: @outcoldman@mastodon.social
 /* SITE */
 Last update: 2021-01-01
 Software: Hugo
