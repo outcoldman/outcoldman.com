@@ -13,7 +13,7 @@ draft: false
 First 24 hours with Vision Pro. It feels like a generation 1 product. Similar to how I felt with Apple Watch or Macbook M1,
 when they just came out. A lot of small issues here and there, but overall very impressed with the potential.
 
-# Issue 1: Glare from very bright light on lens. 
+## Issue 1: Glare from very bright light on lens. 
 
 Watching movies or playing games on Vision Pro is very straightforward. The screen does not have a lot of white lights, so
 it does not reflect on the lens. However, the first time you try to open Apple Books or connect to your Mac, or open a website
@@ -70,7 +70,7 @@ But nothing in background.
 to the 32-inches monitor that I have in front of me. It does take an adjustment to move your head a little bit more to see
 the whole screen, but adjustment is pretty quick.
 
-![macOS](./mac.png)
+![macOS](./mac.PNG)
 
 ## Summary
 
