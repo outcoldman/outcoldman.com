@@ -16,13 +16,6 @@ on meetups, blogs posts and conference talks.
 I am experienced individual contributor with strong Technical Lead skills.
 In the last years I am working for my own companies.
 
-## Contacts
-
-- Email: [public@denis.gladkikh.email](mailto:denis@gladkikh.email)
-- GitHub: [https://github.com/outcoldman](https://github.com/outcoldman)
-- Twitter: [https://twitter.com/outcoldman](https://twitter.com/outcoldman)
-- Instagram: [https://instagram.com/outcoldman](https://instagram.com/outcoldman)
-
 ## Work Experience
 
 ### 12/2020 - Present. [Loshadki](https://loshadki.app)

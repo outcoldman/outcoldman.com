@@ -27,6 +27,3 @@ Content licensed under the Creative Commons [CC BY 4.0](https://creativecommons.
 
 Source code examples published with [MIT License](https://opensource.org/licenses/MIT) (if not mentioned in the post).
 
-## Contact 
-
-Have question or feedback? Email me [public@denis.gladkikh.email](mailto:public@denis.gladkikh.email)
